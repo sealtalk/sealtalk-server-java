@@ -1,0 +1,52 @@
+server:
+  port: ${sealtalk-config.server_port}
+
+spring:
+  flyway:
+    enabled: true
+    # 禁止清理数据库表
+    clean-disabled: true
+    baseline-description: baselines
+    # 如果数据库不是空表，需要设置成 true，否则启动报错
+    baseline-on-migrate: true
+    baseline-version: 2
+
+
+
+mybatis:
+  mapper-locations: classpath:mybatis/*.xml
+
+sealtalk:
+  datasource:
+    driverclassname: com.mysql.jdbc.Driver
+    url: jdbc:mysql://${sealtalk-config.db_host}:${sealtalk-config.db_port}/${sealtalk-config.db_name}?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=utf8&useCompress=true
+    username: ${sealtalk-config.db_user}
+    password: ${sealtalk-config.db_password}
+    maximum-pool-size: 10
+
+sealtalk-config:
+  auth_cookie_name: rong_auth_cookie
+  auth_cookie_key: wesddfsdfssdsdssd
+  nickname_cookie_name:
+  auth_cookie_max_age: 2592000000
+  rongcloud_sms_register_template_id: o2jdj82dagT3tIPJCS2
+  rongcloud_app_key: 8ljko22vuee // 此处为假数据
+  rongcloud_app_secret: y0je2id4h1LWz // 此处为假数据
+  qiniu_access_key: kokjii22n2dentEiMxpQ8Qskkookn2ddnX // 此处为假数据
+  qiniu_secret_key: 0pknd92neke9dm1plsn20C6Hni3TIVgjw5 // 此处为假数据
+  qiniu_bucket_name: devtalk-image
+  qiniu_bucket_domain: self.domain.com // 此处为假数据
+  yunpian_api_key: 123iijmbbi9kn4bsp92odd21d213q // 此处为假数据
+  yunpian_sms_host: sms.yunpian.com
+  yunpian_internal_sms_host: us.yunpian.com
+  yunpian_send_sms_uri: /v2/sms/tpl_single_send.json
+  yunpian_get_tpl_uri: /v2/tpl/get.json
+  n3d_key: 11EdDIaqpcim
+  auth_cookie_domain: devtalk.im
+  cors_hosts: http://web.devtalk.im
+  server_port: 8080
+  db_name: sealtalk
+  db_user: root
+  db_password: root
+  db_host: 127.0.0.1
+  db_port: 3306

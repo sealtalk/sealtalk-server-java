@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <classPathEntry location="src/main/resources/lib/mysql-connector-java-5.1.31.jar"/>
+
+    <context id="Mysql" targetRuntime="MyBatis3" defaultModelType="flat">
+        <property name="javaFileEncoding" value="UTF-8"/>
+
+        <!--https://github.com/itfsw/mybatis-generator-plugin-->
+        <!-- 查询单条数据插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.SelectOneByExamplePlugin"/>
+        <!-- MySQL分页插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.LimitPlugin"/>
+        <!-- Example Criteria 增强插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.ExampleEnhancedPlugin"/>
+        <!-- 批量插入插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.BatchInsertPlugin">
+            <!--
+            开启后可以实现官方插件根据属性是否为空决定是否插入该字段功能
+            ！需开启allowMultiQueries=true多条sql提交操作，所以不建议使用！插件默认不开启
+            -->
+            <property name="allowMultiQueries" value="false"/>
+        </plugin>
+        <!-- 数据Model属性对应Column获取插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.ModelColumnPlugin"/>
+        <!-- 存在即更新插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.UpsertPlugin">
+            <!--
+            支持upsertByExample，upsertByExampleSelective操作
+            ！需开启allowMultiQueries=true多条sql提交操作，所以不建议使用！插件默认不开启
+            -->
+            <property name="allowMultiQueries" value="true"/>
+            <!--
+            开启批量功能，支持batchUpsert,batchUpsertWithBLOBs,batchUpserSelective
+            ！这几个方法中无法支持IncrementsPlugin的方法！插件默认不开启
+            -->
+            <property name="allowBatchUpsert" value="true"/>
+        </plugin>
+        <!-- Selective选择插入更新增强插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.SelectiveEnhancedPlugin"/>
+
+        <!-- 查询结果选择性返回插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.SelectSelectivePlugin"/>
+
+        <!-- Lombok插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.LombokPlugin">
+            <!-- @Builder 必须在 Lombok 版本 >= 1.18.2 的情况下 -->
+            <property name="@Builder" value="false"/>
+            <!-- @NoArgsConstructor 和 @AllArgsConstructor 使用规则和Lombok一致 -->
+            <property name="@AllArgsConstructor" value="false"/>
+            <property name="@NoArgsConstructor" value="false"/>
+        </plugin>
+
+        <commentGenerator>
+            <property name="suppressAllComments" value="true" />
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+          connectionURL="jdbc:mysql://127.0.0.1:3306/sealtalk?useUnicode=true"
+          userId="root"
+          password="root">
+        </jdbcConnection>
+
+        <javaModelGenerator
+          targetPackage="com.rcloud.server.sealtalk.domain"
+          targetProject="src/main/java">
+        </javaModelGenerator>
+        <sqlMapGenerator
+          targetPackage="mybatis"
+          targetProject="src/main/resources">
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER"
+          targetPackage="com.rcloud.server.sealtalk.dao"
+          targetProject="src/main/java">
+            <property name="suppressAllComments" value="true"/>
+        </javaClientGenerator>
+
+        <!-- ============= all model ============= -->
+        <table tableName="blacklists" domainObjectName="BlackLists">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="data_versions" domainObjectName="DataVersions">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="friendships" domainObjectName="Friendships">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="group_bulletins" domainObjectName="GroupBulletins">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="group_exited_lists" domainObjectName="GroupExitedLists">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="group_favs" domainObjectName="GroupFavs">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="group_members" domainObjectName="GroupMembers">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="group_receivers" domainObjectName="GroupReceivers">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="group_syncs" domainObjectName="GroupSyncs">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="groups" domainObjectName="Groups">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="login_logs" domainObjectName="LoginLogs">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="screen_statuses" domainObjectName="ScreenStatuses">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="users" domainObjectName="Users">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="verification_codes" domainObjectName="VerificationCodes">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+        <table tableName="verification_violations" domainObjectName="VerificationViolations">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+    </context>
+</generatorConfiguration>
+
+
+
+
+
+
+
+
+
+
+
+

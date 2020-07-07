@@ -1,0 +1,1468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.GroupsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.Groups">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="portraitUri" jdbcType="VARCHAR" property="portraitUri" />
+    <result column="memberCount" jdbcType="INTEGER" property="memberCount" />
+    <result column="maxMemberCount" jdbcType="INTEGER" property="maxMemberCount" />
+    <result column="creatorId" jdbcType="INTEGER" property="creatorId" />
+    <result column="certiStatus" jdbcType="INTEGER" property="certiStatus" />
+    <result column="isMute" jdbcType="INTEGER" property="isMute" />
+    <result column="clearStatus" jdbcType="INTEGER" property="clearStatus" />
+    <result column="clearTimeAt" jdbcType="BIGINT" property="clearTimeAt" />
+    <result column="memberProtection" jdbcType="INTEGER" property="memberProtection" />
+    <result column="copiedTime" jdbcType="BIGINT" property="copiedTime" />
+    <result column="timestamp" jdbcType="BIGINT" property="timestamp" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deletedAt" jdbcType="TIMESTAMP" property="deletedAt" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.rcloud.server.sealtalk.domain.Groups">
+    <result column="bulletin" jdbcType="LONGVARCHAR" property="bulletin" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+    clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+    deletedAt
+  </sql>
+  <sql id="Blob_Column_List">
+    bulletin
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.rcloud.server.sealtalk.domain.GroupsExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from groups
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="rows != null">
+      <if test="offset != null">
+        limit ${offset}, ${rows}
+      </if>
+      <if test="offset == null">
+        limit ${rows}
+      </if>
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.rcloud.server.sealtalk.domain.GroupsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from groups
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="rows != null">
+      <if test="offset != null">
+        limit ${offset}, ${rows}
+      </if>
+      <if test="offset == null">
+        limit ${rows}
+      </if>
+    </if>
+  </select>
+  <select id="selectByExampleSelective" parameterType="map" resultMap="ResultMapWithBLOBs">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    select
+    <if test="example.distinct">
+      distinct
+    </if>
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName}
+        </foreach>
+      </when>
+      <otherwise>
+        id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+          clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+          deletedAt, bulletin
+      </otherwise>
+    </choose>
+    from groups
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    <if test="example.orderByClause != null">
+      order by ${example.orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from groups
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByPrimaryKeySelective" parameterType="map" resultMap="ResultMapWithBLOBs">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    select
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName}
+        </foreach>
+      </when>
+      <otherwise>
+        id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+          clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+          deletedAt, bulletin
+      </otherwise>
+    </choose>
+    from groups
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from groups
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.rcloud.server.sealtalk.domain.GroupsExample">
+    delete from groups
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.rcloud.server.sealtalk.domain.Groups">
+    insert into groups (id, name, portraitUri, 
+      memberCount, maxMemberCount, creatorId, 
+      certiStatus, isMute, clearStatus, 
+      clearTimeAt, memberProtection, copiedTime, 
+      timestamp, createdAt, updatedAt, 
+      deletedAt, bulletin)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{portraitUri,jdbcType=VARCHAR}, 
+      #{memberCount,jdbcType=INTEGER}, #{maxMemberCount,jdbcType=INTEGER}, #{creatorId,jdbcType=INTEGER}, 
+      #{certiStatus,jdbcType=INTEGER}, #{isMute,jdbcType=INTEGER}, #{clearStatus,jdbcType=INTEGER}, 
+      #{clearTimeAt,jdbcType=BIGINT}, #{memberProtection,jdbcType=INTEGER}, #{copiedTime,jdbcType=BIGINT}, 
+      #{timestamp,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{deletedAt,jdbcType=TIMESTAMP}, #{bulletin,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach close=")" collection="selective" item="column" open="(" separator=",">
+          ${column.escapedColumnName}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="record.id != null">
+            id,
+          </if>
+          <if test="record.name != null">
+            name,
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri,
+          </if>
+          <if test="record.memberCount != null">
+            memberCount,
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount,
+          </if>
+          <if test="record.creatorId != null">
+            creatorId,
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus,
+          </if>
+          <if test="record.isMute != null">
+            isMute,
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus,
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt,
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection,
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime,
+          </if>
+          <if test="record.timestamp != null">
+            timestamp,
+          </if>
+          <if test="record.createdAt != null">
+            createdAt,
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt,
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt,
+          </if>
+          <if test="record.bulletin != null">
+            bulletin,
+          </if>
+        </trim>
+        <trim prefix="(" suffix=")" suffixOverrides="," />
+      </otherwise>
+    </choose>
+    values
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach close=")" collection="selective" item="column" open="(" separator=",">
+          #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="record.id != null">
+            #{record.id,jdbcType=INTEGER},
+          </if>
+          <if test="record.name != null">
+            #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+  </insert>
+  <select id="countByExample" parameterType="com.rcloud.server.sealtalk.domain.GroupsExample" resultType="java.lang.Long">
+    select count(*) from groups
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    update groups
+    SET
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName} = #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim suffixOverrides=",">
+          <if test="record.id != null">
+            id = #{record.id,jdbcType=INTEGER},
+          </if>
+          <if test="record.name != null">
+            name = #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri = #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            memberCount = #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            creatorId = #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus = #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            isMute = #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus = #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection = #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime = #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            timestamp = #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            createdAt = #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            bulletin = #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update groups
+    set id = #{record.id,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      portraitUri = #{record.portraitUri,jdbcType=VARCHAR},
+      memberCount = #{record.memberCount,jdbcType=INTEGER},
+      maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER},
+      creatorId = #{record.creatorId,jdbcType=INTEGER},
+      certiStatus = #{record.certiStatus,jdbcType=INTEGER},
+      isMute = #{record.isMute,jdbcType=INTEGER},
+      clearStatus = #{record.clearStatus,jdbcType=INTEGER},
+      clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT},
+      memberProtection = #{record.memberProtection,jdbcType=INTEGER},
+      copiedTime = #{record.copiedTime,jdbcType=BIGINT},
+      timestamp = #{record.timestamp,jdbcType=BIGINT},
+      createdAt = #{record.createdAt,jdbcType=TIMESTAMP},
+      updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP},
+      deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP},
+      bulletin = #{record.bulletin,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update groups
+    set id = #{record.id,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      portraitUri = #{record.portraitUri,jdbcType=VARCHAR},
+      memberCount = #{record.memberCount,jdbcType=INTEGER},
+      maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER},
+      creatorId = #{record.creatorId,jdbcType=INTEGER},
+      certiStatus = #{record.certiStatus,jdbcType=INTEGER},
+      isMute = #{record.isMute,jdbcType=INTEGER},
+      clearStatus = #{record.clearStatus,jdbcType=INTEGER},
+      clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT},
+      memberProtection = #{record.memberProtection,jdbcType=INTEGER},
+      copiedTime = #{record.copiedTime,jdbcType=BIGINT},
+      timestamp = #{record.timestamp,jdbcType=BIGINT},
+      createdAt = #{record.createdAt,jdbcType=TIMESTAMP},
+      updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP},
+      deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    update groups
+    SET
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName} = #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim suffixOverrides=",">
+          <if test="record.name != null">
+            name = #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri = #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            memberCount = #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            creatorId = #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus = #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            isMute = #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus = #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection = #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime = #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            timestamp = #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            createdAt = #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            bulletin = #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+    where id = #{record.id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.rcloud.server.sealtalk.domain.Groups">
+    update groups
+    set name = #{name,jdbcType=VARCHAR},
+      portraitUri = #{portraitUri,jdbcType=VARCHAR},
+      memberCount = #{memberCount,jdbcType=INTEGER},
+      maxMemberCount = #{maxMemberCount,jdbcType=INTEGER},
+      creatorId = #{creatorId,jdbcType=INTEGER},
+      certiStatus = #{certiStatus,jdbcType=INTEGER},
+      isMute = #{isMute,jdbcType=INTEGER},
+      clearStatus = #{clearStatus,jdbcType=INTEGER},
+      clearTimeAt = #{clearTimeAt,jdbcType=BIGINT},
+      memberProtection = #{memberProtection,jdbcType=INTEGER},
+      copiedTime = #{copiedTime,jdbcType=BIGINT},
+      timestamp = #{timestamp,jdbcType=BIGINT},
+      createdAt = #{createdAt,jdbcType=TIMESTAMP},
+      updatedAt = #{updatedAt,jdbcType=TIMESTAMP},
+      deletedAt = #{deletedAt,jdbcType=TIMESTAMP},
+      bulletin = #{bulletin,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.rcloud.server.sealtalk.domain.Groups">
+    update groups
+    set name = #{name,jdbcType=VARCHAR},
+      portraitUri = #{portraitUri,jdbcType=VARCHAR},
+      memberCount = #{memberCount,jdbcType=INTEGER},
+      maxMemberCount = #{maxMemberCount,jdbcType=INTEGER},
+      creatorId = #{creatorId,jdbcType=INTEGER},
+      certiStatus = #{certiStatus,jdbcType=INTEGER},
+      isMute = #{isMute,jdbcType=INTEGER},
+      clearStatus = #{clearStatus,jdbcType=INTEGER},
+      clearTimeAt = #{clearTimeAt,jdbcType=BIGINT},
+      memberProtection = #{memberProtection,jdbcType=INTEGER},
+      copiedTime = #{copiedTime,jdbcType=BIGINT},
+      timestamp = #{timestamp,jdbcType=BIGINT},
+      createdAt = #{createdAt,jdbcType=TIMESTAMP},
+      updatedAt = #{updatedAt,jdbcType=TIMESTAMP},
+      deletedAt = #{deletedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectOneByExample" parameterType="com.rcloud.server.sealtalk.domain.GroupsExample" resultMap="BaseResultMap">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    select
+    <include refid="Base_Column_List" />
+    from groups
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    limit 1
+  </select>
+  <select id="selectOneByExampleWithBLOBs" parameterType="com.rcloud.server.sealtalk.domain.GroupsExample" resultMap="ResultMapWithBLOBs">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from groups
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    limit 1
+  </select>
+  <select id="selectOneByExampleSelective" parameterType="map" resultMap="ResultMapWithBLOBs">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    select
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName}
+        </foreach>
+      </when>
+      <otherwise>
+        id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+          clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+          deletedAt, bulletin
+      </otherwise>
+    </choose>
+    from groups
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    <if test="example.orderByClause != null">
+      order by ${example.orderByClause}
+    </if>
+    limit 1
+  </select>
+  <insert id="batchInsert" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt, bulletin)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=INTEGER}, #{item.name,jdbcType=VARCHAR}, #{item.portraitUri,jdbcType=VARCHAR}, 
+        #{item.memberCount,jdbcType=INTEGER}, #{item.maxMemberCount,jdbcType=INTEGER}, 
+        #{item.creatorId,jdbcType=INTEGER}, #{item.certiStatus,jdbcType=INTEGER}, #{item.isMute,jdbcType=INTEGER}, 
+        #{item.clearStatus,jdbcType=INTEGER}, #{item.clearTimeAt,jdbcType=BIGINT}, #{item.memberProtection,jdbcType=INTEGER}, 
+        #{item.copiedTime,jdbcType=BIGINT}, #{item.timestamp,jdbcType=BIGINT}, #{item.createdAt,jdbcType=TIMESTAMP}, 
+        #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.deletedAt,jdbcType=TIMESTAMP}, #{item.bulletin,jdbcType=LONGVARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=INTEGER}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'portraitUri'.toString() == column.value">
+          #{item.portraitUri,jdbcType=VARCHAR}
+        </if>
+        <if test="'memberCount'.toString() == column.value">
+          #{item.memberCount,jdbcType=INTEGER}
+        </if>
+        <if test="'maxMemberCount'.toString() == column.value">
+          #{item.maxMemberCount,jdbcType=INTEGER}
+        </if>
+        <if test="'creatorId'.toString() == column.value">
+          #{item.creatorId,jdbcType=INTEGER}
+        </if>
+        <if test="'certiStatus'.toString() == column.value">
+          #{item.certiStatus,jdbcType=INTEGER}
+        </if>
+        <if test="'isMute'.toString() == column.value">
+          #{item.isMute,jdbcType=INTEGER}
+        </if>
+        <if test="'clearStatus'.toString() == column.value">
+          #{item.clearStatus,jdbcType=INTEGER}
+        </if>
+        <if test="'clearTimeAt'.toString() == column.value">
+          #{item.clearTimeAt,jdbcType=BIGINT}
+        </if>
+        <if test="'memberProtection'.toString() == column.value">
+          #{item.memberProtection,jdbcType=INTEGER}
+        </if>
+        <if test="'copiedTime'.toString() == column.value">
+          #{item.copiedTime,jdbcType=BIGINT}
+        </if>
+        <if test="'timestamp'.toString() == column.value">
+          #{item.timestamp,jdbcType=BIGINT}
+        </if>
+        <if test="'createdAt'.toString() == column.value">
+          #{item.createdAt,jdbcType=TIMESTAMP}
+        </if>
+        <if test="'updatedAt'.toString() == column.value">
+          #{item.updatedAt,jdbcType=TIMESTAMP}
+        </if>
+        <if test="'deletedAt'.toString() == column.value">
+          #{item.deletedAt,jdbcType=TIMESTAMP}
+        </if>
+        <if test="'bulletin'.toString() == column.value">
+          #{item.bulletin,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+  <insert id="upsertSelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach close=")" collection="selective" item="column" open="(" separator=",">
+          ${column.escapedColumnName}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="record.id != null">
+            id,
+          </if>
+          <if test="record.name != null">
+            name,
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri,
+          </if>
+          <if test="record.memberCount != null">
+            memberCount,
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount,
+          </if>
+          <if test="record.creatorId != null">
+            creatorId,
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus,
+          </if>
+          <if test="record.isMute != null">
+            isMute,
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus,
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt,
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection,
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime,
+          </if>
+          <if test="record.timestamp != null">
+            timestamp,
+          </if>
+          <if test="record.createdAt != null">
+            createdAt,
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt,
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt,
+          </if>
+          <if test="record.bulletin != null">
+            bulletin,
+          </if>
+        </trim>
+        <trim prefix="(" suffix=")" suffixOverrides="," />
+      </otherwise>
+    </choose>
+    values
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach close=")" collection="selective" item="column" open="(" separator=",">
+          #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="record.id != null">
+            #{record.id,jdbcType=INTEGER},
+          </if>
+          <if test="record.name != null">
+            #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+    on duplicate key update 
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName} = #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim suffixOverrides=",">
+          <if test="record.id != null">
+            id = #{record.id,jdbcType=INTEGER},
+          </if>
+          <if test="record.name != null">
+            name = #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri = #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            memberCount = #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            creatorId = #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus = #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            isMute = #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus = #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection = #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime = #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            timestamp = #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            createdAt = #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            bulletin = #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+  </insert>
+  <update id="upsertByExampleSelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    update groups
+    set
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          ${column.escapedColumnName} = #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim suffixOverrides=",">
+          <if test="record.id != null">
+            id = #{record.id,jdbcType=INTEGER},
+          </if>
+          <if test="record.name != null">
+            name = #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri = #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            memberCount = #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            creatorId = #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus = #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            isMute = #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus = #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection = #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime = #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            timestamp = #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            createdAt = #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            bulletin = #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    ;
+    insert into groups
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach close=")" collection="selective" item="column" open="(" separator=",">
+          ${column.escapedColumnName}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="record.id != null">
+            id,
+          </if>
+          <if test="record.name != null">
+            name,
+          </if>
+          <if test="record.portraitUri != null">
+            portraitUri,
+          </if>
+          <if test="record.memberCount != null">
+            memberCount,
+          </if>
+          <if test="record.maxMemberCount != null">
+            maxMemberCount,
+          </if>
+          <if test="record.creatorId != null">
+            creatorId,
+          </if>
+          <if test="record.certiStatus != null">
+            certiStatus,
+          </if>
+          <if test="record.isMute != null">
+            isMute,
+          </if>
+          <if test="record.clearStatus != null">
+            clearStatus,
+          </if>
+          <if test="record.clearTimeAt != null">
+            clearTimeAt,
+          </if>
+          <if test="record.memberProtection != null">
+            memberProtection,
+          </if>
+          <if test="record.copiedTime != null">
+            copiedTime,
+          </if>
+          <if test="record.timestamp != null">
+            timestamp,
+          </if>
+          <if test="record.createdAt != null">
+            createdAt,
+          </if>
+          <if test="record.updatedAt != null">
+            updatedAt,
+          </if>
+          <if test="record.deletedAt != null">
+            deletedAt,
+          </if>
+          <if test="record.bulletin != null">
+            bulletin,
+          </if>
+        </trim>
+        <trim prefix="(" suffix=")" suffixOverrides="," />
+      </otherwise>
+    </choose>
+    select
+    <choose>
+      <when test="selective != null and selective.length > 0">
+        <foreach collection="selective" item="column" separator=",">
+          #{record.${column.javaProperty},jdbcType=${column.jdbcType}}
+        </foreach>
+      </when>
+      <otherwise>
+        <trim suffixOverrides=",">
+          <if test="record.id != null">
+            #{record.id,jdbcType=INTEGER},
+          </if>
+          <if test="record.name != null">
+            #{record.name,jdbcType=VARCHAR},
+          </if>
+          <if test="record.portraitUri != null">
+            #{record.portraitUri,jdbcType=VARCHAR},
+          </if>
+          <if test="record.memberCount != null">
+            #{record.memberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.maxMemberCount != null">
+            #{record.maxMemberCount,jdbcType=INTEGER},
+          </if>
+          <if test="record.creatorId != null">
+            #{record.creatorId,jdbcType=INTEGER},
+          </if>
+          <if test="record.certiStatus != null">
+            #{record.certiStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.isMute != null">
+            #{record.isMute,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearStatus != null">
+            #{record.clearStatus,jdbcType=INTEGER},
+          </if>
+          <if test="record.clearTimeAt != null">
+            #{record.clearTimeAt,jdbcType=BIGINT},
+          </if>
+          <if test="record.memberProtection != null">
+            #{record.memberProtection,jdbcType=INTEGER},
+          </if>
+          <if test="record.copiedTime != null">
+            #{record.copiedTime,jdbcType=BIGINT},
+          </if>
+          <if test="record.timestamp != null">
+            #{record.timestamp,jdbcType=BIGINT},
+          </if>
+          <if test="record.createdAt != null">
+            #{record.createdAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.updatedAt != null">
+            #{record.updatedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.deletedAt != null">
+            #{record.deletedAt,jdbcType=TIMESTAMP},
+          </if>
+          <if test="record.bulletin != null">
+            #{record.bulletin,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+      </otherwise>
+    </choose>
+    from dual where not exists
+    (
+    select 1 from groups
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    )
+  </update>
+  <insert id="upsert" parameterType="com.rcloud.server.sealtalk.domain.Groups">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt)
+    values
+    (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{portraitUri,jdbcType=VARCHAR}, 
+      #{memberCount,jdbcType=INTEGER}, #{maxMemberCount,jdbcType=INTEGER}, #{creatorId,jdbcType=INTEGER}, 
+      #{certiStatus,jdbcType=INTEGER}, #{isMute,jdbcType=INTEGER}, #{clearStatus,jdbcType=INTEGER}, 
+      #{clearTimeAt,jdbcType=BIGINT}, #{memberProtection,jdbcType=INTEGER}, #{copiedTime,jdbcType=BIGINT}, 
+      #{timestamp,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{deletedAt,jdbcType=TIMESTAMP})
+    on duplicate key update 
+    id = #{id,jdbcType=INTEGER}, 
+    name = #{name,jdbcType=VARCHAR}, 
+    portraitUri = #{portraitUri,jdbcType=VARCHAR}, 
+    memberCount = #{memberCount,jdbcType=INTEGER}, 
+    maxMemberCount = #{maxMemberCount,jdbcType=INTEGER}, 
+    creatorId = #{creatorId,jdbcType=INTEGER}, 
+    certiStatus = #{certiStatus,jdbcType=INTEGER}, 
+    isMute = #{isMute,jdbcType=INTEGER}, 
+    clearStatus = #{clearStatus,jdbcType=INTEGER}, 
+    clearTimeAt = #{clearTimeAt,jdbcType=BIGINT}, 
+    memberProtection = #{memberProtection,jdbcType=INTEGER}, 
+    copiedTime = #{copiedTime,jdbcType=BIGINT}, 
+    timestamp = #{timestamp,jdbcType=BIGINT}, 
+    createdAt = #{createdAt,jdbcType=TIMESTAMP}, 
+    updatedAt = #{updatedAt,jdbcType=TIMESTAMP}, 
+    deletedAt = #{deletedAt,jdbcType=TIMESTAMP}
+  </insert>
+  <update id="upsertByExample" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    update groups
+    set
+    id = #{record.id,jdbcType=INTEGER}, 
+    name = #{record.name,jdbcType=VARCHAR}, 
+    portraitUri = #{record.portraitUri,jdbcType=VARCHAR}, 
+    memberCount = #{record.memberCount,jdbcType=INTEGER}, 
+    maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER}, 
+    creatorId = #{record.creatorId,jdbcType=INTEGER}, 
+    certiStatus = #{record.certiStatus,jdbcType=INTEGER}, 
+    isMute = #{record.isMute,jdbcType=INTEGER}, 
+    clearStatus = #{record.clearStatus,jdbcType=INTEGER}, 
+    clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT}, 
+    memberProtection = #{record.memberProtection,jdbcType=INTEGER}, 
+    copiedTime = #{record.copiedTime,jdbcType=BIGINT}, 
+    timestamp = #{record.timestamp,jdbcType=BIGINT}, 
+    createdAt = #{record.createdAt,jdbcType=TIMESTAMP}, 
+    updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP}, 
+    deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    ;
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt)
+    select
+    #{record.id,jdbcType=INTEGER}, #{record.name,jdbcType=VARCHAR}, #{record.portraitUri,jdbcType=VARCHAR}, 
+      #{record.memberCount,jdbcType=INTEGER}, #{record.maxMemberCount,jdbcType=INTEGER}, 
+      #{record.creatorId,jdbcType=INTEGER}, #{record.certiStatus,jdbcType=INTEGER}, #{record.isMute,jdbcType=INTEGER}, 
+      #{record.clearStatus,jdbcType=INTEGER}, #{record.clearTimeAt,jdbcType=BIGINT}, 
+      #{record.memberProtection,jdbcType=INTEGER}, #{record.copiedTime,jdbcType=BIGINT}, 
+      #{record.timestamp,jdbcType=BIGINT}, #{record.createdAt,jdbcType=TIMESTAMP}, #{record.updatedAt,jdbcType=TIMESTAMP}, 
+      #{record.deletedAt,jdbcType=TIMESTAMP}
+    from dual where not exists
+    (
+    select 1 from groups
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    )
+  </update>
+  <insert id="upsertWithBLOBs" parameterType="com.rcloud.server.sealtalk.domain.Groups">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt, bulletin)
+    values
+    (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{portraitUri,jdbcType=VARCHAR}, 
+      #{memberCount,jdbcType=INTEGER}, #{maxMemberCount,jdbcType=INTEGER}, #{creatorId,jdbcType=INTEGER}, 
+      #{certiStatus,jdbcType=INTEGER}, #{isMute,jdbcType=INTEGER}, #{clearStatus,jdbcType=INTEGER}, 
+      #{clearTimeAt,jdbcType=BIGINT}, #{memberProtection,jdbcType=INTEGER}, #{copiedTime,jdbcType=BIGINT}, 
+      #{timestamp,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{deletedAt,jdbcType=TIMESTAMP}, #{bulletin,jdbcType=LONGVARCHAR})
+    on duplicate key update 
+    id = #{id,jdbcType=INTEGER}, 
+    name = #{name,jdbcType=VARCHAR}, 
+    portraitUri = #{portraitUri,jdbcType=VARCHAR}, 
+    memberCount = #{memberCount,jdbcType=INTEGER}, 
+    maxMemberCount = #{maxMemberCount,jdbcType=INTEGER}, 
+    creatorId = #{creatorId,jdbcType=INTEGER}, 
+    certiStatus = #{certiStatus,jdbcType=INTEGER}, 
+    isMute = #{isMute,jdbcType=INTEGER}, 
+    clearStatus = #{clearStatus,jdbcType=INTEGER}, 
+    clearTimeAt = #{clearTimeAt,jdbcType=BIGINT}, 
+    memberProtection = #{memberProtection,jdbcType=INTEGER}, 
+    copiedTime = #{copiedTime,jdbcType=BIGINT}, 
+    timestamp = #{timestamp,jdbcType=BIGINT}, 
+    createdAt = #{createdAt,jdbcType=TIMESTAMP}, 
+    updatedAt = #{updatedAt,jdbcType=TIMESTAMP}, 
+    deletedAt = #{deletedAt,jdbcType=TIMESTAMP}, 
+    bulletin = #{bulletin,jdbcType=LONGVARCHAR}
+  </insert>
+  <update id="upsertByExampleWithBLOBs" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    update groups
+    set
+    id = #{record.id,jdbcType=INTEGER}, 
+    name = #{record.name,jdbcType=VARCHAR}, 
+    portraitUri = #{record.portraitUri,jdbcType=VARCHAR}, 
+    memberCount = #{record.memberCount,jdbcType=INTEGER}, 
+    maxMemberCount = #{record.maxMemberCount,jdbcType=INTEGER}, 
+    creatorId = #{record.creatorId,jdbcType=INTEGER}, 
+    certiStatus = #{record.certiStatus,jdbcType=INTEGER}, 
+    isMute = #{record.isMute,jdbcType=INTEGER}, 
+    clearStatus = #{record.clearStatus,jdbcType=INTEGER}, 
+    clearTimeAt = #{record.clearTimeAt,jdbcType=BIGINT}, 
+    memberProtection = #{record.memberProtection,jdbcType=INTEGER}, 
+    copiedTime = #{record.copiedTime,jdbcType=BIGINT}, 
+    timestamp = #{record.timestamp,jdbcType=BIGINT}, 
+    createdAt = #{record.createdAt,jdbcType=TIMESTAMP}, 
+    updatedAt = #{record.updatedAt,jdbcType=TIMESTAMP}, 
+    deletedAt = #{record.deletedAt,jdbcType=TIMESTAMP}, 
+    bulletin = #{record.bulletin,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    ;
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt, bulletin)
+    select
+    #{record.id,jdbcType=INTEGER}, #{record.name,jdbcType=VARCHAR}, #{record.portraitUri,jdbcType=VARCHAR}, 
+      #{record.memberCount,jdbcType=INTEGER}, #{record.maxMemberCount,jdbcType=INTEGER}, 
+      #{record.creatorId,jdbcType=INTEGER}, #{record.certiStatus,jdbcType=INTEGER}, #{record.isMute,jdbcType=INTEGER}, 
+      #{record.clearStatus,jdbcType=INTEGER}, #{record.clearTimeAt,jdbcType=BIGINT}, 
+      #{record.memberProtection,jdbcType=INTEGER}, #{record.copiedTime,jdbcType=BIGINT}, 
+      #{record.timestamp,jdbcType=BIGINT}, #{record.createdAt,jdbcType=TIMESTAMP}, #{record.updatedAt,jdbcType=TIMESTAMP}, 
+      #{record.deletedAt,jdbcType=TIMESTAMP}, #{record.bulletin,jdbcType=LONGVARCHAR}
+      
+    from dual where not exists
+    (
+    select 1 from groups
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+    )
+  </update>
+  <insert id="batchUpsertSelective" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=INTEGER}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'portraitUri'.toString() == column.value">
+          #{item.portraitUri,jdbcType=VARCHAR}
+        </if>
+        <if test="'memberCount'.toString() == column.value">
+          #{item.memberCount,jdbcType=INTEGER}
+        </if>
+        <if test="'maxMemberCount'.toString() == column.value">
+          #{item.maxMemberCount,jdbcType=INTEGER}
+        </if>
+        <if test="'creatorId'.toString() == column.value">
+          #{item.creatorId,jdbcType=INTEGER}
+        </if>
+        <if test="'certiStatus'.toString() == column.value">
+          #{item.certiStatus,jdbcType=INTEGER}
+        </if>
+        <if test="'isMute'.toString() == column.value">
+          #{item.isMute,jdbcType=INTEGER}
+        </if>
+        <if test="'clearStatus'.toString() == column.value">
+          #{item.clearStatus,jdbcType=INTEGER}
+        </if>
+        <if test="'clearTimeAt'.toString() == column.value">
+          #{item.clearTimeAt,jdbcType=BIGINT}
+        </if>
+        <if test="'memberProtection'.toString() == column.value">
+          #{item.memberProtection,jdbcType=INTEGER}
+        </if>
+        <if test="'copiedTime'.toString() == column.value">
+          #{item.copiedTime,jdbcType=BIGINT}
+        </if>
+        <if test="'timestamp'.toString() == column.value">
+          #{item.timestamp,jdbcType=BIGINT}
+        </if>
+        <if test="'createdAt'.toString() == column.value">
+          #{item.createdAt,jdbcType=TIMESTAMP}
+        </if>
+        <if test="'updatedAt'.toString() == column.value">
+          #{item.updatedAt,jdbcType=TIMESTAMP}
+        </if>
+        <if test="'deletedAt'.toString() == column.value">
+          #{item.deletedAt,jdbcType=TIMESTAMP}
+        </if>
+        <if test="'bulletin'.toString() == column.value">
+          #{item.bulletin,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+    on duplicate key update 
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName} = values(${column.escapedColumnName})
+    </foreach>
+  </insert>
+  <insert id="batchUpsert" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=INTEGER}, #{item.name,jdbcType=VARCHAR}, #{item.portraitUri,jdbcType=VARCHAR}, 
+        #{item.memberCount,jdbcType=INTEGER}, #{item.maxMemberCount,jdbcType=INTEGER}, 
+        #{item.creatorId,jdbcType=INTEGER}, #{item.certiStatus,jdbcType=INTEGER}, #{item.isMute,jdbcType=INTEGER}, 
+        #{item.clearStatus,jdbcType=INTEGER}, #{item.clearTimeAt,jdbcType=BIGINT}, #{item.memberProtection,jdbcType=INTEGER}, 
+        #{item.copiedTime,jdbcType=BIGINT}, #{item.timestamp,jdbcType=BIGINT}, #{item.createdAt,jdbcType=TIMESTAMP}, 
+        #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.deletedAt,jdbcType=TIMESTAMP})
+    </foreach>
+    on duplicate key update 
+    id = values(id),
+    name = values(name),
+    portraitUri = values(portraitUri),
+    memberCount = values(memberCount),
+    maxMemberCount = values(maxMemberCount),
+    creatorId = values(creatorId),
+    certiStatus = values(certiStatus),
+    isMute = values(isMute),
+    clearStatus = values(clearStatus),
+    clearTimeAt = values(clearTimeAt),
+    memberProtection = values(memberProtection),
+    copiedTime = values(copiedTime),
+    timestamp = values(timestamp),
+    createdAt = values(createdAt),
+    updatedAt = values(updatedAt),
+    deletedAt = values(deletedAt)
+  </insert>
+  <insert id="batchUpsertWithBLOBs" parameterType="map">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      @project https://github.com/itfsw/mybatis-generator-plugin
+    -->
+    insert into groups
+    (id, name, portraitUri, memberCount, maxMemberCount, creatorId, certiStatus, isMute, 
+      clearStatus, clearTimeAt, memberProtection, copiedTime, timestamp, createdAt, updatedAt, 
+      deletedAt, bulletin)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=INTEGER}, #{item.name,jdbcType=VARCHAR}, #{item.portraitUri,jdbcType=VARCHAR}, 
+        #{item.memberCount,jdbcType=INTEGER}, #{item.maxMemberCount,jdbcType=INTEGER}, 
+        #{item.creatorId,jdbcType=INTEGER}, #{item.certiStatus,jdbcType=INTEGER}, #{item.isMute,jdbcType=INTEGER}, 
+        #{item.clearStatus,jdbcType=INTEGER}, #{item.clearTimeAt,jdbcType=BIGINT}, #{item.memberProtection,jdbcType=INTEGER}, 
+        #{item.copiedTime,jdbcType=BIGINT}, #{item.timestamp,jdbcType=BIGINT}, #{item.createdAt,jdbcType=TIMESTAMP}, 
+        #{item.updatedAt,jdbcType=TIMESTAMP}, #{item.deletedAt,jdbcType=TIMESTAMP}, #{item.bulletin,jdbcType=LONGVARCHAR}
+        )
+    </foreach>
+    on duplicate key update 
+    id = values(id),
+    name = values(name),
+    portraitUri = values(portraitUri),
+    memberCount = values(memberCount),
+    maxMemberCount = values(maxMemberCount),
+    creatorId = values(creatorId),
+    certiStatus = values(certiStatus),
+    isMute = values(isMute),
+    clearStatus = values(clearStatus),
+    clearTimeAt = values(clearTimeAt),
+    memberProtection = values(memberProtection),
+    copiedTime = values(copiedTime),
+    timestamp = values(timestamp),
+    createdAt = values(createdAt),
+    updatedAt = values(updatedAt),
+    deletedAt = values(deletedAt),
+    bulletin = values(bulletin)
+  </insert>
+</mapper>
