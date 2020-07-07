@@ -1,7 +1,6 @@
 package com.rcloud.server.sealtalk.configuration;
 
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@Getter
 public class SealtalkConfig {
 
     @Value("${sealtalk-config.auth_cookie_name}")
@@ -54,4 +52,8 @@ public class SealtalkConfig {
     private String authCookieDomain;
     @Value("${sealtalk-config.cors_hosts}")
     private String corsHosts;
+    @Value("${sealtalk-config.yunpian_limited_time:1}")//限制小时
+    private Integer yunpianLimitedTime;
+    @Value("${sealtalk-config.yunpian_limited_count:20}")//限制次数
+    private Integer yunpianLimitedCount;
 }

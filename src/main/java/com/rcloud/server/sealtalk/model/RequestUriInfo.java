@@ -9,8 +9,9 @@ import lombok.Data;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Data
-public class ServerApiParams {
+public class RequestUriInfo {
 
-    private ServerApiCookie serverApiCookie;
-    private RequestUriInfo requestUriInfo;
+    private String uri;
+    private String remoteAddress;
+    private String ip;
 }

@@ -1,9 +1,11 @@
 package com.rcloud.server.sealtalk.interceptor;
 
+import com.github.pagehelper.util.StringUtil;
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.model.RequestUriInfo;
 import com.rcloud.server.sealtalk.model.ServerApiCookie;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.util.AES256;
@@ -26,6 +28,13 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class RequestInterceptor implements HandlerInterceptor {
 
     public static final String REGEX = "|";
+    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
+    public static final String UNKNOWN = "unknown";
+    public static final String PROXY_CLIENT_IP = "Proxy-Client-IP";
+    public static final String WL_PROXY_CLIENT_IP = "WL-Proxy-Client-IP";
+    public static final String HTTP_CLIENT_IP = "HTTP_CLIENT_IP";
+    public static final String HTTP_X_FORWARDED_FOR = "HTTP_X_FORWARDED_FOR";
+
     @Resource
     private SealtalkConfig sealtalkConfig;
 
@@ -41,6 +50,8 @@ public class RequestInterceptor implements HandlerInterceptor {
         serverApiCookie.setCurrentUserId(currentUserId);
         ServerApiParams serverApiParams = new ServerApiParams();
         serverApiParams.setServerApiCookie(serverApiCookie);
+        RequestUriInfo requestUriInfo = getRequestUriInfo(request);
+        serverApiParams.setRequestUriInfo(requestUriInfo);
         request.getSession().setAttribute(Constants.SERVER_API_PARAMS, serverApiParams);
         return true;
     }
@@ -66,5 +77,35 @@ public class RequestInterceptor implements HandlerInterceptor {
         return null;
     }
 
+    protected RequestUriInfo getRequestUriInfo(HttpServletRequest request) {
+        String ip = getIpAddress(request);
+        ip = StringUtil.isEmpty(ip) ? "" : ip;
+        String uri = request.getRequestURI();
+        String remoteAddress = request.getRemoteAddr();
+        RequestUriInfo requestUriInfo = new RequestUriInfo();
+        requestUriInfo.setUri(uri);
+        requestUriInfo.setRemoteAddress(remoteAddress);
+        requestUriInfo.setIp(ip);
+        return requestUriInfo;
+    }
 
+    private String getIpAddress(HttpServletRequest request) {
+        String ip = request.getHeader(X_FORWARDED_FOR);
+        if (StringUtil.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+            ip = request.getHeader(PROXY_CLIENT_IP);
+        }
+        if (StringUtil.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+            ip = request.getHeader(WL_PROXY_CLIENT_IP);
+        }
+        if (StringUtil.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+            ip = request.getHeader(HTTP_CLIENT_IP);
+        }
+        if (StringUtil.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+            ip = request.getHeader(HTTP_X_FORWARDED_FOR);
+        }
+        if (StringUtil.isEmpty(ip) || UNKNOWN.equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
 }

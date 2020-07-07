@@ -26,4 +26,18 @@ public class VerificationCodesService {
             .example();
         return mapper.selectOneByExample(example);
     }
+
+    public void upsert(String region, String phone, String sessionId) {
+        VerificationCodes verificationCodes = new VerificationCodes();
+        verificationCodes.setPhone(phone);
+        verificationCodes.setRegion(region);
+        verificationCodes.setSessionId(sessionId);
+        VerificationCodesExample example = new VerificationCodesExample()
+            .createCriteria()
+            .andRegionEqualTo(region)
+            .andPhoneEqualTo(phone)
+            .andSessionIdEqualTo(sessionId)
+            .example();
+        mapper.upsertByExampleSelective(verificationCodes, example);
+    }
 }

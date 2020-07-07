@@ -2,6 +2,8 @@ server:
   port: ${sealtalk-config.server_port}
 
 spring:
+  profiles:
+    active: dev
   flyway:
     enabled: true
     # 禁止清理数据库表

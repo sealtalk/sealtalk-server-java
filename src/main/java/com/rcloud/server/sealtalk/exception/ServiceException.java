@@ -10,6 +10,10 @@ import com.rcloud.server.sealtalk.constant.ErrorCode;
  */
 public class ServiceException extends BaseException {
 
+    public ServiceException(ErrorCode errorCode) {
+        super(errorCode.getErrorMessage(), errorCode);
+    }
+
     public ServiceException(ErrorCode errorCode, String message) {
         super(message, errorCode);
     }

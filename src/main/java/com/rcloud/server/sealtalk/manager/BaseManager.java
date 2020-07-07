@@ -12,5 +12,5 @@ import javax.annotation.Resource;
 public class BaseManager {
 
     @Resource
-    private SealtalkConfig sealtalkConfig;
+    protected SealtalkConfig sealtalkConfig;
 }
