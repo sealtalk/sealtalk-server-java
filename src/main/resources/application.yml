@@ -13,8 +13,6 @@ spring:
     baseline-on-migrate: true
     baseline-version: 2
 
-
-
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
 

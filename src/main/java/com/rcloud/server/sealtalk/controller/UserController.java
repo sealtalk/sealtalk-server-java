@@ -33,7 +33,7 @@ public class UserController {
 
     @ApiOperation(value = "向手机发送验证码")
     @RequestMapping(value = "/send_code", method = RequestMethod.POST)
-    public Response sendCode(
+    public Response<String> sendCode(
         @ApiParam(name = "region", value = "区号", required = true, type = "String", example = "xxx")
         @RequestParam String region,
         @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "xxx")
@@ -45,7 +45,7 @@ public class UserController {
 
     @ApiOperation(value = "向手机发送验证码(云片服务)")
     @RequestMapping(value = "/send_code_yp", method = RequestMethod.POST)
-    public Response sendCodeYp(
+    public Response<String> sendCodeYp(
         @ApiParam(name = "region", value = "区号", required = true, type = "String", example = "xxx")
         @RequestParam String region,
         @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "xxx")
