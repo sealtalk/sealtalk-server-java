@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.DataVersionsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.DataVersions">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="userId" jdbcType="INTEGER" property="userId" />
+    <result column="userVersion" jdbcType="BIGINT" property="userVersion" />
+    <result column="blacklistVersion" jdbcType="BIGINT" property="blacklistVersion" />
+    <result column="friendshipVersion" jdbcType="BIGINT" property="friendshipVersion" />
+    <result column="groupVersion" jdbcType="BIGINT" property="groupVersion" />
+    <result column="groupMemberVersion" jdbcType="BIGINT" property="groupMemberVersion" />
+  </resultMap>
+</mapper>

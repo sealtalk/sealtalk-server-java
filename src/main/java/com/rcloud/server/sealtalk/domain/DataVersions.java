@@ -6,6 +6,7 @@ import javax.persistence.*;
 @Table(name = "data_versions")
 public class DataVersions implements Serializable {
 
+    @Id
     @Column(name = "userId")
     private Integer userId;
 

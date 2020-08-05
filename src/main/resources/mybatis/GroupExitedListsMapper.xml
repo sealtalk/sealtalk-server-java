@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.GroupExitedListsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.GroupExitedLists">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="groupId" jdbcType="INTEGER" property="groupId" />
+    <result column="quitUserId" jdbcType="INTEGER" property="quitUserId" />
+    <result column="quitNickname" jdbcType="VARCHAR" property="quitNickname" />
+    <result column="quitPortraitUri" jdbcType="VARCHAR" property="quitPortraitUri" />
+    <result column="quitReason" jdbcType="INTEGER" property="quitReason" />
+    <result column="quitTime" jdbcType="BIGINT" property="quitTime" />
+    <result column="operatorId" jdbcType="INTEGER" property="operatorId" />
+    <result column="operatorName" jdbcType="VARCHAR" property="operatorName" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+</mapper>

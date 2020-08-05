@@ -2,17 +2,9 @@ package com.rcloud.server.sealtalk.util;
 
 public class N3d {
 
-    public static void main(String[] args) {
-        N3d n = new N3d(N3D_KEY, 1, 4294967295L);
-        for (long i = 1; i < 4294967295L; i++) {
-            String ret = n.encrypt(i);
-            System.out.println(ret);
-            System.out.println(n.decrypt(ret));
-        }
-
-    }
-
     private static final String N3D_KEY = "11EdDIaqpcim";
+
+    private static final N3d n3d = new N3d(N3D_KEY, 1, 4294967295L);
 
     private long keyCode = 0;
     private String key;
@@ -68,7 +60,7 @@ public class N3d {
     }
 
 
-    public String encrypt(long num) {
+    private String encrypt(long num) {
         if (num > this.upper || num < this.lower)
             throw new RuntimeException("Parameter is error.");
 
@@ -90,7 +82,7 @@ public class N3d {
         return result.toString();
     }
 
-    public long decrypt(String str) {
+    private long decrypt(String str) {
         long result = 0;
         if (str == null || str.length() == 0) {
             throw new RuntimeException("Parameter is error.");
@@ -122,13 +114,20 @@ public class N3d {
     }
 
     public static String encode(long num){
-        N3d n3d = new N3d(N3D_KEY, 1, 4294967295L);
         return n3d.encrypt(num);
     }
 
     public static long decode(String str){
-        N3d n3d = new N3d(N3D_KEY, 1, 4294967295L);
         return n3d.decrypt(str);
+    }
+
+    public static void main(String[] args) {
+        N3d n = new N3d(N3D_KEY, 1, 4294967295L);
+        for (long i = 1; i < 4294967295L; i++) {
+            String ret = n.encrypt(i);
+            System.out.println(ret);
+            System.out.println(n.decrypt(ret));
+        }
     }
 
 }

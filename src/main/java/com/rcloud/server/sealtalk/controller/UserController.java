@@ -188,8 +188,6 @@ public class UserController {
                                       @ApiParam(name = "verification_token", value = "校验Token", required = true, type = "String", example = "xxx")
                                       @RequestParam String verificationToken) throws ServiceException {
 
-
-
         checkRegisterParam(nickname,password,verificationToken);
         long id = userManager.register(nickname,password,verificationToken);
         return ResultWrap.ok(N3d.encode(id));

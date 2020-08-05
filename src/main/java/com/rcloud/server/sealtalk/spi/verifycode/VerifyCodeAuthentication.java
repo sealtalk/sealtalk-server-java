@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.spi.verifycode;
 
+import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.VerificationCodes;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 
@@ -10,6 +11,9 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 public interface VerifyCodeAuthentication {
+
+
+    SmsServiceType getIdentification();
 
     /**
      * 短信验证码校验

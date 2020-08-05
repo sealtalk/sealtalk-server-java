@@ -18,12 +18,12 @@ import java.io.IOException;
 /**
  * @Author: Jianlu.Yu
  * @Date: 2020/8/4
- * @Description: 容云Sms服务
+ * @Description: 融云Sms服务
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
 @Slf4j
-public class RongCloudSmsService implements SmsService {
+public class DefaultSmsService implements SmsService {
     @Resource
     protected SealtalkConfig sealtalkConfig;
 

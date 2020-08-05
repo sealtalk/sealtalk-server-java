@@ -2,13 +2,19 @@ package com.rcloud.server.sealtalk.spi.verifycode;
 
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.sms.SmsService;
 import com.rcloud.server.sealtalk.spi.verifycode.impl.DefaultVerifyCodeAuthentication;
 import com.rcloud.server.sealtalk.spi.verifycode.impl.YunPianVerifyCodeAuthentication;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,8 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class VerifyCodeAuthenticationFactory {
 
-
     private static ConcurrentHashMap<SmsServiceType, VerifyCodeAuthentication> verifyCodeAuthenticationMap = new ConcurrentHashMap<>();
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Resource
     private DefaultVerifyCodeAuthentication defaultVerifyCodeAuthentication;
@@ -31,8 +39,18 @@ public class VerifyCodeAuthenticationFactory {
 
     @PostConstruct
     public void postConstruct() {
-        verifyCodeAuthenticationMap.put(SmsServiceType.RONGCLOUD, defaultVerifyCodeAuthentication);
-        verifyCodeAuthenticationMap.put(SmsServiceType.YUNPIAN, yunPianVerifyCodeAuthentication);
+
+        Map<String, VerifyCodeAuthentication> serviceMap =  applicationContext.getBeansOfType(VerifyCodeAuthentication.class);
+        if(serviceMap!=null){
+            Set<Map.Entry<String,VerifyCodeAuthentication>> vcaSet = serviceMap.entrySet();
+            Iterator<Map.Entry<String,VerifyCodeAuthentication>> iterator = vcaSet.iterator();
+
+            while(iterator.hasNext()){
+                Map.Entry<String,VerifyCodeAuthentication> verifyCodeAuthenticationEntry = iterator.next();
+                VerifyCodeAuthentication verifyCodeAuthentication = verifyCodeAuthenticationEntry.getValue();
+                verifyCodeAuthenticationMap.put(verifyCodeAuthentication.getIdentification(), verifyCodeAuthentication);
+            }
+        }
     }
 
     public static VerifyCodeAuthentication getVerifyCodeAuthentication(SmsServiceType smsServiceType) throws ServiceException {

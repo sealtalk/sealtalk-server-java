@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.spi.verifycode.impl;
 
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
+import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.VerificationCodes;
 import com.rcloud.server.sealtalk.spi.verifycode.BaseVerifyCodeAuthentication;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,11 @@ public class DefaultVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
     private SealtalkConfig sealtalkConfig;
 
     @Override
+    public SmsServiceType getIdentification() {
+        return SmsServiceType.RONGCLOUD;
+    }
+
+    @Override
     protected void serviceValidate(VerificationCodes verificationCodes,String code) {
 
         if(StringUtils.isEmpty(sealtalkConfig.getRongcloudSmsRegisterTemplateId())&& Constants.DEFAULT_VERIFY_CODE.equals(code)){
@@ -32,4 +38,6 @@ public class DefaultVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
         //TODO，调用融云验证码校验接口
         return;
     }
+
+
 }

@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.spi.verifycode.impl;
 
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.VerificationCodes;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.spi.verifycode.BaseVerifyCodeAuthentication;
@@ -18,6 +19,11 @@ import org.springframework.stereotype.Service;
 public class YunPianVerifyCodeAuthentication extends BaseVerifyCodeAuthentication {
 
     @Override
+    public SmsServiceType getIdentification() {
+        return SmsServiceType.YUNPIAN;
+    }
+
+    @Override
     protected void serviceValidate(VerificationCodes verificationCodes, String code) throws ServiceException{
         if(verificationCodes.getSessionId().equals(code)){
             return ;
@@ -25,4 +31,6 @@ public class YunPianVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
             throw new ServiceException(ErrorCode.INVALID_VERIFY_CODE);
         }
     }
+
+
 }
