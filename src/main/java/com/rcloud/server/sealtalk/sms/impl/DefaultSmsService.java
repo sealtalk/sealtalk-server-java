@@ -72,6 +72,7 @@ public class DefaultSmsService implements SmsService {
         RongCloud rongCloud = RongCloud.getInstance(sealtalkConfig.getRongcloudAppKey(),
                 sealtalkConfig.getRongcloudAppSecret());
         //TODO send sms
+
         return "";
     }
 }

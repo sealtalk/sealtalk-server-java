@@ -1,9 +1,12 @@
 package com.rcloud.server.sealtalk.domain;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
+@Data
 @Table(name = "groups")
 public class Groups implements Serializable {
     @Id
@@ -11,273 +14,50 @@ public class Groups implements Serializable {
 
     private String name;
 
+    @Column(name = "portraitUri")
     private String portraitUri;
 
+    @Column(name = "memberCount")
     private Integer memberCount;
 
+    @Column(name = "maxMemberCount")
     private Integer maxMemberCount;
 
+    @Column(name = "creatorId")
     private Integer creatorId;
 
+    @Column(name = "certiStatus")
     private Integer certiStatus;
 
+    @Column(name = "isMute")
     private Integer isMute;
 
+    @Column(name = "clearStatus")
     private Integer clearStatus;
 
+    @Column(name = "clearTimeAt")
     private Long clearTimeAt;
 
+    @Column(name = "memberProtection")
     private Integer memberProtection;
 
+    @Column(name = "copiedTime")
     private Long copiedTime;
 
     private Long timestamp;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
 
+    @Column(name = "deletedAt")
     private Date deletedAt;
 
+    @Column(name = "bulletin")
     private String bulletin;
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @return id
-     */
-    public Integer getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
-     * @return name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return portraitUri
-     */
-    public String getPortraitUri() {
-        return portraitUri;
-    }
-
-    /**
-     * @param portraitUri
-     */
-    public void setPortraitUri(String portraitUri) {
-        this.portraitUri = portraitUri;
-    }
-
-    /**
-     * @return memberCount
-     */
-    public Integer getMemberCount() {
-        return memberCount;
-    }
-
-    /**
-     * @param memberCount
-     */
-    public void setMemberCount(Integer memberCount) {
-        this.memberCount = memberCount;
-    }
-
-    /**
-     * @return maxMemberCount
-     */
-    public Integer getMaxMemberCount() {
-        return maxMemberCount;
-    }
-
-    /**
-     * @param maxMemberCount
-     */
-    public void setMaxMemberCount(Integer maxMemberCount) {
-        this.maxMemberCount = maxMemberCount;
-    }
-
-    /**
-     * @return creatorId
-     */
-    public Integer getCreatorId() {
-        return creatorId;
-    }
-
-    /**
-     * @param creatorId
-     */
-    public void setCreatorId(Integer creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    /**
-     * @return certiStatus
-     */
-    public Integer getCertiStatus() {
-        return certiStatus;
-    }
-
-    /**
-     * @param certiStatus
-     */
-    public void setCertiStatus(Integer certiStatus) {
-        this.certiStatus = certiStatus;
-    }
-
-    /**
-     * @return isMute
-     */
-    public Integer getIsMute() {
-        return isMute;
-    }
-
-    /**
-     * @param isMute
-     */
-    public void setIsMute(Integer isMute) {
-        this.isMute = isMute;
-    }
-
-    /**
-     * @return clearStatus
-     */
-    public Integer getClearStatus() {
-        return clearStatus;
-    }
-
-    /**
-     * @param clearStatus
-     */
-    public void setClearStatus(Integer clearStatus) {
-        this.clearStatus = clearStatus;
-    }
-
-    /**
-     * @return clearTimeAt
-     */
-    public Long getClearTimeAt() {
-        return clearTimeAt;
-    }
-
-    /**
-     * @param clearTimeAt
-     */
-    public void setClearTimeAt(Long clearTimeAt) {
-        this.clearTimeAt = clearTimeAt;
-    }
-
-    /**
-     * @return memberProtection
-     */
-    public Integer getMemberProtection() {
-        return memberProtection;
-    }
-
-    /**
-     * @param memberProtection
-     */
-    public void setMemberProtection(Integer memberProtection) {
-        this.memberProtection = memberProtection;
-    }
-
-    /**
-     * @return copiedTime
-     */
-    public Long getCopiedTime() {
-        return copiedTime;
-    }
-
-    /**
-     * @param copiedTime
-     */
-    public void setCopiedTime(Long copiedTime) {
-        this.copiedTime = copiedTime;
-    }
-
-    /**
-     * @return timestamp
-     */
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * @param timestamp
-     */
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * @return createdAt
-     */
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * @param createdAt
-     */
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    /**
-     * @return updatedAt
-     */
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    /**
-     * @param updatedAt
-     */
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    /**
-     * @return deletedAt
-     */
-    public Date getDeletedAt() {
-        return deletedAt;
-    }
-
-    /**
-     * @param deletedAt
-     */
-    public void setDeletedAt(Date deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    /**
-     * @return bulletin
-     */
-    public String getBulletin() {
-        return bulletin;
-    }
-
-    /**
-     * @param bulletin
-     */
-    public void setBulletin(String bulletin) {
-        this.bulletin = bulletin;
-    }
 }

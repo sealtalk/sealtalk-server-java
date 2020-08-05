@@ -1,8 +1,13 @@
 package com.rcloud.server.sealtalk.util;
 
 import com.rcloud.server.sealtalk.constant.Constants;
+import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.exception.ServiceException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author: Jianlu.Yu
@@ -11,6 +16,15 @@ import org.apache.commons.lang3.StringUtils;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 public class MiscUtils {
+
+    private static Map<String, String> regionMap = new HashMap<>();
+
+    public static final String NICK_NAME_CACHE_PREFIX = "nickname_";
+
+
+    static {
+        regionMap.put("86", "zh-CN");
+    }
 
     /**
      * 地区添加前缀 "+"
@@ -38,27 +52,37 @@ public class MiscUtils {
         return region;
     }
 
-    public static String hash(String text,int salt) {
-        if(StringUtils.isEmpty(text)){
+    public static String hash(String text, int salt) {
+        if (StringUtils.isEmpty(text)) {
             return null;
-        }else{
-            text = text+"|"+salt;
+        } else {
+            text = text + "|" + salt;
             return DigestUtils.sha1Hex(text);
         }
     }
 
     public static void main(String[] args) {
-        String text="abcd123";
+        String text = "abcd123";
         int salt = 9988;
 
 
         //a2d46a186480138852a18cb1c8b2af530f3e5166
-        System.out.println(hash(text,salt));
+        System.out.println(hash(text, salt));
     }
 
-    public static String merge(String content,String key,String code){
+    public static String merge(String content, String key, String code) {
         content = content.replaceAll(key, code);
         return content;
     }
 
+    public static String getRegionName(String region) {
+        return regionMap.get(region);
+    }
+
+    public static void cacheNickName(Integer userId, String nickname) throws ServiceException {
+        if (userId == null || StringUtils.isEmpty(nickname)) {
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
+        }
+        CacheUtil.set(NICK_NAME_CACHE_PREFIX + userId, nickname);
+    }
 }

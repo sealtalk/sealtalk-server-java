@@ -21,4 +21,36 @@
     <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+
+
+  <resultMap id="resultMapWithGroups" type="com.rcloud.server.sealtalk.domain.GroupMembers">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="groupId" jdbcType="INTEGER" property="groupId" />
+    <result column="memberId" jdbcType="INTEGER" property="memberId" />
+    <result column="displayName" jdbcType="VARCHAR" property="displayName" />
+    <result column="role" jdbcType="INTEGER" property="role" />
+    <result column="isDeleted" jdbcType="BIT" property="isDeleted" />
+    <result column="groupNickname" jdbcType="VARCHAR" property="groupNickname" />
+    <result column="region" jdbcType="VARCHAR" property="region" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="WeChat" jdbcType="VARCHAR" property="weChat" />
+    <result column="Alipay" jdbcType="VARCHAR" property="alipay" />
+    <result column="memberDesc" jdbcType="VARCHAR" property="memberDesc" />
+    <result column="timestamp" jdbcType="BIGINT" property="timestamp" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+    <association property="groups"  javaType="com.rcloud.server.sealtalk.domain.Groups">
+      <id column="g_id" jdbcType="INTEGER" property="id" />
+      <result column="g_name" jdbcType="VARCHAR" property="name" />
+    </association>
+  </resultMap>
+
+  <select id="queryGroupMembersWithGroupByMemberId" resultMap="resultMapWithGroups">
+    SELECT gm.*,
+       g.id g_id,
+       g.name g_name
+    FROM group_members gm join `groups` g
+    on gm.groupId = g.id
+    where gm.memberId=1 and g.deletedAt is null ;
+  </select>
 </mapper>

@@ -21,6 +21,11 @@ spring:
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
 
+logging:
+  level:
+    com.rcloud.server.sealtalk.dao: debug
+
+
 sealtalk:
   datasource:
     driverclassname: com.mysql.jdbc.Driver
@@ -56,4 +61,6 @@ sealtalk-config:
   db_password: 123456
   db_host: 127.0.0.1
   db_port: 3306
+
+
 

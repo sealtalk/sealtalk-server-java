@@ -4,8 +4,8 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.InviteManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.response.InviteResponse;
-import com.rcloud.server.sealtalk.model.response.Response;
-import com.rcloud.server.sealtalk.model.response.ResultWrap;
+import com.rcloud.server.sealtalk.model.response.APIResult;
+import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +36,7 @@ public class FriendshipController {
 
     @ApiOperation(value = "发起添加好友")
     @RequestMapping(value = "/invite", method = RequestMethod.POST)
-    public Response invite(
+    public APIResult invite(
         @ApiParam(name = "friendId", value = "好友 Id", required = true, type = "int", example = "xxx")
         @RequestParam Integer friendId,
         @ApiParam(name = "message", value = "message", required = true, type = "String", example = "xxx")
@@ -44,6 +44,6 @@ public class FriendshipController {
         @SessionAttribute("serverApiParams") ServerApiParams serverApiParams
     ) throws ServiceException {
         InviteResponse inviteResponse =inviteManager.invite(serverApiParams, friendId, message);
-        return ResultWrap.ok(inviteResponse);
+        return APIResultWrap.ok(inviteResponse);
     }
 }

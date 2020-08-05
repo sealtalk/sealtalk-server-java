@@ -13,42 +13,42 @@ import org.apache.commons.lang3.StringUtils;
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
-public class ResultWrap {
+public class APIResultWrap {
 
     public static final String SUCCESS_CODE = "200";
 
     public static final String DATA_RESULT = "result";
 
-    private ResultWrap() {
+    private APIResultWrap() {
     }
 
-    public static <T> Response<T> ok(T data) {
-        return new Response<>(SUCCESS_CODE, StringUtils.EMPTY, data);
+    public static <T> APIResult<T> ok(T data) {
+        return new APIResult<>(SUCCESS_CODE, StringUtils.EMPTY, data);
     }
 
-    public static <T> Response<List<T>> ok(List<T> data) {
+    public static <T> APIResult<List<T>> ok(List<T> data) {
         Map<String, List<T>> items = ImmutableMap.of(DATA_RESULT, data);
-        return new Response(SUCCESS_CODE, StringUtils.EMPTY, items);
+        return new APIResult(SUCCESS_CODE, StringUtils.EMPTY, items);
     }
 
-    public static Response error(ServiceException ex) {
+    public static APIResult error(ServiceException ex) {
         int errorCode = ex.getErrorCode();
         String errorMessage = ex.getErrorMessage();
 
-        return new Response<>(String.valueOf(errorCode),
+        return new APIResult<>(String.valueOf(errorCode),
             errorMessage);
     }
 
-    public static Response error(ErrorCode errorCode) {
-        return new Response<>(String.valueOf(errorCode.getErrorCode()),
+    public static APIResult error(ErrorCode errorCode) {
+        return new APIResult<>(String.valueOf(errorCode.getErrorCode()),
             errorCode.getErrorMessage());
     }
 
-    public static Response error(int code, String msg) {
-        return new Response(String.valueOf(code), msg);
+    public static APIResult error(int code, String msg) {
+        return new APIResult(String.valueOf(code), msg);
     }
 
-    public static Response error(String code, String msg) {
-        return new Response(code, msg);
+    public static APIResult error(String code, String msg) {
+        return new APIResult(code, msg);
     }
 }

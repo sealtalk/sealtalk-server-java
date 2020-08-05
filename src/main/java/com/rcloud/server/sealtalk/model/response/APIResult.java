@@ -10,24 +10,24 @@ import lombok.Data;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Data
-public class Response<T> {
+public class APIResult<T> {
 
     @ApiModelProperty("返回码")
     protected String code;
 
     @ApiModelProperty("返回码信息")
-    protected String msg;
+    protected String message;
 
-    protected T data;
+    protected T result;
 
-    public Response(String code, String msg) {
+    public APIResult(String code, String message) {
         this.code = code;
-        this.msg = msg;
+        this.message = message;
     }
 
-    public Response(String code, String msg, T data) {
+    public APIResult(String code, String message, T result) {
         this.code = code;
-        this.msg = msg;
-        this.data = data;
+        this.message = message;
+        this.result = result;
     }
 }

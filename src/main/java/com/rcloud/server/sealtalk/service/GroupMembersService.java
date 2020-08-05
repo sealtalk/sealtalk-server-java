@@ -1,8 +1,12 @@
 package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.GroupMembersMapper;
-import javax.annotation.Resource;
+import com.rcloud.server.sealtalk.domain.GroupMembers;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author: xiuwei.nie
@@ -15,4 +19,18 @@ public class GroupMembersService {
 
     @Resource
     private GroupMembersMapper mapper;
+
+
+    /**
+     * 根据memberId查询用户所属组
+     *
+     * @param memberId 用户id
+     * @return
+     */
+    public List<GroupMembers> queryGroupMembersWithGroupByMemberId(int memberId){
+        Example example = new Example(GroupMembers.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("memberId",memberId);
+        return mapper.queryGroupMembersWithGroupByMemberId(example);
+    }
 }

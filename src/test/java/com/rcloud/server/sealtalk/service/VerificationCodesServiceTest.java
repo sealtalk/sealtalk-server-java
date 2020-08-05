@@ -48,7 +48,7 @@ public class VerificationCodesServiceTest {
     public void insert() {
 
         String region = "86";
-        String phone = "18810183888";
+        String phone = "18810183566";
         String sessionId = "";
 
         VerificationCodes v = new VerificationCodes();

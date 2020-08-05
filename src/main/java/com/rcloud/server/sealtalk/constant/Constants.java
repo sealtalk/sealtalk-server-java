@@ -12,6 +12,7 @@ public class Constants {
     public static final int FRIEND_REQUEST_MESSAGE_MAX_LENGTH = 64;
 
     public final static String REGION_NUM = "86";
+    public final static String REGION_NAME = "zh-CN";
     public static final String STRING_ADD = "+";
 
     public final static String SMS_YUNPIAN_URL = "sms.yunpian.com";

@@ -17,14 +17,20 @@ public enum ErrorCode {
     VERIFY_CODE_EXPIRED(2000, "Verification code expired."),
     INVALID_VERIFY_CODE(1000, "Invalid verification code."),
 
-
-    //registerParam error
+    //register error
     INVALID_PASSWORD(400, "Password must have no space."),
     INVALID_NICKNAME_LENGTH(400, "Length of nickname invalid."),
     INVALID_PASSWORD_LENGHT(400, "Length of password invalid."),
     INVALID_VERIFICATION_TOKEN(400, "Invalid verification_token."),
     UNKNOWN_VERIFICATION_TOKEN(404, "Unknown verification_token."),
     PHONE_ALREADY_REGIESTED(404, "Phone number has already existed."),
+
+    //login error
+    USER_NOT_EXISTER(1000, "Phone number not found."),
+    USER_PASSWORD_WRONG(1001, "Wrong password."),
+
+
+
 
 
 

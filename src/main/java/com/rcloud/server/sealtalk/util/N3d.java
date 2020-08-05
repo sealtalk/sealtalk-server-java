@@ -13,7 +13,7 @@ public class N3d {
     private long upper;
     private char[][] dict = new char[62][62];
 
-    public N3d(String keyx, long lower, long upper) {
+    private N3d(String keyx, long lower, long upper) {
         this.key = keyx;
         this.lower = lower;
         this.upper = upper;

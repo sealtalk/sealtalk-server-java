@@ -27,6 +27,12 @@ public class ValidateUtils {
         }
     }
 
+    public static void checkRegionName(String regionName) throws ServiceException {
+        if (!Constants.REGION_NAME.equals(regionName)) {
+            throw new ServiceException(ErrorCode.REQUEST_ERROR, "Invalid region and phone number.");
+        }
+    }
+
 
     public static boolean checkUUIDStr(String str) {
         try {

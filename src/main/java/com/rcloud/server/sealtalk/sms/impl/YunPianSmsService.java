@@ -188,7 +188,7 @@ public class YunPianSmsService implements SmsService {
 
     /**
      * 处理云片服务错误返回结果
-     * 如果云片返回码是负数，需要取反后建加100
+     * 如果云片返回码是负数，需要取反后加100
      * 返回给应用前端返回码=3100+云片服务返回错误码
      *
      * @param result

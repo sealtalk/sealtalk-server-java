@@ -34,7 +34,7 @@ public class UsersService {
     }
 
 
-    public long createUser(Users u) {
+    public int createUser(Users u) {
         mapper.insertSelective(u);
         return u.getId();
     }
