@@ -4,53 +4,16 @@
 <generatorConfiguration>
     <classPathEntry location="src/main/resources/lib/mysql-connector-java-5.1.31.jar"/>
 
-    <context id="Mysql" targetRuntime="MyBatis3" defaultModelType="flat">
+    <context id="Mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
         <property name="javaFileEncoding" value="UTF-8"/>
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
 
-        <!--https://github.com/itfsw/mybatis-generator-plugin-->
-        <!-- 查询单条数据插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.SelectOneByExamplePlugin"/>
-        <!-- MySQL分页插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.LimitPlugin"/>
-        <!-- Example Criteria 增强插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.ExampleEnhancedPlugin"/>
-        <!-- 批量插入插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.BatchInsertPlugin">
-            <!--
-            开启后可以实现官方插件根据属性是否为空决定是否插入该字段功能
-            ！需开启allowMultiQueries=true多条sql提交操作，所以不建议使用！插件默认不开启
-            -->
-            <property name="allowMultiQueries" value="false"/>
+        <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+            <property name="mappers" value="tk.mybatis.mapper.common.Mapper"/>
+            <property name="caseSensitive" value="true"/>
         </plugin>
-        <!-- 数据Model属性对应Column获取插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.ModelColumnPlugin"/>
-        <!-- 存在即更新插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.UpsertPlugin">
-            <!--
-            支持upsertByExample，upsertByExampleSelective操作
-            ！需开启allowMultiQueries=true多条sql提交操作，所以不建议使用！插件默认不开启
-            -->
-            <property name="allowMultiQueries" value="true"/>
-            <!--
-            开启批量功能，支持batchUpsert,batchUpsertWithBLOBs,batchUpserSelective
-            ！这几个方法中无法支持IncrementsPlugin的方法！插件默认不开启
-            -->
-            <property name="allowBatchUpsert" value="true"/>
-        </plugin>
-        <!-- Selective选择插入更新增强插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.SelectiveEnhancedPlugin"/>
-
-        <!-- 查询结果选择性返回插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.SelectSelectivePlugin"/>
-
-        <!-- Lombok插件 -->
-        <plugin type="com.itfsw.mybatis.generator.plugins.LombokPlugin">
-            <!-- @Builder 必须在 Lombok 版本 >= 1.18.2 的情况下 -->
-            <property name="@Builder" value="false"/>
-            <!-- @NoArgsConstructor 和 @AllArgsConstructor 使用规则和Lombok一致 -->
-            <property name="@AllArgsConstructor" value="false"/>
-            <property name="@NoArgsConstructor" value="false"/>
-        </plugin>
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
 
         <commentGenerator>
             <property name="suppressAllComments" value="true" />
@@ -58,9 +21,9 @@
         </commentGenerator>
 
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-          connectionURL="jdbc:mysql://127.0.0.1:3306/sealtalk?useUnicode=true"
+          connectionURL="jdbc:mysql://127.0.0.1:3306/sealtalk?useUnicode=true&amp;useSSL=false"
           userId="root"
-          password="root">
+          password="123456">
         </jdbcConnection>
 
         <javaModelGenerator
@@ -117,6 +80,7 @@
         </table>
         <table tableName="users" domainObjectName="Users">
             <property name="useActualColumnNames" value="true"/>
+            <generatedKey column="id" sqlStatement="JDBC"/>
         </table>
         <table tableName="verification_codes" domainObjectName="VerificationCodes">
             <property name="useActualColumnNames" value="true"/>

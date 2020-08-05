@@ -1,24 +1,34 @@
 package com.rcloud.server.sealtalk.manager;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.constant.SmsServiceType;
+import com.rcloud.server.sealtalk.domain.DataVersions;
+import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.domain.VerificationCodes;
 import com.rcloud.server.sealtalk.domain.VerificationViolations;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
+import com.rcloud.server.sealtalk.service.DataVersionsService;
+import com.rcloud.server.sealtalk.service.UsersService;
 import com.rcloud.server.sealtalk.service.VerificationCodesService;
 import com.rcloud.server.sealtalk.service.VerificationViolationsService;
-import com.rcloud.server.sealtalk.util.JacksonUtil;
-import com.rcloud.server.sealtalk.util.RegexUtils;
-import io.rong.RongCloud;
-import java.io.IOException;
-import java.util.Date;
-import javax.annotation.Resource;
+import com.rcloud.server.sealtalk.sms.SmsService;
+import com.rcloud.server.sealtalk.sms.SmsServiceFactory;
+import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthentication;
+import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthenticationFactory;
+import com.rcloud.server.sealtalk.util.MiscUtils;
+import com.rcloud.server.sealtalk.util.RandomUtil;
+import com.rcloud.server.sealtalk.util.ValidateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * @Author: xiuwei.nie
@@ -39,67 +49,76 @@ public class UserManager extends BaseManager {
     @Resource
     private VerificationViolationsService verificationViolationsService;
 
+    @Resource
+    private UsersService usersService;
+
+    @Resource
+    private DataVersionsService dataVersionsService;
+
     /**
      * 向手机发送验证码
      */
-    public void sendCode(String region, String phone) throws ServiceException {
-        log.info("send code. region:[{}] phone:[{}]", region, phone);
-        checkRegion(region);
+    public void sendCode(String region, String phone, SmsServiceType smsServiceType, ServerApiParams serverApiParams) throws ServiceException {
+        log.info("send code. region:[{}] phone:[{}] smsServiceType:[{}]", region, phone, smsServiceType.getCode());
+        //如果是开发环境，且是调用云片服务直接返回，不执行后续逻辑
+        if (Constants.ENV_DEV.equals(profileConfig.getEnv()) && SmsServiceType.YUNPIAN.equals(smsServiceType)) {
+            return;
+        }
+        region = MiscUtils.removeRegionPrefix(region);
+        ValidateUtils.checkRegion(region);
         String completePhone = region + phone;
-        checkCompletePhone(completePhone);
+        ValidateUtils.checkCompletePhone(phone);
         VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
         if (verificationCodes != null) {
             Date limitDate = getLimitDate();
             checkLimitDate(limitDate, verificationCodes);
         }
-        upsertAndSendToSms(region, phone);
+        if (SmsServiceType.YUNPIAN.equals(smsServiceType)) {
+            check(serverApiParams);
+        }
+
+        upsertAndSendToSms(region, phone, smsServiceType);
     }
 
     /**
      * 发送短信并更新数据库
      */
-    private void upsertAndSendToSms(String region, String phone) throws ServiceException {
+    private void upsertAndSendToSms(String region, String phone, SmsServiceType smsServiceType) throws ServiceException {
         if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
-            upsert(region, phone, "");
-        } else if (!"".equals(sealtalkConfig.getRongcloudSmsRegisterTemplateId())) {
-            String result = sendToSms(region, phone);
-            try {
-                JsonNode jsonNode = JacksonUtil.getJsonNode(result);
-                int code = jsonNode.get("code").asInt();
-                String sessionId = jsonNode.get("sessionId").asText();
-                if (Constants.HTTP_SUCCESS_CODE != code) {
-                    log.error("RongCloud Server API Error. Code:[{}]", code);
-                    throw new ServiceException(ErrorCode.SEND_SMS_ERROR,
-                        "RongCloud Server API Error Code: " + code);
-                }
-                upsert(region, phone, sessionId);
-            } catch (IOException e) {
-                log.error("Send sms result to json error.", e);
-                throw new ServiceException(ErrorCode.SERVER_ERROR);
-            }
+            //开发环境直接插入数据库，不调用短信接口
+            saveOrUpdate(region, phone, "");
+        } else {
+            SmsService smsService = SmsServiceFactory.getSmsService(smsServiceType);
+            String sessionId = smsService.sendVerificationCode(region, phone);
+            saveOrUpdate(region, phone, sessionId);
         }
     }
 
     /**
-     * 发送短信
+     * 验证码添加或更新数据库
      */
-    private String sendToSms(String region, String phone) {
-        RongCloud rongCloud = RongCloud.getInstance(sealtalkConfig.getRongcloudAppKey(),
-            sealtalkConfig.getRongcloudAppSecret());
-        // todo send sms
-
-        return "";
-    }
-
-    /**
-     * 添加更新数据库
-     */
-    private void upsert(String region, String phone, String sessionId) {
-        verificationCodesService.upsert(region, phone, sessionId);
+    private void saveOrUpdate(String region, String phone, String sessionId) {
+        VerificationCodes verificationCodes = verificationCodesService.queryOne(region,phone);
+        if(verificationCodes==null){
+            verificationCodes = new VerificationCodes();
+            verificationCodes.setRegion(region);
+            verificationCodes.setPhone(phone);
+            verificationCodes.setSessionId(sessionId);
+            verificationCodes.setToken("");
+            verificationCodes.setCreatedAt(new Date());
+            verificationCodes.setUpdatedAt(verificationCodes.getCreatedAt());
+            verificationCodesService.insert(verificationCodes);
+        }else {
+            verificationCodes.setRegion(region);
+            verificationCodes.setPhone(phone);
+            verificationCodes.setSessionId(sessionId);
+            verificationCodes.setUpdatedAt(verificationCodes.getCreatedAt());
+            verificationCodesService.update(verificationCodes);
+        }
     }
 
     private void checkLimitDate(Date limitDate, VerificationCodes verificationCodes)
-        throws ServiceException {
+            throws ServiceException {
         long updatedTime = verificationCodes.getUpdatedAt().getTime();
         long limitDateTime = limitDate.getTime();
         if (limitDateTime < updatedTime) {
@@ -117,48 +136,6 @@ public class UserManager extends BaseManager {
         return dateTime.toDate();
     }
 
-    private void checkCompletePhone(String completePhone) throws ServiceException {
-        if (!RegexUtils.checkMobile(completePhone)) {
-            throw new ServiceException(ErrorCode.REQUEST_ERROR, "Invalid region and phone number.");
-        }
-    }
-
-    private void checkRegion(String region) throws ServiceException {
-        if (!Constants.REGION_NUM.equals(region)) {
-            throw new ServiceException(ErrorCode.REQUEST_ERROR, "Invalid region and phone number.");
-        }
-    }
-
-    /**
-     * 向手机发送验证码(云片服务)
-     */
-    public void sendCodeYp(String region, String phone, ServerApiParams serverApiParams)
-        throws ServiceException {
-        log.info("send code yp. region:[{}] phone:[{}]", region, phone);
-        region = removeRegionPrefix(region);
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
-        if (verificationCodes != null) {
-            Date limitDate = getLimitDate();
-            checkLimitDate(limitDate, verificationCodes);
-        }
-        upsertAndSendToSmsYp(region, phone, serverApiParams);
-    }
-
-    private void upsertAndSendToSmsYp(String region, String phone, ServerApiParams serverApiParams)
-        throws ServiceException {
-        if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
-            upsert(region, phone, "");
-        } else {
-            check(serverApiParams);
-            String result = sendYunPianCode(region, phone);
-            upsert(region, phone, "");
-        }
-    }
-
-    private String sendYunPianCode(String region, String phone) {
-
-        return "";
-    }
 
     private void check(ServerApiParams serverApiParams) throws ServiceException {
         String ip = serverApiParams.getRequestUriInfo().getIp();
@@ -178,10 +155,78 @@ public class UserManager extends BaseManager {
         }
     }
 
-    private String removeRegionPrefix(String region) {
-        if (region.startsWith(Constants.STRING_ADD)) {
-            region = region.substring(1);
+
+    /**
+     * 判断用户是否已经存在
+     *
+     * @param region
+     * @param phone
+     * @return
+     * @throws ServiceException
+     */
+    public boolean isExistUser(String region, String phone) throws ServiceException {
+
+        ValidateUtils.checkRegion(region);
+        ValidateUtils.checkCompletePhone(phone);
+        Users users = usersService.queryOne(region, phone);
+        return !(users == null);
+    }
+
+
+    /**
+     * 校验验证码
+     *
+     * @param region
+     * @param phone
+     * @param code
+     * @param smsServiceType
+     * @return
+     * @throws ServiceException
+     */
+    public String verifyCode(String region, String phone, String code, SmsServiceType smsServiceType) throws ServiceException {
+        VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
+        VerifyCodeAuthentication verifyCodeAuthentication = VerifyCodeAuthenticationFactory.getVerifyCodeAuthentication(smsServiceType);
+        verifyCodeAuthentication.validate(verificationCodes,code,profileConfig.getEnv());
+        return verificationCodes.getToken();
+    }
+
+    @Transactional(rollbackFor = {Exception.class})
+    public long register(String nickname, String password, String verificationToken) throws ServiceException{
+
+        VerificationCodes verificationCodes = verificationCodesService.queryOne(verificationToken);
+
+        if(verificationCodes==null){
+            throw new ServiceException(ErrorCode.UNKNOWN_VERIFICATION_TOKEN);
         }
-        return region;
+
+        Users users = usersService.queryOne(verificationCodes.getRegion(), verificationCodes.getPhone());
+
+        if(users!=null){
+            throw new ServiceException(ErrorCode.PHONE_ALREADY_REGIESTED);
+        }
+        //如果没有注册过，密码hash
+        int salt = RandomUtil.randomBetween(1000,9999);
+        String hashStr = MiscUtils.hash(password, salt);
+
+        //插入user表
+        Users u = new Users();
+        u.setNickname(nickname);
+        u.setRegion(verificationCodes.getRegion());
+        u.setPhone(verificationCodes.getPhone());
+        u.setPasswordHash(hashStr);
+        u.setPasswordSalt(String.valueOf(salt));
+        u.setCreatedAt(new Date());
+        u.setUpdatedAt(u.getCreatedAt());
+        long id = usersService.createUser(u);
+        //插入DataVersion表
+        DataVersions dataVersions = new DataVersions();
+        dataVersions.setUserId(u.getId());
+        dataVersionsService.createDataVersion(dataVersions);
+        //设置cookie
+
+        //缓存nickName
+
+        //上报管理后台TODO
+        return id;
     }
 }

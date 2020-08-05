@@ -126,7 +126,7 @@ public class SmsManager extends BaseManager {
         params.add("tpl_value", "");
     }
 
-    public JsonNode getRegionList(String region) throws ServiceException {
+    public JsonNode getRegionList() throws ServiceException {
         try {
             String regionData = IOUtils
                 .toString(regionResource.getInputStream(), StandardCharsets.UTF_8);

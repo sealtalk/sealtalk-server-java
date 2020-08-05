@@ -23,4 +23,6 @@ public class Constants {
 
     public static final int HTTP_SUCCESS_CODE = 200;
 
+    public static final String DEFAULT_VERIFY_CODE = "9999";
+
 }

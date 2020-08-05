@@ -69,11 +69,14 @@ public class RequestInterceptor implements HandlerInterceptor {
 
     private Cookie getAuthCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(sealtalkConfig.getAuthCookieName())) {
-                return cookie;
+        if(cookies!=null){
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(sealtalkConfig.getAuthCookieName())) {
+                    return cookie;
+                }
             }
         }
+
         return null;
     }
 

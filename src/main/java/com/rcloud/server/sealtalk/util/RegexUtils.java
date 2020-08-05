@@ -137,4 +137,9 @@ public class RegexUtils {
         String regex = "[1-9](\\d{1,2})?\\.(0|([1-9](\\d{1,2})?))\\.(0|([1-9](\\d{1,2})?))\\.(0|([1-9](\\d{1,2})?))";
         return Pattern.matches(regex, ipAddress);
     }
+
+    public static void main(String[] args) {
+        String mobile = "8618810183283";
+        System.out.println(RegexUtils.checkMobile(mobile));
+    }
 }

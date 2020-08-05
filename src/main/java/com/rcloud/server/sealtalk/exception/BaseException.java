@@ -12,16 +12,31 @@ import lombok.Getter;
 @Getter
 public class BaseException extends Exception {
 
-    private ErrorCode errorCode;
+    private int errorCode;
+    private String errorMessage;
 
     public BaseException(String message, ErrorCode errorCode) {
         super(message);
-        this.errorCode = errorCode;
+        this.errorCode = errorCode.getErrorCode();
+        this.errorMessage = errorCode.getErrorMessage();
     }
 
     public BaseException(String message, ErrorCode errorCode, Throwable cause) {
         super(message, cause);
+        this.errorCode = errorCode.getErrorCode();
+        this.errorMessage = errorCode.getErrorMessage();
+    }
+
+    public BaseException(String message, int errorCode,String errorMessage) {
+        super(message);
         this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+    }
+
+    public BaseException(String message, int errorCode,String errorMessage, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
     }
 
     public BaseException(String message) {

@@ -13,6 +13,11 @@ spring:
     baseline-on-migrate: true
     baseline-version: 2
 
+
+
+
+  swagger2:
+    enabled: true
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
 
@@ -26,7 +31,8 @@ sealtalk:
 
 sealtalk-config:
   auth_cookie_name: rong_auth_cookie
-  auth_cookie_key: wesddfsdfssdsdssd
+  #auth_cookie_key: wesddfsdfssdsdssd
+  auth_cookie_key: zsyy
   nickname_cookie_name:
   auth_cookie_max_age: 2592000000
   rongcloud_sms_register_template_id: o2jdj82dagT3tIPJCS2
@@ -36,7 +42,7 @@ sealtalk-config:
   qiniu_secret_key: 0pknd92neke9dm1plsn20C6Hni3TIVgjw5 // 此处为假数据
   qiniu_bucket_name: devtalk-image
   qiniu_bucket_domain: self.domain.com // 此处为假数据
-  yunpian_api_key: 123iijmbbi9kn4bsp92odd21d213q // 此处为假数据
+  yunpian_api_key: 830c36ecb0ef1667e02769e1f33d9942 // 此处为假数据
   yunpian_sms_host: sms.yunpian.com
   yunpian_internal_sms_host: us.yunpian.com
   yunpian_send_sms_uri: /v2/sms/tpl_single_send.json
@@ -47,6 +53,7 @@ sealtalk-config:
   server_port: 8080
   db_name: sealtalk
   db_user: root
-  db_password: root
+  db_password: 123456
   db_host: 127.0.0.1
   db_port: 3306
+

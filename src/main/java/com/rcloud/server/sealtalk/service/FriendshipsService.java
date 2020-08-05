@@ -2,8 +2,9 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.FriendshipsMapper;
 import com.rcloud.server.sealtalk.domain.Friendships;
-import com.rcloud.server.sealtalk.domain.FriendshipsExample;
+
 import javax.annotation.Resource;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,11 +20,12 @@ public class FriendshipsService {
     private FriendshipsMapper mapper;
 
     public Friendships getInfo(Integer currentUserId, Integer friendId) {
-        FriendshipsExample example = new FriendshipsExample()
-            .createCriteria()
-            .andUserIdEqualTo(currentUserId)
-            .andFriendIdEqualTo(friendId)
-            .example();
-        return mapper.selectOneByExample(example);
+//        FriendshipsExample example = new FriendshipsExample()
+//            .createCriteria()
+//            .andUserIdEqualTo(currentUserId)
+//            .andFriendIdEqualTo(friendId)
+//            .example();
+//        return mapper.selectOneByExample(example);
+        return null;
     }
 }

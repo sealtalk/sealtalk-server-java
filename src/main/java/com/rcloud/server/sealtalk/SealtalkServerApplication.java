@@ -1,9 +1,11 @@
 package com.rcloud.server.sealtalk;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import tk.mybatis.spring.annotation.MapperScan;
 
+@EnableTransactionManagement
 @SpringBootApplication
 @MapperScan("com.rcloud.server.sealtalk.dao")
 public class SealtalkServerApplication {

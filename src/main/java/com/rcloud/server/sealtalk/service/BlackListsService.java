@@ -2,10 +2,9 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.BlackListsMapper;
 import com.rcloud.server.sealtalk.domain.BlackLists;
-import com.rcloud.server.sealtalk.domain.BlackListsExample;
-import com.rcloud.server.sealtalk.domain.Users;
-import com.rcloud.server.sealtalk.domain.UsersExample;
+
 import javax.annotation.Resource;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,11 +20,13 @@ public class BlackListsService {
     private BlackListsMapper mapper;
 
     public BlackLists queryOne(Integer currentUserId, Integer friendId) {
-        BlackListsExample example = new BlackListsExample()
-            .createCriteria()
-            .andFriendIdEqualTo(currentUserId)
-            .andUserIdEqualTo(friendId)
-            .example();
-        return mapper.selectOneByExample(example);
+//        BlackListsExample example = new BlackListsExample()
+//            .createCriteria()
+//            .andFriendIdEqualTo(currentUserId)
+//            .andUserIdEqualTo(friendId)
+//            .example();
+//        return mapper.selectOneByExample(example);
+
+        return null;
     }
 }

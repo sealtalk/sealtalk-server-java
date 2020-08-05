@@ -32,9 +32,11 @@ public class ResultWrap {
     }
 
     public static Response error(ServiceException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        return new Response<>(String.valueOf(errorCode.getErrorCode()),
-            errorCode.getErrorMessage());
+        int errorCode = ex.getErrorCode();
+        String errorMessage = ex.getErrorMessage();
+
+        return new Response<>(String.valueOf(errorCode),
+            errorMessage);
     }
 
     public static Response error(ErrorCode errorCode) {

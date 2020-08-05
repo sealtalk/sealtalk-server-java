@@ -1,0 +1,134 @@
+package com.rcloud.server.sealtalk.util;
+
+public class N3d {
+
+    public static void main(String[] args) {
+        N3d n = new N3d(N3D_KEY, 1, 4294967295L);
+        for (long i = 1; i < 4294967295L; i++) {
+            String ret = n.encrypt(i);
+            System.out.println(ret);
+            System.out.println(n.decrypt(ret));
+        }
+
+    }
+
+    private static final String N3D_KEY = "11EdDIaqpcim";
+
+    private long keyCode = 0;
+    private String key;
+    private int radix;
+    private long lower;
+    private long upper;
+    private char[][] dict = new char[62][62];
+
+    public N3d(String keyx, long lower, long upper) {
+        this.key = keyx;
+        this.lower = lower;
+        this.upper = upper;
+        char[] charMap = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+        this.radix = dict[0].length;
+
+        if (this.upper <= this.lower) {
+            throw new RuntimeException("Parameter is error.");
+        }
+
+        if (key == null || key.length() == 0)
+            throw new RuntimeException("The key is error.");
+
+        for (int i = 0, n = 0, ref = key.length(); 0 <= ref ? n < ref : n > ref; i = 0 <= ref ? ++n : --n) {
+            char a = key.charAt(i);
+            if (a > 127) {
+                throw new RuntimeException("The key is error.");
+            }
+            this.keyCode += a * Math.pow(128, i % 7);
+        }
+
+        if (this.keyCode + this.radix < this.upper) {
+            throw new RuntimeException("The secret key is too short.");
+        }
+        long i = this.keyCode - this.radix;
+        int j = 0;
+        while (i < this.keyCode) {
+            int k = this.radix;
+            int l = 0;
+            while (k > 0) {
+                int s = (int) (i % k);
+                this.dict[j][l] = charMap[s];
+
+                charMap[s] = charMap[k - 1];
+                k--;
+                l++;
+            }
+            for (int x = 0; x < charMap.length; x++) {
+                charMap[x] = this.dict[j][x];
+            }
+            i++;
+            j++;
+        }
+    }
+
+
+    public String encrypt(long num) {
+        if (num > this.upper || num < this.lower)
+            throw new RuntimeException("Parameter is error.");
+
+        num = this.keyCode - num;
+        StringBuilder result = new StringBuilder();
+        int m = (int) (num % this.radix);
+        char[] map = this.dict[m];
+
+        int s = 0;
+        result.append(this.dict[0][m]);
+        while (num > this.radix) {
+            num = (num - m) / this.radix;
+            m = (int) (num % this.radix);
+            if ((s = m + s) >= this.radix) {
+                s -= this.radix;
+            }
+            result.append(map[s]);
+        }
+        return result.toString();
+    }
+
+    public long decrypt(String str) {
+        long result = 0;
+        if (str == null || str.length() == 0) {
+            throw new RuntimeException("Parameter is error.");
+        }
+        char[] chars = str.toCharArray();
+        int len = chars.length;
+        int t = 0;
+        int s = 0;
+        result = new String(this.dict[0]).indexOf(chars[0]);
+        if (result < 0)
+            throw new RuntimeException("Invalid string.");
+        String map = new String(this.dict[(int) result]);
+
+        for (int i = 1, n = 1, ref = len; 1 <= ref ? n < ref : n > ref; i = 1 <= ref ? ++n : --n) {
+
+            int j = map.indexOf(chars[i]);
+
+            if (j < 0) {
+                throw new RuntimeException("Invalid string.");
+            }
+            if ((s = j - t) < 0) {
+                s += this.radix;
+            }
+            result += s * Math.pow(this.radix, i);
+            t = j;
+        }
+        result = this.keyCode - result;
+        return result;
+    }
+
+    public static String encode(long num){
+        N3d n3d = new N3d(N3D_KEY, 1, 4294967295L);
+        return n3d.encrypt(num);
+    }
+
+    public static long decode(String str){
+        N3d n3d = new N3d(N3D_KEY, 1, 4294967295L);
+        return n3d.decrypt(str);
+    }
+
+}

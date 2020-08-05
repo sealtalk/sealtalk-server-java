@@ -2,9 +2,10 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.UsersMapper;
 import com.rcloud.server.sealtalk.domain.Users;
-import com.rcloud.server.sealtalk.domain.UsersExample;
-import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
+
+import javax.annotation.Resource;
 
 /**
  * @Author: xiuwei.nie
@@ -19,10 +20,22 @@ public class UsersService {
     private UsersMapper mapper;
 
     public Users queryOne(Integer friendId) {
-        UsersExample example = new UsersExample()
-            .createCriteria()
-            .andIdEqualTo(friendId)
-            .example();
+        return mapper.selectByPrimaryKey(friendId);
+    }
+
+
+    public Users queryOne(String region, String phone) {
+
+        Example example = new Example(Users.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("region",region);
+        criteria.andEqualTo("phone",phone);
         return mapper.selectOneByExample(example);
+    }
+
+
+    public long createUser(Users u) {
+        mapper.insertSelective(u);
+        return u.getId();
     }
 }

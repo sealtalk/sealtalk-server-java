@@ -1,10 +1,17 @@
 package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.VerificationCodesMapper;
+import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.domain.VerificationCodes;
-import com.rcloud.server.sealtalk.domain.VerificationCodesExample;
+
 import javax.annotation.Resource;
+
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import tk.mybatis.mapper.entity.Example;
+
+import java.util.Date;
 
 /**
  * @Author: xiuwei.nie
@@ -19,25 +26,28 @@ public class VerificationCodesService {
     private VerificationCodesMapper mapper;
 
     public VerificationCodes queryOne(String region, String phone) {
-        VerificationCodesExample example = new VerificationCodesExample()
-            .createCriteria()
-            .andRegionEqualTo(region)
-            .andPhoneEqualTo(phone)
-            .example();
+
+        Example example = new Example(VerificationCodes.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("region",region);
+        criteria.andEqualTo("phone",phone);
         return mapper.selectOneByExample(example);
     }
 
-    public void upsert(String region, String phone, String sessionId) {
-        VerificationCodes verificationCodes = new VerificationCodes();
-        verificationCodes.setPhone(phone);
-        verificationCodes.setRegion(region);
-        verificationCodes.setSessionId(sessionId);
-        VerificationCodesExample example = new VerificationCodesExample()
-            .createCriteria()
-            .andRegionEqualTo(region)
-            .andPhoneEqualTo(phone)
-            .andSessionIdEqualTo(sessionId)
-            .example();
-        mapper.upsertByExampleSelective(verificationCodes, example);
+    public VerificationCodes queryOne(String token) {
+
+        Example example = new Example(VerificationCodes.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("token",token);
+        return mapper.selectOneByExample(example);
+    }
+
+    public void insert(VerificationCodes verificationCodes) {
+        mapper.insertSelective(verificationCodes);
+    }
+
+    public void update(VerificationCodes verificationCodes) {
+        Assert.notNull(verificationCodes.getId(),"id is null");
+        mapper.updateByPrimaryKeySelective(verificationCodes);
     }
 }

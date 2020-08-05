@@ -80,5 +80,12 @@ public class AES256 {
 
         String decryptResult = AES256.decrypt(encryptResult, password);
         System.out.println("解密：" + decryptResult);
+
+
+        String text = "wE7fOlq6wnXycHuqoMAPC+SQl+a2jG3Npl1AwZUaQEg0moEquUct88AVHprc39cl";
+
+        String decryptText = AES256.decrypt(text.getBytes(), password);
+
+        System.out.println("decryptText:"+decryptText);
     }
 }
