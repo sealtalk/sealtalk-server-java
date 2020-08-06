@@ -11,6 +11,7 @@ import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
+import com.rcloud.server.sealtalk.util.AES256;
 import com.rcloud.server.sealtalk.util.MiscUtils;
 import com.rcloud.server.sealtalk.util.N3d;
 import com.rcloud.server.sealtalk.util.ValidateUtils;
@@ -18,6 +19,7 @@ import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -210,20 +213,13 @@ public class UserController {
     }
 
     private void checkRegisterParam(String nickname, String password, String verificationToken) throws ServiceException {
-        if (password.indexOf(" ") > -1) {
-            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
-        }
-        if (StringUtils.isEmpty(nickname) || nickname.length() > 32) {
-            throw new ServiceException(ErrorCode.INVALID_NICKNAME_LENGTH);
-        }
-        if (StringUtils.isEmpty(password) || password.length() < 6 || password.length() > 20) {
-            throw new ServiceException(ErrorCode.INVALID_PASSWORD_LENGHT);
-        }
-        if (!ValidateUtils.checkUUIDStr(verificationToken)) {
-            throw new ServiceException(ErrorCode.INVALID_VERIFICATION_TOKEN);
-        }
-
+        ValidateUtils.checkPassword(password);
+        ValidateUtils.checkNickName(nickname);
+        ValidateUtils.checkUUID(verificationToken);
     }
+
+
+
 
     /**
      * 1、 判断phone、regionName合法性，不合法返回400
@@ -247,10 +243,13 @@ public class UserController {
         ValidateUtils.checkRegionName(MiscUtils.getRegionName(region));
         ValidateUtils.checkCompletePhone(phone);
 
-        Pair<String, String> result = userManager.login(region, phone, password, response);
+        Pair<String, String> pairResult = userManager.login(region, phone, password, response);
 
+        Map<String,String> resultMap = new HashMap<>();
+        resultMap.put("id", pairResult.getLeft());
+        resultMap.put("token",pairResult.getRight());
         //对result编码
-        return APIResultWrap.ok("");
+        return APIResultWrap.ok(MiscUtils.encodeResults(resultMap));
     }
 
 
@@ -266,4 +265,83 @@ public class UserController {
 
     }
 
+    @ApiOperation(value = "重置密码")
+    @RequestMapping(value = "/reset_password", method = RequestMethod.POST)
+    public APIResult<String> resetPassword(@ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
+                                   @RequestParam String password,
+                                   @ApiParam(name = "verification_token", value = "凭证token", required = true, type = "String", example = "xxx")
+                                   @RequestParam("verification_token") String verificationToken) throws ServiceException {
+
+
+        ValidateUtils.checkPassword(password);
+        ValidateUtils.checkUUID(verificationToken);
+
+        userManager.resetPassword(password,verificationToken);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "修改密码")
+    @RequestMapping(value = "/change_password", method = RequestMethod.POST)
+    public APIResult<String> changePassword(@ApiParam(name = "newPassword", value = "新密码", required = true, type = "String", example = "xxx")
+                                   @RequestParam String newPassword,
+                                            @ApiParam(name = "oldPassword", value = "老密码", required = true, type = "String", example = "xxx")
+                                   @RequestParam String oldPassword,
+                                            HttpServletRequest request) throws ServiceException {
+
+
+        ValidateUtils.checkPassword(newPassword);
+        ValidateUtils.notNull(oldPassword);
+
+        Integer currentUserId = getCurrentUserId(request);
+        userManager.changePassword(newPassword,oldPassword,currentUserId);
+        return APIResultWrap.ok("");
+    }
+
+
+    /**
+     * 设置当前用户昵称
+     *
+     * 1、xss处理nickname
+     * 2、校验nickname参数合法性
+     * 3、从cookie中获取当前用户id，根据id查询用户信息
+     * 4、更新user表中的nickname,timestamp
+     * 5、调用融云接口刷新昵称、缓存nickname到本地缓存
+     * 6、更新DataVersion表的UserVersion、AllFriendshipVersion
+     * 7、移除缓存信息
+     *      -》Cache.del("user_" + currentUserId);
+     *      -》Cache.del("friendship_profile_user_" + currentUserId);
+     * 8、根据currentUserId 查询所有的friendId，然后清除缓存Cache.del("friendship_all_" + friend.friendId)
+     * 9、根据currentUserId查询所有的groupId，然后清除缓存Cache.del("group_members_" + groupMember.groupId)
+     * 10、成功后返回200
+     */
+
+    @ApiOperation(value = "设置昵称")
+    @RequestMapping(value = "/set_nickname", method = RequestMethod.POST)
+    public APIResult<String> setNickName(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
+                                         @RequestParam String nickname,
+                                            HttpServletRequest request) throws ServiceException {
+
+
+        ValidateUtils.checkNickName(nickname);
+
+        Integer currentUserId = getCurrentUserId(request);
+        userManager.setNickName(nickname,currentUserId);
+        return APIResultWrap.ok("");
+    }
+
+
+
+
+    private Integer getCurrentUserId(HttpServletRequest request) {
+        Integer userId =null;
+        Cookie[] cookies = request.getCookies();
+        if(cookies!=null && cookies.length>0){
+            for(Cookie cookie:cookies){
+                if(cookie.getName().equals(sealtalkConfig.getAuthCookieName())){
+                    userId = Integer.valueOf(AES256.decrypt(cookie.getValue().getBytes(),sealtalkConfig.getAuthCookieKey()));
+                }
+            }
+        }
+        return null;
+    }
 }

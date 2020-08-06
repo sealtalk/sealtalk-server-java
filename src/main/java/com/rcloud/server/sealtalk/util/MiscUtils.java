@@ -65,7 +65,6 @@ public class MiscUtils {
         String text = "abcd123";
         int salt = 9988;
 
-
         //a2d46a186480138852a18cb1c8b2af530f3e5166
         System.out.println(hash(text, salt));
     }
@@ -79,10 +78,31 @@ public class MiscUtils {
         return regionMap.get(region);
     }
 
+    /**
+     * 缓存nickname
+     *
+     * @param userId
+     * @param nickname
+     * @throws ServiceException
+     */
     public static void cacheNickName(Integer userId, String nickname) throws ServiceException {
         if (userId == null || StringUtils.isEmpty(nickname)) {
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
         CacheUtil.set(NICK_NAME_CACHE_PREFIX + userId, nickname);
     }
+
+
+    /**
+     * 返回结果编码 TODO
+     *
+     * @param o
+     * @return
+     */
+    public static String encodeResults(Object o) {
+
+        return "";
+    }
+
+
 }

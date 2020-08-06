@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.util;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
@@ -41,5 +42,34 @@ public class ValidateUtils {
             return false;
         }
         return true;
+    }
+
+    public static void checkNickName(String nickname) throws ServiceException {
+        if (org.springframework.util.StringUtils.isEmpty(nickname) || nickname.length() > 32) {
+            throw new ServiceException(ErrorCode.INVALID_NICKNAME_LENGTH);
+        }
+    }
+
+    public static void checkUUID(String verificationToken) throws ServiceException {
+        if (!ValidateUtils.checkUUIDStr(verificationToken)) {
+            throw new ServiceException(ErrorCode.INVALID_VERIFICATION_TOKEN);
+        }
+    }
+
+    public static void checkPassword(String password) throws ServiceException {
+
+        if (org.springframework.util.StringUtils.isEmpty(password) || password.length() < 6 || password.length() > 20) {
+            throw new ServiceException(ErrorCode.INVALID_PASSWORD_LENGHT);
+        }
+
+        if (password.indexOf(" ") > -1) {
+            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
+        }
+    }
+
+    public static void notNull(String str) throws ServiceException {
+        if(StringUtils.isEmpty(str)){
+            throw new ServiceException(ErrorCode.PARAM_ERROR);
+        }
     }
 }

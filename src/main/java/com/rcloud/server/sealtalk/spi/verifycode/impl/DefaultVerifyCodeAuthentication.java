@@ -29,6 +29,11 @@ public class DefaultVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
         return SmsServiceType.RONGCLOUD;
     }
 
+    /**
+     * 调用融云sdk 校验短信验证码
+     * @param verificationCodes
+     * @param code
+     */
     @Override
     protected void serviceValidate(VerificationCodes verificationCodes,String code) {
 

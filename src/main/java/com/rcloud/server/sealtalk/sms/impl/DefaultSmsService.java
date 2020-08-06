@@ -66,7 +66,7 @@ public class DefaultSmsService implements SmsService {
     }
 
     /**
-     * 发送短信
+     * 调用融云sdk 发送短信
      */
     private String sendToSms(String region, String phone) {
         RongCloud rongCloud = RongCloud.getInstance(sealtalkConfig.getRongcloudAppKey(),

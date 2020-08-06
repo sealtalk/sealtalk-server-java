@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * @Author: xiuwei.nie
@@ -19,8 +20,8 @@ public class UsersService {
     @Resource
     private UsersMapper mapper;
 
-    public Users queryOne(Integer friendId) {
-        return mapper.selectByPrimaryKey(friendId);
+    public Users queryOne(Integer id) {
+        return mapper.selectByPrimaryKey(id);
     }
 
 
@@ -37,5 +38,30 @@ public class UsersService {
     public int createUser(Users u) {
         mapper.insertSelective(u);
         return u.getId();
+    }
+
+
+    public void updatePassword(String region, String phone, String hashStr, int salt) {
+        Users user = new Users();
+        user.setPasswordHash(hashStr);
+        user.setPasswordSalt(String.valueOf(salt));
+        user.setUpdatedAt(new Date());
+
+        Example example = new Example(Users.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("region",region);
+        criteria.andEqualTo("phone",phone);
+
+        mapper.updateByExampleSelective(user,example);
+
+    }
+
+    public void updateNickName(String nickname, Integer currentUserId) {
+        Users users = new Users();
+        users.setId(currentUserId);
+        users.setNickname(nickname);
+        users.setTimestamp(System.currentTimeMillis());
+        users.setUpdatedAt(new Date());
+        mapper.updateByPrimaryKey(users);
     }
 }

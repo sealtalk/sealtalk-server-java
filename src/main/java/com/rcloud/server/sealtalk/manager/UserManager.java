@@ -7,12 +7,14 @@ import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.*;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
+import com.rcloud.server.sealtalk.rongcloud.RongCloudClient;
 import com.rcloud.server.sealtalk.service.*;
 import com.rcloud.server.sealtalk.sms.SmsService;
 import com.rcloud.server.sealtalk.sms.SmsServiceFactory;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthentication;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthenticationFactory;
 import com.rcloud.server.sealtalk.util.*;
+import io.rong.models.response.TokenResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
@@ -54,6 +56,9 @@ public class UserManager extends BaseManager {
 
     @Resource
     private GroupMembersService groupMembersService;
+
+    @Resource
+    private RongCloudClient rongCloudClient;
 
     /**
      * 向手机发送验证码
@@ -268,19 +273,16 @@ public class UserManager extends BaseManager {
         }
 
         //同步前记录日志
-        try {
-            log.info("'Sync groups: %s", JacksonUtil.toJson(groupIdNameMap));
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-        }
-        //将登录用户的userid，与groupIdName信息同步到融云
-//        RongCloud.getInstance() sync TODO
+        log.info("'Sync groups: {}", groupIdNameMap);
+        //调用融云sdk 将登录用户的userid，与groupIdName信息同步到融云 TODO
+
 
         String token = u.getRongCloudToken();
         if (StringUtils.isEmpty(token)) {
-            //如果user表中的融云token为空，从融云获取token，获取后根据userId更新表中token
-            //TODO
-            token = "";
+            //如果user表中的融云token为空，
+            //调用融云sdk 获取token，获取后根据userId更新表中token
+            TokenResult tokenResult = rongCloudClient.register(u.getId(), u.getNickname(), u.getPortraitUri());
+            token = tokenResult.getToken();
         }
 
         //返回userid、token
@@ -294,5 +296,68 @@ public class UserManager extends BaseManager {
         cookie.setDomain(sealtalkConfig.getAuthCookieDomain());
         cookie.setMaxAge(Integer.valueOf(sealtalkConfig.getAuthCookieMaxAge()));
         response.addCookie(cookie);
+    }
+
+    public void resetPassword(String password, String verificationToken) throws ServiceException {
+        VerificationCodes verificationCodes = verificationCodesService.queryOne(verificationToken);
+        if (verificationCodes == null) {
+            throw new ServiceException(ErrorCode.UNKNOWN_VERIFICATION_TOKEN);
+        }
+
+        //新密码hash,修改user表密码字段
+        int salt = RandomUtil.randomBetween(1000, 9999);
+        String hashStr = MiscUtils.hash(password, salt);
+        usersService.updatePassword(verificationCodes.getRegion(), verificationCodes.getPhone(), hashStr, salt);
+    }
+
+    public void changePassword(String newPassword, String oldPassword, Integer currentUserId) throws ServiceException {
+
+        Users u = usersService.queryOne(currentUserId);
+
+        if (u == null) {
+            //TODO  未确认的错误
+            throw new ServiceException(ErrorCode.REQUEST_ERROR);
+        }
+
+        String oldPasswordHash = MiscUtils.hash(oldPassword, Integer.valueOf(u.getPasswordSalt()));
+
+        if (!oldPasswordHash.equals(u.getPasswordHash())) {
+            throw new ServiceException(ErrorCode.USER_PASSWORD_WRONG_2);
+        }
+
+        //新密码hash,修改user表密码字段
+        int salt = RandomUtil.randomBetween(1000, 9999);
+        String hashStr = MiscUtils.hash(newPassword, salt);
+        usersService.updatePassword(u.getRegion(), u.getPhone(), hashStr, salt);
+    }
+
+    public void setNickName(String nickname, Integer currentUserId) throws ServiceException {
+        //修改昵称
+        usersService.updateNickName(nickname, currentUserId);
+
+        //调用融云刷新用户信息
+        rongCloudClient.updateUser(currentUserId, nickname, null);
+
+        //缓存用户昵称
+        MiscUtils.cacheNickName(currentUserId, nickname);
+
+        //修改DataVersion表中 UserVersion
+
+        //修改DataVersion表中 AllFriendshipVersion
+
+        //清除缓存"user_" + currentUserId
+
+        //清除缓存"friendship_profile_user_" + currentUserId
+
+        //查询该用户所有好友关系
+
+        //循环清除缓存"friendship_all_" + friend.friendId
+
+        //查询该用户所属组groupid isDeleted: false
+
+        ///循环清除缓存"group_members_" + groupMember.groupId
+
+        return;
+
     }
 }

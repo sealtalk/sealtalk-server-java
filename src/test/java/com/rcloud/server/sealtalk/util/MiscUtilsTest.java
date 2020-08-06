@@ -1,6 +1,11 @@
 package com.rcloud.server.sealtalk.util;
 
+import com.rcloud.server.sealtalk.domain.Users;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -10,6 +15,7 @@ import static org.junit.Assert.*;
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
+@Slf4j
 public class MiscUtilsTest {
 
 
@@ -22,6 +28,13 @@ public class MiscUtilsTest {
         String code = "123456";
         String text = MiscUtils.merge(content,key,code);
         System.out.println(text);
+
+        Map<String,String> map = new HashMap<>();
+        map.put("abc",123+"");
+
+        Users u = new Users();
+
+        log.error("test {},{},{},{}",3,key,map,u);
     }
 
 }
