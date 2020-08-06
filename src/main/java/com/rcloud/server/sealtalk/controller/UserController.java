@@ -329,7 +329,37 @@ public class UserController {
         return APIResultWrap.ok("");
     }
 
+    @ApiOperation(value = "设置头像")
+    @RequestMapping(value = "/set_portrait_uri", method = RequestMethod.POST)
+    public APIResult<String> setPortraitUri(@ApiParam(name = "portraitUri", value = "头像", required = true, type = "String", example = "xxx")
+                                         @RequestParam String portraitUri,
+                                         HttpServletRequest request) throws ServiceException {
 
+
+        ValidateUtils.checkURL(portraitUri);
+        ValidateUtils.checkPortraitUri(portraitUri);
+
+        Integer currentUserId = getCurrentUserId(request);
+        userManager.setPortraitUri(portraitUri,currentUserId);
+        return APIResultWrap.ok("");
+    }
+
+
+    @ApiOperation(value = "获取token")
+    @RequestMapping(value = "/get_token", method = RequestMethod.POST)
+    public APIResult<String> getToken(HttpServletRequest request) throws ServiceException {
+
+
+
+        Integer currentUserId = getCurrentUserId(request);
+        Pair<String,String> pairResult = userManager.getToken(currentUserId);
+
+        Map<String,String> resultMap = new HashMap<>();
+        resultMap.put("id", pairResult.getLeft());
+        resultMap.put("token",pairResult.getRight());
+        //对result编码
+        return APIResultWrap.ok(MiscUtils.encodeResults(resultMap));
+    }
 
 
     private Integer getCurrentUserId(HttpServletRequest request) {

@@ -68,8 +68,23 @@ public class ValidateUtils {
     }
 
     public static void notNull(String str) throws ServiceException {
-        if(StringUtils.isEmpty(str)){
+        if (StringUtils.isEmpty(str)) {
             throw new ServiceException(ErrorCode.PARAM_ERROR);
         }
+    }
+
+    public static void checkURL(String portraitUri) throws ServiceException {
+
+        if (!RegexUtils.checkURL(portraitUri)) {
+            throw new ServiceException(ErrorCode.INVALID_PORTRAITURI_FORMAT);
+        }
+    }
+
+    public static void checkPortraitUri(String portraitUri) throws ServiceException {
+        if (StringUtils.isEmpty(portraitUri) || portraitUri.length() < 12 || portraitUri.length() > 256) {
+            throw new ServiceException(ErrorCode.INVALID_PORTRAITURI_LENGTH);
+        }
+
+
     }
 }

@@ -34,6 +34,11 @@ public enum ErrorCode {
     USER_PASSWORD_WRONG(1001, "Wrong password."),
     USER_PASSWORD_WRONG_2(1000, "Wrong password."),
 
+    //user error
+    INVALID_PORTRAITURI_FORMAT(400,"Invalid portraitUri format."),
+    INVALID_PORTRAITURI_LENGTH(400,"Invalid portraitUri length."),
+
+
     //yunpian error 云片服务错误，错误码3000 开头
     YP_SERVER_FAILD(3000, "YunPian server error"),
     YP_GET_TEMPLATE_FAILD(3001, "Failed to get YunPian template"),

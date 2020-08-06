@@ -280,9 +280,11 @@ public class UserManager extends BaseManager {
         String token = u.getRongCloudToken();
         if (StringUtils.isEmpty(token)) {
             //如果user表中的融云token为空，
-            //调用融云sdk 获取token，获取后根据userId更新表中token
+            //调用融云sdk 获取token
             TokenResult tokenResult = rongCloudClient.register(u.getId(), u.getNickname(), u.getPortraitUri());
             token = tokenResult.getToken();
+            //获取后根据userId更新表中token
+            usersService.updateToken(token,u.getId());
         }
 
         //返回userid、token
@@ -358,6 +360,46 @@ public class UserManager extends BaseManager {
         ///循环清除缓存"group_members_" + groupMember.groupId
 
         return;
+
+    }
+
+    public void setPortraitUri(String portraitUri, Integer currentUserId) throws ServiceException {
+
+        //修改头像
+        usersService.updatePortraitUri(portraitUri, currentUserId);
+
+        //调用融云刷新用户信息
+        rongCloudClient.updateUser(currentUserId, null, portraitUri);
+
+        //修改DataVersion表中 UserVersion
+
+        //修改DataVersion表中 AllFriendshipVersion
+
+        //清除缓存"user_" + currentUserId
+
+        //清除缓存"friendship_profile_user_" + currentUserId
+
+        //查询该用户所有好友关系
+
+        //循环清除缓存"friendship_all_" + friend.friendId
+
+        //查询该用户所属组groupid isDeleted: false
+
+        ///循环清除缓存"group_members_" + groupMember.groupId
+
+        return;
+    }
+
+
+    public Pair<String,String> getToken(Integer currentUserId) throws ServiceException {
+
+        Users user = usersService.queryOne(currentUserId);
+
+        TokenResult tokenResult = rongCloudClient.register(user.getId(), user.getNickname(), user.getPortraitUri());
+        String token = tokenResult.getToken();
+        //获取后根据userId更新表中token
+        usersService.updateToken(token,user.getId());
+        return Pair.of(String.valueOf(user.getId()),token);
 
     }
 }

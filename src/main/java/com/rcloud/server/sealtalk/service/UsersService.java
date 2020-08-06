@@ -64,4 +64,24 @@ public class UsersService {
         users.setUpdatedAt(new Date());
         mapper.updateByPrimaryKey(users);
     }
+
+    public void updatePortraitUri(String portraitUri, Integer currentUserId) {
+
+        Users users = new Users();
+        users.setId(currentUserId);
+        users.setPortraitUri(portraitUri);
+        users.setTimestamp(System.currentTimeMillis());
+        users.setUpdatedAt(new Date());
+        mapper.updateByPrimaryKey(users);
+    }
+
+    public void updateToken(String token, Integer id) {
+        Users users = new Users();
+        users.setId(id);
+        users.setRongCloudToken(token);
+        users.setTimestamp(System.currentTimeMillis());
+        users.setUpdatedAt(new Date());
+        mapper.updateByPrimaryKey(users);
+
+    }
 }
