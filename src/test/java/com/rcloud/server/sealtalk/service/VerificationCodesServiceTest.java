@@ -30,7 +30,10 @@ public class VerificationCodesServiceTest {
         String region = "86";
         String phone = "18810183283";
 
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
+        VerificationCodes v = new VerificationCodes();
+        v.setRegion(region);
+        v.setPhone(phone);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
 
         System.out.println(verificationCodes);
         Assert.notNull(verificationCodes, "verificationCodes is null");
@@ -39,7 +42,10 @@ public class VerificationCodesServiceTest {
     @Test
     public void testQueryOne() {
         String token = "57858a44-2707-482d-9ded-c5e12c07166c";
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(token);
+        VerificationCodes v = new VerificationCodes();
+        v.setToken(token);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+
         System.out.println(verificationCodes);
         Assert.notNull(verificationCodes, "verificationCodes is null");
     }
@@ -58,7 +64,7 @@ public class VerificationCodesServiceTest {
         v.setCreatedAt(new Date());
         v.setUpdatedAt(new Date());
         v.setToken("");
-        verificationCodesService.insert(v);
+        verificationCodesService.saveSelective(v);
     }
 
     @Test
@@ -66,10 +72,14 @@ public class VerificationCodesServiceTest {
         String region = "86";
         String phone = "18810183888";
 
-        VerificationCodes v = verificationCodesService.queryOne(region,phone);
+        VerificationCodes v =  new VerificationCodes();
+        v.setRegion(region);
+        v.setPhone(phone);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+
         v.setSessionId("test123");
         v.setUpdatedAt(new Date());
-        verificationCodesService.update(v);
+        verificationCodesService.updateByPrimaryKeySelective(v);
 
     }
 }

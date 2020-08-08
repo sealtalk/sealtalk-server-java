@@ -17,6 +17,9 @@ public class GroupFavs implements Serializable {
 
     private Date updatedAt;
 
+    @Transient
+    private Groups groups;
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -87,5 +90,13 @@ public class GroupFavs implements Serializable {
      */
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Groups getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Groups groups) {
+        this.groups = groups;
     }
 }

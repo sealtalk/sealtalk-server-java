@@ -24,11 +24,11 @@ public class RongCloudInvokeTemplate {
                 if (result.getCode() == 200) {
                     return (T) result;
                 } else {
-                    log.error("调用融云服务返回失败,resultCode={},errorMessage={}", result.getCode(), result.getErrorMessage());
+                    log.error("invoke rongcloud exception,resultCode={},errorMessage={}", result.getCode(), result.getErrorMessage());
                     throw new ServiceException(result.getCode(), "RongCloud Server API Error Code: " + result.getCode());
                 }
             } else {
-                throw new RuntimeException("invoker rongcloud result error");
+                throw new RuntimeException("invoker rongcloud server error");
             }
 
         } catch (Exception e) {

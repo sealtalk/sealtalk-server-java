@@ -2,7 +2,10 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.LoginLogsMapper;
 import javax.annotation.Resource;
+
+import com.rcloud.server.sealtalk.domain.LoginLogs;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.common.Mapper;
 
 /**
  * @Author: xiuwei.nie
@@ -11,8 +14,13 @@ import org.springframework.stereotype.Service;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class LoginLogsService {
+public class LoginLogsService extends AbstractBaseService<LoginLogs,Integer>{
 
     @Resource
     private LoginLogsMapper mapper;
+
+    @Override
+    protected Mapper<LoginLogs> getMapper() {
+        return mapper;
+    }
 }

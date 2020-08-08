@@ -13,6 +13,22 @@ import java.util.concurrent.TimeUnit;
  */
 public class CacheUtil {
 
+    public static final String NICK_NAME_CACHE_PREFIX = "nickname_";
+    public static final String USER_CACHE_PREFIX = "user_";
+    public static final String FRIENDSHIP_PROFILE_CACHE_PREFIX = "friendship_profile_user_";
+    public static final String FRIENDSHIP_ALL_CACHE_PREFIX = "friendship_all_";
+    public static final String GROUP_MEMBERS_CACHE_PREFIX = "group_members_";
+    public static final String USER_BLACKLIST_CACHE_PREFIX = "user_blacklist_";
+
+    public static final String FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX = "friendship_profile_displayName_";
+
+    public static final String USER_GROUP_CACHE_PREFIX = "user_groups_";
+
+
+
+
+
+
     private static Cache<String,String> cache = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterWrite(3600000, TimeUnit.MILLISECONDS)

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class YunPianVerifyCodeAuthentication extends BaseVerifyCodeAuthentication {
 
     @Override
-    public SmsServiceType getIdentification() {
+    public SmsServiceType getIdentifier() {
         return SmsServiceType.YUNPIAN;
     }
 

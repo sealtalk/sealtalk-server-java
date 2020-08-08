@@ -11,6 +11,12 @@ public enum ErrorCode {
     YUN_PIAN_SMS_ERROR(3004, "Too many times sent"),
     TPL_FAILED_ERROR(3001, "Failed to get YunPian template"),
     REQUEST_ERROR(400, "错误的请求"),
+    ILLEGAL_PARAMETER(400,"Illegal parameter ."),
+    EMPTY_PARAMETER(400,"Parameter is empty."),
+
+    EMPTY_STACCOUNT_LENGHT_ERROR(400,"Incorrect parameter length."),
+    EMPTY_STACCOUNT_ERROR(400,"Not letter beginning or invalid symbol."),
+    EMPTY_STACCOUNT_EXIST(1000,"st account exist"),
 
     //invoke rongcloud server error  TODO
     INVOKE_RONG_CLOUD_SERVER_ERROR(2000,"RongCloud Server API Error: "),
@@ -30,13 +36,15 @@ public enum ErrorCode {
     PHONE_ALREADY_REGIESTED(404, "Phone number has already existed."),
 
     //login error
-    USER_NOT_EXISTER(1000, "Phone number not found."),
+    USER_NOT_EXIST(1000, "Phone number not found."),
     USER_PASSWORD_WRONG(1001, "Wrong password."),
     USER_PASSWORD_WRONG_2(1000, "Wrong password."),
 
     //user error
     INVALID_PORTRAITURI_FORMAT(400,"Invalid portraitUri format."),
     INVALID_PORTRAITURI_LENGTH(400,"Invalid portraitUri length."),
+    FRIEND_USER_NOT_EXIST(400,"friendId is not an available userId."),
+    UNKNOW_USER(404,"Unknown user."),
 
 
     //yunpian error 云片服务错误，错误码3000 开头

@@ -14,14 +14,18 @@ import com.rcloud.server.sealtalk.sms.SmsServiceFactory;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthentication;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthenticationFactory;
 import com.rcloud.server.sealtalk.util.*;
+import io.rong.models.response.BlackListResult;
 import io.rong.models.response.TokenResult;
+import io.rong.models.user.UserModel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
@@ -43,6 +47,9 @@ public class UserManager extends BaseManager {
     private ProfileConfig profileConfig;
 
     @Resource
+    private RongCloudClient rongCloudClient;
+
+    @Resource
     private VerificationCodesService verificationCodesService;
 
     @Resource
@@ -58,7 +65,13 @@ public class UserManager extends BaseManager {
     private GroupMembersService groupMembersService;
 
     @Resource
-    private RongCloudClient rongCloudClient;
+    private FriendshipsService friendshipsService;
+
+    @Resource
+    private BlackListsService blackListsService;
+
+    @Resource
+    private GroupFavsService groupFavsService;
 
     /**
      * 向手机发送验证码
@@ -73,7 +86,10 @@ public class UserManager extends BaseManager {
         ValidateUtils.checkRegion(region);
         String completePhone = region + phone;
         ValidateUtils.checkCompletePhone(phone);
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
+        VerificationCodes v = new VerificationCodes();
+        v.setRegion(region);
+        v.setPhone(phone);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
         if (verificationCodes != null) {
             Date limitDate = getLimitDate();
             checkLimitDate(limitDate, verificationCodes);
@@ -103,7 +119,12 @@ public class UserManager extends BaseManager {
      * 验证码添加或更新数据库
      */
     private void saveOrUpdate(String region, String phone, String sessionId) {
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
+        VerificationCodes v = new VerificationCodes();
+        v.setRegion(region);
+        v.setPhone(phone);
+
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+
         if (verificationCodes == null) {
             verificationCodes = new VerificationCodes();
             verificationCodes.setRegion(region);
@@ -113,13 +134,13 @@ public class UserManager extends BaseManager {
             verificationCodes.setToken(UUID.randomUUID().toString());
             verificationCodes.setCreatedAt(new Date());
             verificationCodes.setUpdatedAt(verificationCodes.getCreatedAt());
-            verificationCodesService.insert(verificationCodes);
+            verificationCodesService.saveSelective(verificationCodes);
         } else {
             verificationCodes.setRegion(region);
             verificationCodes.setPhone(phone);
             verificationCodes.setSessionId(sessionId);
             verificationCodes.setUpdatedAt(verificationCodes.getCreatedAt());
-            verificationCodesService.update(verificationCodes);
+            verificationCodesService.updateByPrimaryKeySelective(verificationCodes);
         }
     }
 
@@ -171,7 +192,10 @@ public class UserManager extends BaseManager {
      * @throws ServiceException
      */
     public boolean isExistUser(String region, String phone) throws ServiceException {
-        Users users = usersService.queryOne(region, phone);
+        Users param = new Users();
+        param.setRegion(region);
+        param.setPhone(phone);
+        Users users = usersService.getOne(param);
         return !(users == null);
     }
 
@@ -187,7 +211,11 @@ public class UserManager extends BaseManager {
      * @throws ServiceException
      */
     public String verifyCode(String region, String phone, String code, SmsServiceType smsServiceType) throws ServiceException {
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(region, phone);
+
+        VerificationCodes v = new VerificationCodes();
+        v.setRegion(region);
+        v.setPhone(phone);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
         VerifyCodeAuthentication verifyCodeAuthentication = VerifyCodeAuthenticationFactory.getVerifyCodeAuthentication(smsServiceType);
         verifyCodeAuthentication.validate(verificationCodes, code, profileConfig.getEnv());
         return verificationCodes.getToken();
@@ -196,13 +224,18 @@ public class UserManager extends BaseManager {
     @Transactional(rollbackFor = {Exception.class})
     public long register(String nickname, String password, String verificationToken, HttpServletResponse response) throws ServiceException {
 
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(verificationToken);
+        VerificationCodes v = new VerificationCodes();
+        v.setToken(verificationToken);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
 
         if (verificationCodes == null) {
             throw new ServiceException(ErrorCode.UNKNOWN_VERIFICATION_TOKEN);
         }
 
-        Users users = usersService.queryOne(verificationCodes.getRegion(), verificationCodes.getPhone());
+        Users param = new Users();
+        param.setRegion(verificationCodes.getRegion());
+        param.setPhone(verificationCodes.getPhone());
+        Users users = usersService.getOne(param);
 
         if (users != null) {
             throw new ServiceException(ErrorCode.PHONE_ALREADY_REGIESTED);
@@ -220,15 +253,18 @@ public class UserManager extends BaseManager {
         u.setPasswordSalt(String.valueOf(salt));
         u.setCreatedAt(new Date());
         u.setUpdatedAt(u.getCreatedAt());
-        int id = usersService.createUser(u);
+        usersService.saveSelective(u);
+
+        int id = u.getId();
+
         //插入DataVersion表
         DataVersions dataVersions = new DataVersions();
         dataVersions.setUserId(u.getId());
-        dataVersionsService.createDataVersion(dataVersions);
+        dataVersionsService.saveSelective(dataVersions);
         //设置cookie
         setCookie(response, id);
         //缓存nickname
-        MiscUtils.cacheNickName(u.getId(), u.getNickname());
+        CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
 
         //上报管理后台TODO
         return id;
@@ -243,10 +279,14 @@ public class UserManager extends BaseManager {
      */
     public Pair<String, String> login(String region, String phone, String password, HttpServletResponse response) throws ServiceException {
 
-        Users u = usersService.queryOne(region, phone);
+
+        Users param = new Users();
+        param.setRegion(region);
+        param.setPhone(phone);
+        Users u = usersService.getOne(param);
         //判断用户是否存在
         if (u == null) {
-            throw new ServiceException(ErrorCode.USER_NOT_EXISTER);
+            throw new ServiceException(ErrorCode.USER_NOT_EXIST);
         }
         //校验密码是否正确
         String passwordHash = MiscUtils.hash(password, Integer.valueOf(u.getPasswordSalt()));
@@ -258,7 +298,7 @@ public class UserManager extends BaseManager {
         //设置cookie
         setCookie(response, u.getId());
         //缓存nickname
-        MiscUtils.cacheNickName(u.getId(), u.getNickname());
+        CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
 
         //查询该用户所属的所有组,同步到融云
         Map<String, String> groupIdNameMap = new HashMap<>();
@@ -283,8 +323,14 @@ public class UserManager extends BaseManager {
             //调用融云sdk 获取token
             TokenResult tokenResult = rongCloudClient.register(u.getId(), u.getNickname(), u.getPortraitUri());
             token = tokenResult.getToken();
+
             //获取后根据userId更新表中token
-            usersService.updateToken(token,u.getId());
+            Users users = new Users();
+            users.setId(u.getId());
+            users.setRongCloudToken(token);
+            users.setTimestamp(System.currentTimeMillis());
+            users.setUpdatedAt(new Date());
+            usersService.updateByPrimaryKeySelective(users);
         }
 
         //返回userid、token
@@ -301,7 +347,10 @@ public class UserManager extends BaseManager {
     }
 
     public void resetPassword(String password, String verificationToken) throws ServiceException {
-        VerificationCodes verificationCodes = verificationCodesService.queryOne(verificationToken);
+        VerificationCodes v = new VerificationCodes();
+        v.setToken(verificationToken);
+        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+
         if (verificationCodes == null) {
             throw new ServiceException(ErrorCode.UNKNOWN_VERIFICATION_TOKEN);
         }
@@ -309,12 +358,13 @@ public class UserManager extends BaseManager {
         //新密码hash,修改user表密码字段
         int salt = RandomUtil.randomBetween(1000, 9999);
         String hashStr = MiscUtils.hash(password, salt);
-        usersService.updatePassword(verificationCodes.getRegion(), verificationCodes.getPhone(), hashStr, salt);
+
+        updatePassword(verificationCodes.getRegion(), verificationCodes.getPhone(), salt, hashStr);
     }
 
     public void changePassword(String newPassword, String oldPassword, Integer currentUserId) throws ServiceException {
 
-        Users u = usersService.queryOne(currentUserId);
+        Users u = usersService.getByPrimaryKey(currentUserId);
 
         if (u == null) {
             //TODO  未确认的错误
@@ -330,76 +380,481 @@ public class UserManager extends BaseManager {
         //新密码hash,修改user表密码字段
         int salt = RandomUtil.randomBetween(1000, 9999);
         String hashStr = MiscUtils.hash(newPassword, salt);
-        usersService.updatePassword(u.getRegion(), u.getPhone(), hashStr, salt);
+
+
+        updatePassword(u.getRegion(), u.getPhone(), salt, hashStr);
+    }
+
+    private void updatePassword(String region, String phone, int salt, String hashStr) {
+        Users user = new Users();
+        user.setPasswordHash(hashStr);
+        user.setPasswordSalt(String.valueOf(salt));
+        user.setUpdatedAt(new Date());
+
+        Example example = new Example(Users.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("region", region);
+        criteria.andEqualTo("phone", phone);
+        usersService.updateByExampleSelective(user, example);
     }
 
     public void setNickName(String nickname, Integer currentUserId) throws ServiceException {
         //修改昵称
-        usersService.updateNickName(nickname, currentUserId);
+        Users users = new Users();
+        users.setId(currentUserId);
+        users.setNickname(nickname);
+        users.setTimestamp(System.currentTimeMillis());
+        users.setUpdatedAt(new Date());
+        usersService.updateByPrimaryKeySelective(users);
 
         //调用融云刷新用户信息
         rongCloudClient.updateUser(currentUserId, nickname, null);
 
         //缓存用户昵称
-        MiscUtils.cacheNickName(currentUserId, nickname);
+        CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + currentUserId, nickname);
 
-        //修改DataVersion表中 UserVersion
-
-        //修改DataVersion表中 AllFriendshipVersion
-
-        //清除缓存"user_" + currentUserId
-
-        //清除缓存"friendship_profile_user_" + currentUserId
-
-        //查询该用户所有好友关系
-
-        //循环清除缓存"friendship_all_" + friend.friendId
-
-        //查询该用户所属组groupid isDeleted: false
-
-        ///循环清除缓存"group_members_" + groupMember.groupId
+        //清空缓存、更新版本
+        clearCacheAndUpdateVersion(currentUserId);
 
         return;
-
     }
 
     public void setPortraitUri(String portraitUri, Integer currentUserId) throws ServiceException {
 
         //修改头像
-        usersService.updatePortraitUri(portraitUri, currentUserId);
+        Users users = new Users();
+        users.setId(currentUserId);
+        users.setPortraitUri(portraitUri);
+        users.setTimestamp(System.currentTimeMillis());
+        users.setUpdatedAt(new Date());
+        usersService.updateByPrimaryKeySelective(users);
 
         //调用融云刷新用户信息
         rongCloudClient.updateUser(currentUserId, null, portraitUri);
 
+        //清空缓存、更新版本
+        clearCacheAndUpdateVersion(currentUserId);
+        return;
+    }
+
+    /**
+     * 清除use相关缓存并更新dataversion版本
+     *
+     * @param currentUserId
+     */
+    private void clearCacheAndUpdateVersion(Integer currentUserId) {
         //修改DataVersion表中 UserVersion
+        long now = System.currentTimeMillis();
+        DataVersions dataVersions = new DataVersions();
+        dataVersions.setUserId(currentUserId);
+        dataVersions.setUserVersion(now);
+        dataVersionsService.updateByPrimaryKeySelective(dataVersions);
 
         //修改DataVersion表中 AllFriendshipVersion
+        dataVersionsService.updateAllFriendshipVersion(currentUserId);
 
         //清除缓存"user_" + currentUserId
-
         //清除缓存"friendship_profile_user_" + currentUserId
+        CacheUtil.delete(CacheUtil.USER_CACHE_PREFIX + currentUserId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId);
 
-        //查询该用户所有好友关系
-
-        //循环清除缓存"friendship_all_" + friend.friendId
-
+        //查询该用户所有好友关系,并清除缓存friendship_all_+friendId
+        Friendships f = new Friendships();
+        f.setUserId(currentUserId);
+        List<Friendships> friendshipsList = friendshipsService.get(f);
+        if (!CollectionUtils.isEmpty(friendshipsList)) {
+            for (Friendships friendships : friendshipsList) {
+                CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendships.getFriendId());
+            }
+        }
         //查询该用户所属组groupid isDeleted: false
+        //清空缓存group_members_
+        Example example = new Example(GroupMembers.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("memberId", currentUserId);
+        criteria.andEqualTo("isDeleted", "0");
 
-        ///循环清除缓存"group_members_" + groupMember.groupId
+        List<GroupMembers> groupMembersList = groupMembersService.getByExample(example);
+        if (!CollectionUtils.isEmpty(groupMembersList)) {
+            for (GroupMembers groupMembers : groupMembersList) {
+                CacheUtil.delete(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX + groupMembers.getGroupId());
+            }
+        }
+    }
+
+    /**
+     * 获取融云token
+     * 1、根据currentUserId查询User
+     * 2、调用融云用户注册接口，获取token
+     * 3、根据userId更新本地数据users表中rongCloudToken
+     * 4、把userid，token返回给前端
+     */
+    public Pair<String, String> getToken(Integer currentUserId) throws ServiceException {
+
+        Users user = usersService.getByPrimaryKey(currentUserId);
+
+        //调用融云用户注册接口，获取token
+        TokenResult tokenResult = rongCloudClient.register(user.getId(), user.getNickname(), user.getPortraitUri());
+        String token = tokenResult.getToken();
+
+        //根据userId更新本地数据users表中rongCloudToken
+        Users param = new Users();
+        param.setId(user.getId());
+        param.setRongCloudToken(token);
+        param.setTimestamp(System.currentTimeMillis());
+        param.setUpdatedAt(new Date());
+        usersService.updateByPrimaryKeySelective(param);
+
+        return Pair.of(String.valueOf(user.getId()), token);
+    }
+
+    /**
+     * 获取黑名单列表
+     * 1、从cookie中获取currentUserId
+     * 2、根据currentUserId从缓存中获取黑名单列表，存在直接返回
+     * 3、如果缓存不存在，查询数据库黑名单表，调用融云服务远程获取黑名单列表
+     * 4、以融云服务黑名单列表为准，merge更新到数据库
+     * 5、缓存到cache、返回最新的黑名单列表
+     */
+    public String getBlackList(Integer currentUserId) throws ServiceException {
+        //从缓存中获取blacklist，存在直接返回
+        String blackList = CacheUtil.get(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
+        if (!StringUtils.isEmpty(blackList)) {
+            return blackList;
+        }
+        //查询数据库blacklist表
+        Example example = new Example(BlackLists.class);
+        example.createCriteria()
+                .andEqualTo("userId", currentUserId)
+                .andNotEqualTo("friendId", "0")
+                .andEqualTo("status", 1);
+
+        List<BlackLists> dbBlackLists = blackListsService.getByExample(example);
+
+        //调用融云服务接口获取黑名单
+        BlackListResult blackListResult = rongCloudClient.queryBlackList(currentUserId);
+
+        UserModel[] serverBlackList = blackListResult.getUsers();
+
+        List<Long> serverBlackListIds = new ArrayList<>();
+
+        if (ArrayUtils.isNotEmpty(serverBlackList)) {
+            for (UserModel userModel : serverBlackList) {
+                serverBlackListIds.add(N3d.decode(userModel.getId()));
+            }
+        }
+
+        List<Long> dbBlacklistUserIds = new ArrayList<>();
+
+        boolean hasDirtyData = false;
+        if (!CollectionUtils.isEmpty(dbBlackLists)) {
+            for (BlackLists blackLists : dbBlackLists) {
+                if (blackLists.getUsers() != null) {
+                    Long userId = Long.valueOf(blackLists.getUsers().getId());
+                    dbBlacklistUserIds.add(userId);
+                } else {
+                    hasDirtyData = true;
+                }
+            }
+        }
+        if (hasDirtyData) {
+            log.error("Dirty blacklist data currentUserId:{}", currentUserId);
+        }
+
+        //比对远程接口获取到的黑名单列表和数据库本地表数据
+        //如果远程存在，本地不存在，插入本地数据表
+        if (ArrayUtils.isNotEmpty(serverBlackList)) {
+            for (UserModel userModel : serverBlackList) {
+                Long userId = N3d.decode(userModel.getId());
+                if (!dbBlacklistUserIds.contains(userModel.getId())) {
+                    BlackLists blackLists = new BlackLists();
+                    blackLists.setUserId(currentUserId);
+                    blackLists.setFriendId(userId.intValue());
+                    blackLists.setStatus(true);
+                    blackLists.setTimestamp(System.currentTimeMillis());
+                    blackLists.setCreatedAt(new Date());
+                    blackLists.setUpdatedAt(blackLists.getCreatedAt());
+                    blackListsService.save(blackLists);
+                    log.info("Sync: fix user blacklist, add {} -> {} from db.", currentUserId, userId);
+                    //需要每天数据都更新一次数据库吗？TODO
+                    long now = System.currentTimeMillis();
+                    DataVersions dataVersions = new DataVersions();
+                    dataVersions.setUserId(currentUserId);
+                    dataVersions.setBlacklistVersion(now);
+                    dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+                }
+            }
+        }
+
+        //如果远程不存在，本地存在，逻辑删除本地数据表数据
+        if (!CollectionUtils.isEmpty(dbBlacklistUserIds)) {
+            for (Long userId : dbBlacklistUserIds) {
+                if (!serverBlackListIds.contains(userId)) {
+                    BlackLists blackLists = new BlackLists();
+                    blackLists.setUpdatedAt(new Date());
+                    blackLists.setStatus(false);
+                    blackLists.setTimestamp(System.currentTimeMillis());
+                    Example example1 = new Example(BlackLists.class);
+                    example1.createCriteria().andEqualTo("userId", currentUserId)
+                            .andEqualTo("friendId", userId.intValue());
+
+                    blackListsService.updateByExample(blackLists, example1);
+
+                    log.info("Sync: fix user blacklist, remove {} -> {} from db.", currentUserId, userId);
+                    //需要每天数据都更新一次数据库吗？TODO
+                    long now = System.currentTimeMillis();
+                    DataVersions dataVersions = new DataVersions();
+                    dataVersions.setUserId(currentUserId);
+                    dataVersions.setBlacklistVersion(now);
+                    dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+                }
+            }
+        }
+
+        //TODO
+        String results = MiscUtils.encodeResults(dbBlackLists);
+        results = addUpdateTimeToList(results);
+
+        //缓存用户黑名单列表
+        CacheUtil.set(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId, results);
+
+        return results;
+    }
+
+    private String addUpdateTimeToList(String result) {
+        //TODO
+        return "";
+    }
+
+    /**
+     * 将好友加入黑名单
+     * 1、检查参数，好友ID是否存在用户表中，不存在返回404，friendId is not an available userId.
+     * 2、存在则调用融云服务接口新增黑名单
+     * 3、将黑名单信息插入或更新本地数据库，然后更新黑名单版本
+     * 4、然后清除缓存"user_blacklist_" + currentUserId
+     * 5、更新Friendship 表状态信息为 FRIENDSHIP_BLACK = 31
+     * 6、然后清除friendship相关缓存
+     * -》Cache.del("friendship_profile_displayName_" + currentUserId + "_" + friendId);
+     * -》Cache.del("friendship_profile_user_" + currentUserId + "_" + friendId);
+     * -》Cache.del("friendship_all_" + currentUserId);
+     * -》Cache.del("friendship_all_" + friendId);
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void addBlackList(Integer currentUserId, Integer friendId, String encodedFriendId) throws ServiceException {
+
+        Users user = usersService.getByPrimaryKey(currentUserId);
+        if (user == null) {
+            throw new ServiceException(ErrorCode.FRIEND_USER_NOT_EXIST);
+        }
+
+        String[] blackFriendIds = {encodedFriendId};
+        //调用融云服务接口新增黑名单
+        rongCloudClient.addBlackList(currentUserId, blackFriendIds);
+
+        //将黑名单信息插入或更新本地数据库
+        blackListsService.saveOrUpdate(currentUserId, friendId, true, System.currentTimeMillis());
+
+        //更新黑名单版本
+        long now = System.currentTimeMillis();
+        DataVersions dataVersions = new DataVersions();
+        dataVersions.setUserId(currentUserId);
+        dataVersions.setBlacklistVersion(now);
+        dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+
+        //清除user_blacklist_缓存
+        CacheUtil.delete(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
+
+        //更新Friendship 表状态信息为 FRIENDSHIP_BLACK = 31
+        Friendships friendships = new Friendships();
+        friendships.setDisplayName("");
+        friendships.setMessage("");
+        friendships.setTimestamp(System.currentTimeMillis());
+        friendships.setStatus(Friendships.FRIENDSHIP_STATUS_BLACK);
+
+        Example example = new Example(Friendships.class);
+        example.createCriteria().andEqualTo("friendId", friendId)
+                .andEqualTo("status", Friendships.FRIENDSHIP_STATUS_AGREED);
+        friendshipsService.updateByExampleSelective(friendships, example);
+
+        //清除friendship相关缓存
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
 
         return;
     }
 
+    /**
+     * 将好友移除黑名单
+     * 1、调用融云服务接口移除黑名单
+     * 2、更新本地Blacklist 表，设置记录状态status为false
+     * 3、然后更新DataVersion表BlacklistVersion 版本
+     * 4、清除缓存user_blacklist_
+     * 5、更新Friendship 表状态信息为 FRIENDSHIP_AGREED = 20
+     * 4、然后清除相关缓存
+     * -》Cache.del("friendship_profile_displayName_" + currentUserId + "_" + friendId);
+     * -》Cache.del("friendship_profile_user_" + currentUserId + "_" + friendId);
+     * -》Cache.del("friendship_all_" + currentUserId);
+     * -》 Cache.del("friendship_all_" + friendId);
+     */
+    public void removeBlackList(Integer currentUserId, int friendId, String encodedFriendId) throws ServiceException {
 
-    public Pair<String,String> getToken(Integer currentUserId) throws ServiceException {
+        String[] blackFriendIds = {encodedFriendId};
+        //调用融云服务接口移除黑名单
+        rongCloudClient.removeBlackList(currentUserId, blackFriendIds);
 
-        Users user = usersService.queryOne(currentUserId);
+        //更新本地Blacklist 表，设置记录状态status为false
+        BlackLists blackLists = new BlackLists();
+        blackLists.setStatus(false);
+        blackLists.setTimestamp(System.currentTimeMillis());
+        blackLists.setUpdatedAt(new Date());
 
-        TokenResult tokenResult = rongCloudClient.register(user.getId(), user.getNickname(), user.getPortraitUri());
-        String token = tokenResult.getToken();
-        //获取后根据userId更新表中token
-        usersService.updateToken(token,user.getId());
-        return Pair.of(String.valueOf(user.getId()),token);
+        Example example = new Example(BlackLists.class);
+        example.createCriteria().andEqualTo("userId", currentUserId)
+                .andEqualTo("friendId", friendId);
+
+        blackListsService.updateByExampleSelective(blackLists, example);
+
+        //更新黑名单版本
+        long now = System.currentTimeMillis();
+        DataVersions dataVersions = new DataVersions();
+        dataVersions.setUserId(currentUserId);
+        dataVersions.setBlacklistVersion(now);
+        dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+
+        //清除缓存user_blacklist_
+        CacheUtil.delete(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
+
+        //更新Friendship 表状态信息为 FRIENDSHIP_AGREED = 20
+        Friendships friendships = new Friendships();
+        friendships.setDisplayName("");
+        friendships.setMessage("");
+        friendships.setTimestamp(System.currentTimeMillis());
+        friendships.setStatus(Friendships.FRIENDSHIP_STATUS_AGREED);
+
+        Example example1 = new Example(Friendships.class);
+        example.createCriteria().andEqualTo("friendId", friendId)
+                .andEqualTo("status", Friendships.FRIENDSHIP_STATUS_BLACK);
+        friendshipsService.updateByExampleSelective(friendships, example);
+
+        log.info("result--remove db black currentUserId={},friendId={}", currentUserId, friendId);
+        //清除friendship相关缓存
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
+        log.info("result--remove cache black currentUserId={},friendId={}", currentUserId, friendId);
+
+        return;
+    }
+
+    /**
+     * 获取用户所属群组
+     *  -》先从缓存中获取，缓存中不存在查询db获取
+     *
+     * @param currentUserId
+     * @return
+     */
+    public String getGroups(Integer currentUserId) {
+
+        String userGroups = CacheUtil.get(CacheUtil.USER_GROUP_CACHE_PREFIX);
+        if (!StringUtils.isEmpty(userGroups)) {
+            return userGroups;
+        }
+
+        //缓存中为空，去查询db
+        List<GroupMembers> groupMembersList = groupMembersService.queryGroupMembersWithGroupByMemberId(currentUserId);
+
+        userGroups = MiscUtils.encodeResults(groupMembersList);
+        // 缓存结果
+        if (!CollectionUtils.isEmpty(groupMembersList)) {
+            CacheUtil.set(CacheUtil.USER_GROUP_CACHE_PREFIX + currentUserId, userGroups);
+        }
+
+        return userGroups;
+    }
+
+    /**
+     * 根据id查询用户信息
+     *
+     * @param currentUserId
+     * @return
+     */
+    public Users getUser(Integer currentUserId) {
+        return usersService.getByPrimaryKey(currentUserId);
+    }
+
+    /**
+     * 根据手机号查询用户信息
+     * @param region
+     * @param phone
+     * @return
+     */
+    public Users getUser(String region,String phone) {
+        Users u = new Users();
+        u.setRegion(region);
+        u.setPhone(phone);
+        return usersService.getOne(u);
+    }
+
+    /**
+     * 设置用户信息
+     *
+     * @param u
+     */
+    public void updateUserById(Users u) {
+        usersService.updateByPrimaryKeySelective(u);
+    }
+
+    /**
+     * 设置 SealTlk 号
+     * @param currentUserId
+     * @param stAccount
+     * @throws ServiceException
+     */
+    public void setStAccount(Integer currentUserId, String stAccount) throws ServiceException {
+        Users u = new Users();
+        u.setStAccount(stAccount);
+
+        Users users = usersService.getOne(u);
+
+        if (users != null) {
+            throw new ServiceException(ErrorCode.EMPTY_STACCOUNT_EXIST);
+        }
+
+        u.setId(currentUserId);
+        usersService.updateByPrimaryKeySelective(u);
 
     }
+
+    public String getFavGroups(Integer userId, Integer limit, Integer offset) throws Exception {
+        List<String> groupsList = new ArrayList<>();
+        List<GroupFavs> groupFavsList = groupFavsService.queryGroupFavsWithGroupByUserId(userId, limit, offset);
+
+        if (!CollectionUtils.isEmpty(groupFavsList)) {
+            for (GroupFavs groupFavs : groupFavsList) {
+                if (groupFavs.getGroups() != null) {
+                    //TODO
+                    groupsList.add(MiscUtils.encodeResults(groupFavs.getGroups()));
+                }
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        //TODO
+        result.put("list", addUpdateTimeToList(groupsList));
+        result.put("total", groupsList.size());
+        result.put("limit", limit);
+        result.put("offset", offset);
+
+        //TODO
+        //TODO
+        return JacksonUtil.toJson(result);
+    }
+    //TODO
+    private Object addUpdateTimeToList(List<String> groupsList) {
+        return null;
+    }
 }
+

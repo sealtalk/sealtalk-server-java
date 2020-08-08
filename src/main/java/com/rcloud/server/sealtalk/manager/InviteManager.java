@@ -46,7 +46,7 @@ public class InviteManager extends BaseManager {
         Integer currentUserId = serverApiParams.getServerApiCookie().getCurrentUserId();
         log.info("invite user. currentUserId:[{}] friendId:[{}]", currentUserId, friendId);
         checkMessage(currentUserId, friendId, message);
-        Users users = usersService.queryOne(friendId);
+        Users users = usersService.getByPrimaryKey(friendId);
         Integer friVerify = users.getFriVerify();
         log.info("invite user. friVerify:[{}]", friVerify);
         String action = null;

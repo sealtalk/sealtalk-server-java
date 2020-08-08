@@ -11,4 +11,50 @@
     <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+
+
+  <resultMap id="resultMapWithGroups" type="com.rcloud.server.sealtalk.domain.GroupFavs">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="userId" jdbcType="INTEGER" property="userId" />
+    <result column="groupId" jdbcType="INTEGER" property="groupId" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+    <association property="groups"  javaType="com.rcloud.server.sealtalk.domain.Groups">
+      <id column="g_id" jdbcType="INTEGER" property="id" />
+      <result column="g_name" jdbcType="VARCHAR" property="name" />
+      <result column="portraitUri" jdbcType="VARCHAR" property="portraitUri" />
+      <result column="creatorId" jdbcType="INTEGER" property="creatorId" />
+      <result column="isMute" jdbcType="INTEGER" property="isMute" />
+      <result column="certiStatus" jdbcType="INTEGER" property="certiStatus" />
+      <result column="memberCount" jdbcType="INTEGER" property="memberCount" />
+      <result column="memberProtection" jdbcType="INTEGER" property="memberProtection" />
+      <result column="maxMemberCount" jdbcType="INTEGER" property="maxMemberCount" />
+      <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+      <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+    </association>
+  </resultMap>
+
+
+
+  <select id="queryGroupFavsWithGroupByUserId" resultMap="resultMapWithGroups">
+    SELECT gm.*,
+       g.id g_id,
+       g.name g_name,
+       g.portraitUri,
+       g.creatorId,
+       g.isMute,
+       g.certiStatus,
+       g.memberCount,
+       g.memberProtection,
+       g.maxMemberCount,
+       g.createdAt g_createdAt,
+       g.updatedAt g_updatedAt
+    FROM group_favs gm join `groups` g
+    on gm.groupId = g.id
+    where gm.userId=#{userId}  limit #{limit} offset #{offset}
+  </select>
+
+
+
+
 </mapper>

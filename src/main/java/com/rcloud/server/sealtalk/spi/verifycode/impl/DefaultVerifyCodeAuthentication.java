@@ -25,7 +25,7 @@ public class DefaultVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
     private SealtalkConfig sealtalkConfig;
 
     @Override
-    public SmsServiceType getIdentification() {
+    public SmsServiceType getIdentifier() {
         return SmsServiceType.RONGCLOUD;
     }
 

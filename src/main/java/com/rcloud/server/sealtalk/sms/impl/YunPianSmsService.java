@@ -78,7 +78,7 @@ public class YunPianSmsService implements SmsService {
     }
 
     @Override
-    public SmsServiceType getIdentification() {
+    public SmsServiceType getIdentifier() {
         return SmsServiceType.YUNPIAN;
     }
 

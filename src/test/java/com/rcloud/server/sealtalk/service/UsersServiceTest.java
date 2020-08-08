@@ -1,7 +1,6 @@
 package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.domain.Users;
-import io.swagger.models.auth.In;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
-
-import static org.junit.Assert.*;
 
 /**
  * @Author: Jianlu.Yu
@@ -26,19 +23,22 @@ public class UsersServiceTest {
     private UsersService usersService;
 
     @Test
-    public void queryOne() {
+    public void testGetByPrimaryKey() {
         Integer id = 1;
-        Users u = usersService.queryOne(id);
+        Users u = usersService.getByPrimaryKey(id);
         System.out.println(u);
     }
 
     @Test
     public void testQueryOne() {
 
-        String region="86";
-        String phone="18810183283";
+        String region = "86";
+        String phone = "18810183283";
 
-        Users u = usersService.queryOne(region,phone);
+        Users param = new Users();
+        param.setPhone(phone);
+        param.setRegion(region);
+        Users u = usersService.getOne(param);
         System.out.println(u.toString());
     }
 
@@ -52,7 +52,10 @@ public class UsersServiceTest {
         u.setPasswordSalt("1234");
         u.setCreatedAt(new Date());
         u.setUpdatedAt(u.getCreatedAt());
-        long id = usersService.createUser(u);
+        int id = usersService.saveSelective(u);
         System.out.println(id);
+
     }
+
+
 }

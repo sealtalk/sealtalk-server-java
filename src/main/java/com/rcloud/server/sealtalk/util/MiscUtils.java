@@ -19,7 +19,6 @@ public class MiscUtils {
 
     private static Map<String, String> regionMap = new HashMap<>();
 
-    public static final String NICK_NAME_CACHE_PREFIX = "nickname_";
 
 
     static {
@@ -76,20 +75,6 @@ public class MiscUtils {
 
     public static String getRegionName(String region) {
         return regionMap.get(region);
-    }
-
-    /**
-     * 缓存nickname
-     *
-     * @param userId
-     * @param nickname
-     * @throws ServiceException
-     */
-    public static void cacheNickName(Integer userId, String nickname) throws ServiceException {
-        if (userId == null || StringUtils.isEmpty(nickname)) {
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
-        }
-        CacheUtil.set(NICK_NAME_CACHE_PREFIX + userId, nickname);
     }
 
 

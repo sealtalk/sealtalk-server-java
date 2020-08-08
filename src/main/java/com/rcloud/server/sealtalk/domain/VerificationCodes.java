@@ -1,13 +1,12 @@
 package com.rcloud.server.sealtalk.domain;
 
-import lombok.ToString;
-
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
 @Table(name = "verification_codes")
-@ToString
 public class VerificationCodes implements Serializable {
     @Id
     private Integer id;

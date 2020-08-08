@@ -39,7 +39,7 @@ public class SmsServiceFactory {
             while(iterator.hasNext()){
                 Map.Entry<String,SmsService> smsServiceEntry = iterator.next();
                 SmsService smsService = smsServiceEntry.getValue();
-                smsServiceMap.put(smsService.getIdentification(), smsService);
+                smsServiceMap.put(smsService.getIdentifier(), smsService);
             }
         }
 

@@ -2,7 +2,6 @@ package com.rcloud.server.sealtalk.spi.verifycode;
 
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import com.rcloud.server.sealtalk.sms.SmsService;
 import com.rcloud.server.sealtalk.spi.verifycode.impl.DefaultVerifyCodeAuthentication;
 import com.rcloud.server.sealtalk.spi.verifycode.impl.YunPianVerifyCodeAuthentication;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +47,7 @@ public class VerifyCodeAuthenticationFactory {
             while(iterator.hasNext()){
                 Map.Entry<String,VerifyCodeAuthentication> verifyCodeAuthenticationEntry = iterator.next();
                 VerifyCodeAuthentication verifyCodeAuthentication = verifyCodeAuthenticationEntry.getValue();
-                verifyCodeAuthenticationMap.put(verifyCodeAuthentication.getIdentification(), verifyCodeAuthentication);
+                verifyCodeAuthenticationMap.put(verifyCodeAuthentication.getIdentifier(), verifyCodeAuthentication);
             }
         }
     }

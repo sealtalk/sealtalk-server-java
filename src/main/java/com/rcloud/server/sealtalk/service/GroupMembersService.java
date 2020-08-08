@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.service;
 import com.rcloud.server.sealtalk.dao.GroupMembersMapper;
 import com.rcloud.server.sealtalk.domain.GroupMembers;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
@@ -15,10 +16,15 @@ import java.util.List;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class GroupMembersService {
+public class GroupMembersService extends AbstractBaseService<GroupMembers,Integer>{
 
     @Resource
     private GroupMembersMapper mapper;
+
+    @Override
+    protected Mapper<GroupMembers> getMapper() {
+        return mapper;
+    }
 
 
     /**
@@ -33,4 +39,6 @@ public class GroupMembersService {
         criteria.andEqualTo("memberId",memberId);
         return mapper.queryGroupMembersWithGroupByMemberId(example);
     }
+
+
 }

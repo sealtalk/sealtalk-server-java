@@ -12,4 +12,10 @@
     <result column="groupVersion" jdbcType="BIGINT" property="groupVersion" />
     <result column="groupMemberVersion" jdbcType="BIGINT" property="groupMemberVersion" />
   </resultMap>
+
+
+  <update id="updateAllFriendshipVersion" parameterType="map">
+    UPDATE data_versions d JOIN friendships f ON d.userId = f.userId AND f.friendId = #{userId} AND f.status = 20 SET d.friendshipVersion =#{timestamp}
+  </update>
+
 </mapper>

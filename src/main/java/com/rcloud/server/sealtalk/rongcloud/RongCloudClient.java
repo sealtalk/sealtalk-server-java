@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.rongcloud;
 
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import io.rong.models.Result;
+import io.rong.models.response.BlackListResult;
 import io.rong.models.response.TokenResult;
 import io.rong.models.response.UserResult;
 
@@ -16,8 +17,8 @@ public interface RongCloudClient {
     /**
      * 注册并获取token
      *
-     * @param id 用户id  调用方传入int类型id，内部调用融云id需要n3d编码
-     * @param name 昵称
+     * @param id       用户id  调用方传入int类型id，内部调用融云id需要n3d编码
+     * @param name     昵称
      * @param portrait 头像地址
      * @return
      * @throws ServiceException
@@ -27,8 +28,8 @@ public interface RongCloudClient {
     /**
      * 修改用户信息
      *
-     * @param id 用户id
-     * @param name 昵称
+     * @param id       用户id
+     * @param name     昵称
      * @param portrait 头像地址
      * @return
      * @throws ServiceException
@@ -43,5 +44,36 @@ public interface RongCloudClient {
      * @throws ServiceException
      */
     UserResult getUserInfo(int id) throws ServiceException;
+
+    /**
+     * 用户添加黑名单
+     *
+     * @param id
+     * @param blackUserIds
+     * @return
+     * @throws ServiceException
+     */
+    public Result addBlackList(int id, String[] blackUserIds) throws ServiceException;
+
+    /**
+     * 查询用户黑名单
+     *
+     * @param id
+     * @return
+     * @throws ServiceException
+     */
+    BlackListResult queryBlackList(int id) throws ServiceException;
+
+
+    /**
+     * 用户移除黑名单
+     *
+     * @param id
+     * @param blackUserIds
+     * @return
+     * @throws ServiceException
+     */
+    Result removeBlackList(int id, String[] blackUserIds) throws ServiceException;
+
 
 }

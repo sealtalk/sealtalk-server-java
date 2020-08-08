@@ -5,13 +5,13 @@ import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
+import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.SmsManager;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
-import com.rcloud.server.sealtalk.util.AES256;
 import com.rcloud.server.sealtalk.util.MiscUtils;
 import com.rcloud.server.sealtalk.util.N3d;
 import com.rcloud.server.sealtalk.util.ValidateUtils;
@@ -19,14 +19,9 @@ import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.models.auth.In;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
@@ -47,7 +42,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 @Timed(percentiles = {0.9, 0.95, 0.99})
-public class UserController {
+public class UserController extends BaseController {
 
     @Resource
     private UserManager userManager;
@@ -219,8 +214,6 @@ public class UserController {
     }
 
 
-
-
     /**
      * 1、 判断phone、regionName合法性，不合法返回400
      * 2、 根据phone、region查询用户，查询不到返回1000，提示phone不存在
@@ -245,9 +238,9 @@ public class UserController {
 
         Pair<String, String> pairResult = userManager.login(region, phone, password, response);
 
-        Map<String,String> resultMap = new HashMap<>();
+        Map<String, String> resultMap = new HashMap<>();
         resultMap.put("id", pairResult.getLeft());
-        resultMap.put("token",pairResult.getRight());
+        resultMap.put("token", pairResult.getRight());
         //对result编码
         return APIResultWrap.ok(MiscUtils.encodeResults(resultMap));
     }
@@ -268,24 +261,24 @@ public class UserController {
     @ApiOperation(value = "重置密码")
     @RequestMapping(value = "/reset_password", method = RequestMethod.POST)
     public APIResult<String> resetPassword(@ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
-                                   @RequestParam String password,
-                                   @ApiParam(name = "verification_token", value = "凭证token", required = true, type = "String", example = "xxx")
-                                   @RequestParam("verification_token") String verificationToken) throws ServiceException {
+                                           @RequestParam String password,
+                                           @ApiParam(name = "verification_token", value = "凭证token", required = true, type = "String", example = "xxx")
+                                           @RequestParam("verification_token") String verificationToken) throws ServiceException {
 
 
         ValidateUtils.checkPassword(password);
         ValidateUtils.checkUUID(verificationToken);
 
-        userManager.resetPassword(password,verificationToken);
+        userManager.resetPassword(password, verificationToken);
         return APIResultWrap.ok("");
     }
 
     @ApiOperation(value = "修改密码")
     @RequestMapping(value = "/change_password", method = RequestMethod.POST)
     public APIResult<String> changePassword(@ApiParam(name = "newPassword", value = "新密码", required = true, type = "String", example = "xxx")
-                                   @RequestParam String newPassword,
+                                            @RequestParam String newPassword,
                                             @ApiParam(name = "oldPassword", value = "老密码", required = true, type = "String", example = "xxx")
-                                   @RequestParam String oldPassword,
+                                            @RequestParam String oldPassword,
                                             HttpServletRequest request) throws ServiceException {
 
 
@@ -293,14 +286,14 @@ public class UserController {
         ValidateUtils.notNull(oldPassword);
 
         Integer currentUserId = getCurrentUserId(request);
-        userManager.changePassword(newPassword,oldPassword,currentUserId);
+        userManager.changePassword(newPassword, oldPassword, currentUserId);
         return APIResultWrap.ok("");
     }
 
 
     /**
      * 设置当前用户昵称
-     *
+     * <p>
      * 1、xss处理nickname
      * 2、校验nickname参数合法性
      * 3、从cookie中获取当前用户id，根据id查询用户信息
@@ -308,8 +301,8 @@ public class UserController {
      * 5、调用融云接口刷新昵称、缓存nickname到本地缓存
      * 6、更新DataVersion表的UserVersion、AllFriendshipVersion
      * 7、移除缓存信息
-     *      -》Cache.del("user_" + currentUserId);
-     *      -》Cache.del("friendship_profile_user_" + currentUserId);
+     * -》Cache.del("user_" + currentUserId);
+     * -》Cache.del("friendship_profile_user_" + currentUserId);
      * 8、根据currentUserId 查询所有的friendId，然后清除缓存Cache.del("friendship_all_" + friend.friendId)
      * 9、根据currentUserId查询所有的groupId，然后清除缓存Cache.del("group_members_" + groupMember.groupId)
      * 10、成功后返回200
@@ -319,59 +312,289 @@ public class UserController {
     @RequestMapping(value = "/set_nickname", method = RequestMethod.POST)
     public APIResult<String> setNickName(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
                                          @RequestParam String nickname,
-                                            HttpServletRequest request) throws ServiceException {
+                                         HttpServletRequest request) throws ServiceException {
 
 
         ValidateUtils.checkNickName(nickname);
 
         Integer currentUserId = getCurrentUserId(request);
-        userManager.setNickName(nickname,currentUserId);
+        userManager.setNickName(nickname, currentUserId);
         return APIResultWrap.ok("");
     }
 
     @ApiOperation(value = "设置头像")
     @RequestMapping(value = "/set_portrait_uri", method = RequestMethod.POST)
     public APIResult<String> setPortraitUri(@ApiParam(name = "portraitUri", value = "头像", required = true, type = "String", example = "xxx")
-                                         @RequestParam String portraitUri,
-                                         HttpServletRequest request) throws ServiceException {
+                                            @RequestParam String portraitUri,
+                                            HttpServletRequest request) throws ServiceException {
 
 
         ValidateUtils.checkURL(portraitUri);
         ValidateUtils.checkPortraitUri(portraitUri);
 
         Integer currentUserId = getCurrentUserId(request);
-        userManager.setPortraitUri(portraitUri,currentUserId);
+        userManager.setPortraitUri(portraitUri, currentUserId);
         return APIResultWrap.ok("");
     }
 
 
     @ApiOperation(value = "获取token")
-    @RequestMapping(value = "/get_token", method = RequestMethod.POST)
+    @RequestMapping(value = "/get_token", method = RequestMethod.GET)
     public APIResult<String> getToken(HttpServletRequest request) throws ServiceException {
 
-
-
         Integer currentUserId = getCurrentUserId(request);
-        Pair<String,String> pairResult = userManager.getToken(currentUserId);
+        Pair<String, String> pairResult = userManager.getToken(currentUserId);
 
-        Map<String,String> resultMap = new HashMap<>();
+        Map<String, String> resultMap = new HashMap<>();
         resultMap.put("id", pairResult.getLeft());
-        resultMap.put("token",pairResult.getRight());
+        resultMap.put("token", pairResult.getRight());
         //对result编码
         return APIResultWrap.ok(MiscUtils.encodeResults(resultMap));
     }
 
 
-    private Integer getCurrentUserId(HttpServletRequest request) {
-        Integer userId =null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies!=null && cookies.length>0){
-            for(Cookie cookie:cookies){
-                if(cookie.getName().equals(sealtalkConfig.getAuthCookieName())){
-                    userId = Integer.valueOf(AES256.decrypt(cookie.getValue().getBytes(),sealtalkConfig.getAuthCookieKey()));
-                }
-            }
-        }
-        return null;
+    @ApiOperation(value = "获取当前用户黑名单列表")
+    @RequestMapping(value = "/blacklist", method = RequestMethod.GET)
+    public APIResult<String> blacklist(HttpServletRequest request) throws ServiceException {
+
+        Integer currentUserId = getCurrentUserId(request);
+        String result = userManager.getBlackList(currentUserId);
+        return APIResultWrap.ok(result);
     }
+
+
+    @ApiOperation(value = "将好友加入黑名单")
+    @RequestMapping(value = "/add_to_blacklist", method = RequestMethod.POST)
+    public APIResult<String> addBlackList(
+            @ApiParam(name = "friendId", value = "好友ID", required = true, type = "String", example = "xxx")
+            @RequestParam String friendId,
+            @ApiParam(name = "encodedFriendId", value = "encodedFriendId", required = true, type = "String", example = "xxx")
+            @RequestParam String encodedFriendId,
+            HttpServletRequest request) throws ServiceException {
+
+
+        Integer currentUserId = getCurrentUserId(request);
+        userManager.addBlackList(currentUserId, ((Long) N3d.decode(friendId)).intValue(), encodedFriendId);
+        return APIResultWrap.ok("");
+    }
+
+
+    @ApiOperation(value = "将好友移除黑名单")
+    @RequestMapping(value = "/remove_from_blacklist", method = RequestMethod.POST)
+    public APIResult<String> removeBlacklist(
+            @ApiParam(name = "friendId", value = "好友ID", required = true, type = "String", example = "xxx")
+            @RequestParam String friendId,
+            @ApiParam(name = "encodedFriendId", value = "encodedFriendId", required = true, type = "String", example = "xxx")
+            @RequestParam String encodedFriendId,
+            HttpServletRequest request) throws ServiceException {
+
+
+        Integer currentUserId = getCurrentUserId(request);
+        userManager.removeBlackList(currentUserId, ((Long) N3d.decode(friendId)).intValue(), encodedFriendId);
+        return APIResultWrap.ok("");
+    }
+
+
+    @ApiOperation(value = "获取七牛云存储token")
+    @RequestMapping(value = "/get_image_token", method = RequestMethod.POST)
+    public APIResult<String> getImageToken() throws ServiceException {
+
+        //TODO
+        return APIResultWrap.ok("");
+    }
+
+
+    @ApiOperation(value = "获取短信图片验证码")
+    @RequestMapping(value = "/get_sms_img_code", method = RequestMethod.POST)
+    public APIResult<String> getSmsImgCode() throws ServiceException {
+
+        //TODO
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "获取当前用户所属群组")
+    @RequestMapping(value = "/groups", method = RequestMethod.POST)
+    public APIResult<String> getGroups(HttpServletRequest request) throws ServiceException {
+
+        Integer currentUserId = getCurrentUserId(request);
+        String result = userManager.getGroups(currentUserId);
+
+        return APIResultWrap.ok(result);
+    }
+
+    //TODO
+    @ApiOperation(value = "同步用户的好友、黑名单、群组、群组成员数据")
+    @RequestMapping(value = "/sync/{version}", method = RequestMethod.POST)
+    public APIResult<String> getGroups(@ApiParam(name = "version", value = "请求的时间戳(版本号)", required = true, type = "Integer", example = "xxx")
+                                       @PathVariable("version") Integer timeStampVersion,
+                                       HttpServletRequest request) throws ServiceException {
+
+        Integer currentUserId = getCurrentUserId(request);
+        //TODO
+        String result = userManager.getGroups(currentUserId);
+
+        return APIResultWrap.ok(result);
+    }
+
+
+    @ApiOperation(value = "根据手机号查找用户信息")
+    @RequestMapping(value = "/find/{region}/{phone}", method = RequestMethod.POST)
+    public APIResult<String> getUserByPhone(@ApiParam(name = "region", value = "region", required = true, type = "String", example = "xxx")
+                                            @PathVariable("id") String region,
+                                            @ApiParam(name = "phone", value = "phone", required = true, type = "String", example = "xxx")
+                                            @PathVariable("phone") String phone,
+                                            HttpServletRequest request) throws Exception {
+        ValidateUtils.checkRegion(region);
+        ValidateUtils.checkCompletePhone(phone);
+
+        Users users = userManager.getUser(region, phone);
+        if (users != null) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", users.getId());
+            map.put("nickname", users.getNickname());
+            map.put("portraitUri", users.getPortraitUri());
+            return APIResultWrap.ok(MiscUtils.encodeResults(map));
+        } else {
+            throw new ServiceException(ErrorCode.UNKNOW_USER);
+        }
+    }
+
+    @ApiOperation(value = "获取用户信息")
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    public APIResult<String> getUserInfo(@ApiParam(name = "id", value = "用户ID", required = true, type = "Integer", example = "xxx")
+                                         @PathVariable("id") Integer id,
+                                         HttpServletRequest request) throws Exception {
+
+        Users users = userManager.getUser(id);
+        if (users != null) {
+            Users t_user = new Users();
+            t_user.setId(users.getId());
+            t_user.setNickname(users.getNickname());
+            t_user.setPortraitUri(users.getPortraitUri());
+            t_user.setGender(users.getGender());
+            t_user.setStAccount(users.getStAccount());
+            t_user.setPhone(users.getPhone());
+            return APIResultWrap.ok(MiscUtils.encodeResults(t_user));
+        } else {
+            throw new ServiceException(ErrorCode.UNKNOW_USER);
+        }
+    }
+
+
+    @ApiOperation(value = "获取通讯录群组")
+    @RequestMapping(value = "/favgroups", method = RequestMethod.GET)
+    public APIResult<String> getFavGroups(@ApiParam(name = "limit", value = "limit", required = false, type = "Integer", example = "xxx")
+                                          @RequestParam("limit") Integer limit,
+                                          @ApiParam(name = "offset", value = "offset", required = false, type = "Integer", example = "xxx")
+                                          @RequestParam("offset") Integer offset,
+                                          HttpServletRequest request) throws Exception {
+
+        Integer currentUserId = getCurrentUserId(request);
+        String result = userManager.getFavGroups(currentUserId, limit, offset);
+        return APIResultWrap.ok(result);
+    }
+
+
+    @ApiOperation(value = "设置 SealTalk 号")
+    @RequestMapping(value = "/set_st_account", method = RequestMethod.POST)
+    public APIResult<String> setStAccount(@ApiParam(name = "stAccount", value = "sealtalk 号", required = true, type = "String", example = "xxx")
+                                          @RequestParam("stAccount") String stAccount,
+                                          HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.checkStAccount(stAccount);
+
+        Integer currentUserId = getCurrentUserId(request);
+        userManager.setStAccount(currentUserId, stAccount);
+        return APIResultWrap.ok("");
+    }
+
+
+    @ApiOperation(value = "设置性别")
+    @RequestMapping(value = "/set_gender", method = RequestMethod.POST)
+    public APIResult<String> setGender(@ApiParam(name = "gender", value = "性别：男性 male 女性 female", required = true, type = "String", example = "xxx")
+                                       @RequestParam("gender") String gender,
+                                       HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.checkGender(gender);
+        Integer currentUserId = getCurrentUserId(request);
+        Users u = new Users();
+        u.setId(currentUserId);
+        u.setGender(gender);
+
+        userManager.updateUserById(u);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "设置个人隐私设置")
+    @RequestMapping(value = "/set_privacy", method = RequestMethod.POST)
+    public APIResult<String> setPrivacy(@ApiParam(name = "phoneVerify", value = "是否允许通过手机号搜索到我", required = false, type = "Integer", example = "xxx")
+                                        @RequestParam("phoneVerify") Integer phoneVerify,
+                                        @ApiParam(name = "stSearchVerify", value = "是否允许 SealTalk 号搜索到我", required = false, type = "Integer", example = "xxx")
+                                        @RequestParam("stSearchVerify") Integer stSearchVerify,
+                                        @ApiParam(name = "friVerify", value = "是否加好友验证", required = false, type = "Integer", example = "xxx")
+                                        @RequestParam("friVerify") Integer friVerify,
+                                        @ApiParam(name = "groupVerify", value = "是否允许直接添加至群聊", required = false, type = "Integer", example = "xxx")
+                                        @RequestParam("groupVerify") Integer groupVerify,
+                                        HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.checkPrivacy(phoneVerify, stSearchVerify, friVerify, groupVerify);
+        Integer currentUserId = getCurrentUserId(request);
+
+        Users users = userManager.getUser(currentUserId);
+
+        Users u = new Users();
+        u.setId(users.getId());
+        u.setPhoneVerify(phoneVerify);
+        u.setPhoneVerify(stSearchVerify);
+        u.setPhoneVerify(friVerify);
+        u.setPhoneVerify(groupVerify);
+
+        userManager.updateUserById(u);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "获取个人隐私设置")
+    @RequestMapping(value = "/get_privacy", method = RequestMethod.GET)
+    public APIResult<String> getPrivacy(HttpServletRequest request) throws ServiceException {
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        Users users = userManager.getUser(currentUserId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("phoneVerify", users.getPhoneVerify());
+        result.put("stSearchVerify", users.getStSearchVerify());
+        result.put("friVerify", users.getFriVerify());
+        result.put("groupVerify", users.getGroupVerify());
+        return APIResultWrap.ok(MiscUtils.encodeResults(result));
+    }
+
+    @ApiOperation(value = "设置接收戳一下消息状态")
+    @RequestMapping(value = "/set_poke", method = RequestMethod.POST)
+    public APIResult<String> setPokeStatus(@ApiParam(name = "pokeStatus", value = "接收戳一下消息状态", required = true, type = "Integer", example = "xxx")
+                                           @RequestParam("pokeStatus") Integer pokeStatus,
+                                           HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.checkPokeStatus(pokeStatus);
+
+        Integer currentUserId = getCurrentUserId(request);
+        Users u = new Users();
+        u.setId(currentUserId);
+        u.setPokeStatus(pokeStatus);
+        userManager.updateUserById(u);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "获取接收戳一下消息状态")
+    @RequestMapping(value = "/get_poke", method = RequestMethod.GET)
+    public APIResult<String> getPokeStatus(HttpServletRequest request) throws ServiceException {
+
+        Integer currentUserId = getCurrentUserId(request);
+        Users users = userManager.getUser(currentUserId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("pokeStatus", users.getPokeStatus());
+        return APIResultWrap.ok(MiscUtils.encodeResults(result));
+    }
+
+
 }

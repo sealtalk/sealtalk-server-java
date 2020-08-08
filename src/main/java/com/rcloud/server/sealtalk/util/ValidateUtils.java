@@ -1,11 +1,13 @@
 package com.rcloud.server.sealtalk.util;
 
+import com.google.common.collect.ImmutableList;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import org.springframework.util.StringUtils;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * @Author: Jianlu.Yu
@@ -15,6 +17,7 @@ import java.util.UUID;
  */
 public class ValidateUtils {
 
+    //TODO
     public static void checkCompletePhone(String completePhone) throws ServiceException {
 
         if (!RegexUtils.checkMobile(completePhone)) {
@@ -86,5 +89,42 @@ public class ValidateUtils {
         }
 
 
+    }
+
+    public static void checkPokeStatus(Integer pokeStatus) throws ServiceException {
+        ImmutableList<Integer> list = ImmutableList.of(0, 1);
+        if (!list.contains(pokeStatus)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+    }
+
+    public static void checkPrivacy(Integer phoneVerify, Integer stSearchVerify, Integer friVerify, Integer groupVerify) throws ServiceException {
+        if (phoneVerify == null && stSearchVerify == null && friVerify == null && groupVerify == null) {
+            throw new ServiceException(ErrorCode.EMPTY_PARAMETER);
+        }
+        ImmutableList<Integer> list = ImmutableList.of(0, 1);
+        if (!list.contains(phoneVerify) || !list.contains(stSearchVerify) || !list.contains(friVerify) || !list.contains(groupVerify)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+
+    }
+
+    public static void checkGender(String gender) throws ServiceException {
+        if (!"male".equals(gender) && !"female".equals(gender)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+
+
+    }
+
+    public static void checkStAccount(String stAccount) throws ServiceException {
+        if (StringUtils.isEmpty(stAccount) || stAccount.length() < 6 || stAccount.length() > 20) {
+            throw new ServiceException(ErrorCode.EMPTY_STACCOUNT_LENGHT_ERROR);
+        }
+
+        String regex = "^[a-zA-Z][a-zA-Z0-9_-]*$";
+        if (!Pattern.matches(regex, stAccount)) {
+            throw new ServiceException(ErrorCode.EMPTY_STACCOUNT_ERROR);
+        }
     }
 }

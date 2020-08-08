@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
@@ -20,34 +21,13 @@ import java.util.Date;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class VerificationCodesService {
+public class VerificationCodesService extends AbstractBaseService<VerificationCodes,Integer> {
 
     @Resource
     private VerificationCodesMapper mapper;
 
-    public VerificationCodes queryOne(String region, String phone) {
-
-        Example example = new Example(VerificationCodes.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("region",region);
-        criteria.andEqualTo("phone",phone);
-        return mapper.selectOneByExample(example);
-    }
-
-    public VerificationCodes queryOne(String token) {
-
-        Example example = new Example(VerificationCodes.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("token",token);
-        return mapper.selectOneByExample(example);
-    }
-
-    public void insert(VerificationCodes verificationCodes) {
-        mapper.insertSelective(verificationCodes);
-    }
-
-    public void update(VerificationCodes verificationCodes) {
-        Assert.notNull(verificationCodes.getId(),"id is null");
-        mapper.updateByPrimaryKeySelective(verificationCodes);
+    @Override
+    protected Mapper<VerificationCodes> getMapper() {
+        return mapper;
     }
 }

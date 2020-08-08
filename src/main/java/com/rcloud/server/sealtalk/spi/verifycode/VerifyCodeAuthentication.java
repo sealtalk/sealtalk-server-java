@@ -13,7 +13,7 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 public interface VerifyCodeAuthentication {
 
 
-    SmsServiceType getIdentification();
+    SmsServiceType getIdentifier();
 
     /**
      * 短信验证码校验

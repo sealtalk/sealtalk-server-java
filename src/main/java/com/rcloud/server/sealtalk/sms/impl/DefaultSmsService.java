@@ -28,7 +28,7 @@ public class DefaultSmsService implements SmsService {
     protected SealtalkConfig sealtalkConfig;
 
     @Override
-    public SmsServiceType  getIdentification() {
+    public SmsServiceType getIdentifier() {
         return SmsServiceType.RONGCLOUD;
     }
 
