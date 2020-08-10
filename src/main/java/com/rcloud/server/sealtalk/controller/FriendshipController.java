@@ -16,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -103,7 +104,7 @@ public class FriendshipController extends BaseController {
 
         ValidateUtils.checkDisplayName(displayName);
         Integer currentUserId = getCurrentUserId(request);
-        friendShipManager.setDisplayName(currentUserId, N3d.decode(friendId),displayName);
+        friendShipManager.setDisplayName(currentUserId, N3d.decode(friendId), displayName);
         return APIResultWrap.ok("");
     }
 
@@ -131,11 +132,11 @@ public class FriendshipController extends BaseController {
 
         Integer currentUserId = getCurrentUserId(request);
 
-        String result = friendShipManager.getFriendProfile(currentUserId,N3d.decode(friendId));
+        String result = friendShipManager.getFriendProfile(currentUserId, N3d.decode(friendId));
 
         //TODO
         result = MiscUtils.addUpdateTimeToList(result);
-        Object object = MiscUtils.encodeResults(JacksonUtil.getJsonNode(result),"users.id");
+        Object object = MiscUtils.encodeResults(JacksonUtil.getJsonNode(result), "users.id");
         return APIResultWrap.ok(object);
     }
 
@@ -143,17 +144,101 @@ public class FriendshipController extends BaseController {
     @ApiOperation(value = "获取通讯录朋友信息列表")
     @RequestMapping(value = "/get_contacts_info", method = RequestMethod.GET)
     public APIResult<?> getContactsInfo(
-            @ApiParam(name = "contacstList", value = "手机号列表", required = true, type = "String", example = "xxx")
+            @ApiParam(name = "contacstList", value = "手机号列表", required = true, type = "String[]", example = "xxx")
             @RequestParam String[] contacstList,
             HttpServletRequest request) throws ServiceException {
 
-        if(contacstList==null || contacstList.length==0){
-            return  APIResultWrap.error(ErrorCode.REQUEST_ERROR);
+        if (contacstList == null || contacstList.length == 0) {
+            return APIResultWrap.error(ErrorCode.REQUEST_ERROR);
         }
 
         Integer currentUserId = getCurrentUserId(request);
-        List<ContractInfoDTO> contractInfoDTOList= friendShipManager.getContactsInfo(currentUserId,contacstList);
+        List<ContractInfoDTO> contractInfoDTOList = friendShipManager.getContactsInfo(currentUserId, contacstList);
         return APIResultWrap.ok(contractInfoDTOList);
+    }
+
+    @ApiOperation(value = "批量删除好友")
+    @RequestMapping(value = "/batch_delete", method = RequestMethod.GET)
+    public APIResult<?> batchDelete(
+            @ApiParam(name = "friendIds", value = "好友ID列表", required = true, type = "String[]", example = "xxx")
+            @RequestParam String[] friendIds,
+            HttpServletRequest request) throws ServiceException {
+
+        if (friendIds == null || friendIds.length == 0) {
+            return APIResultWrap.error(ErrorCode.REQUEST_ERROR);
+        }
+
+        Integer currentUserId = getCurrentUserId(request);
+        friendShipManager.batchDelete(currentUserId, friendIds);
+        return APIResultWrap.ok("");
+    }
+
+    /**
+     * 设置朋友备注和描述
+     * ->不传默认为不进行设置
+     * ->传空字符串,将设置为空
+     *
+     * @param friendId
+     * @param displayName
+     * @param region
+     * @param phone
+     * @param description
+     * @param imageUri
+     * @param request
+     * @return
+     * @throws ServiceException
+     */
+    @ApiOperation(value = "设置朋友备注和描述")
+    @RequestMapping(value = "/set_friend_description", method = RequestMethod.GET)
+    public APIResult<?> setFriendDescription(
+            @ApiParam(name = "friendId", value = "好友ID", required = true, type = "String", example = "xxx")
+            @RequestParam String friendId,
+            @ApiParam(name = "displayName", value = "备注", required = true, type = "String", example = "xxx")
+            @RequestParam String displayName,
+            @ApiParam(name = "region", value = "国家区号", required = true, type = "String", example = "xxx")
+            @RequestParam String region,
+            @ApiParam(name = "phone", value = "手机号", required = true, type = "String", example = "xxx")
+            @RequestParam String phone,
+            @ApiParam(name = "description", value = "更多描述", required = true, type = "String", example = "xxx")
+            @RequestParam String description,
+            @ApiParam(name = "imageUri", value = "照片地址", required = true, type = "String", example = "xxx")
+            @RequestParam String imageUri,
+            HttpServletRequest request) throws ServiceException {
+
+        if (StringUtils.isEmpty(friendId)) {
+            return APIResultWrap.error(ErrorCode.PARAM_ERROR);
+        }
+
+        // region,phone 要么都为空，要么都不为空
+        if ((StringUtils.isEmpty(region) && !StringUtils.isEmpty(phone)) ||
+                (!StringUtils.isEmpty(region) && StringUtils.isEmpty(phone))) {
+            return APIResultWrap.error(ErrorCode.PARAM_ERROR);
+        }
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        friendShipManager.setFriendDescription(currentUserId, friendId, displayName, region, phone, description, imageUri);
+
+        return APIResultWrap.ok("");
+    }
+
+
+    @ApiOperation(value = "获取朋友备注和描述")
+    @RequestMapping(value = "/get_friend_description", method = RequestMethod.GET)
+    public APIResult<?> getFriendDescription(
+            @ApiParam(name = "friendId", value = "好友ID", required = true, type = "String", example = "xxx")
+            @RequestParam String friendId,
+            HttpServletRequest request) throws ServiceException {
+
+        if (StringUtils.isEmpty(friendId)) {
+            return APIResultWrap.error(ErrorCode.PARAM_ERROR);
+        }
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        friendShipManager.getFriendDescription(currentUserId, friendId);
+
+        return APIResultWrap.ok("");
     }
 
 }

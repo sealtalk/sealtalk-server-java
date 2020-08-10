@@ -10,6 +10,7 @@ import com.rcloud.server.sealtalk.domain.Friendships;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.response.dto.ContractInfoDTO;
+import com.rcloud.server.sealtalk.model.response.dto.FriendDTO;
 import com.rcloud.server.sealtalk.model.response.dto.InviteDTO;
 import com.rcloud.server.sealtalk.rongcloud.RongCloudClient;
 import com.rcloud.server.sealtalk.service.BlackListsService;
@@ -647,16 +648,16 @@ public class FriendShipManager extends BaseManager {
 
         List<Integer> friendIdList = new ArrayList<>();
 
-        if(!CollectionUtils.isEmpty(friendshipsList)){
-            for(Friendships friendships:friendshipsList){
+        if (!CollectionUtils.isEmpty(friendshipsList)) {
+            for (Friendships friendships : friendshipsList) {
                 friendIdList.add(friendships.getId());
             }
         }
 
-        for(String phone:contacstList){
+        for (String phone : contacstList) {
             ContractInfoDTO contractInfoDTO = new ContractInfoDTO();
             Users users = registerUsers.get(phone);
-            if(users==null){
+            if (users == null) {
                 contractInfoDTO.setRegistered(ContractInfoDTO.UN_REGISTERED);
                 contractInfoDTO.setRelationship(ContractInfoDTO.NON_FRIEND);
                 contractInfoDTO.setStAccount("");
@@ -665,11 +666,11 @@ public class FriendShipManager extends BaseManager {
                 contractInfoDTO.setNickname("");
                 contractInfoDTO.setPortraitUri("");
 
-            }else {
+            } else {
                 contractInfoDTO.setRegistered(ContractInfoDTO.REGISTERED);
-                if(friendIdList.contains(users.getId())){
+                if (friendIdList.contains(users.getId())) {
                     contractInfoDTO.setRelationship(ContractInfoDTO.IS_FRIEND);
-                }else{
+                } else {
                     contractInfoDTO.setRelationship(ContractInfoDTO.NON_FRIEND);
                 }
                 contractInfoDTO.setId(N3d.encode(users.getId()));
@@ -681,5 +682,105 @@ public class FriendShipManager extends BaseManager {
             contractInfoDTOList.add(contractInfoDTO);
         }
         return contractInfoDTOList;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDelete(Integer currentUserId, String[] friendIds) throws ServiceException {
+
+        long timestamp = System.currentTimeMillis();
+        Friendships friendships = new Friendships();
+        friendships.setStatus(Friendships.FRIENDSHIP_DELETED);
+        friendships.setDisplayName("");
+        friendships.setMessage("");
+        friendships.setTimestamp(timestamp);
+
+        Example example = new Example(Friendships.class);
+        example.createCriteria().andEqualTo("status", Friendships.FRIENDSHIP_AGREED)
+                .andEqualTo("userId", currentUserId)
+                .andIn("friendId", CollectionUtils.arrayToList(friendIds));
+
+        friendshipsService.updateByExample(friendships, example);
+
+        //更新成功后添加到 IM 黑名单
+        String[] encodeFriendIds = new String[friendIds.length];
+        int i = 0;
+        for (String fId : friendIds) {
+            encodeFriendIds[i++] = N3d.encode(Integer.valueOf(fId));
+        }
+
+        rongCloudClient.addBlackList(currentUserId, encodeFriendIds);
+    }
+
+    /**
+     * 设置朋友备注和描述
+     *
+     * @param friendId
+     * @param displayName
+     * @param region
+     * @param phone
+     * @param description
+     * @param imageUri
+     */
+    public void setFriendDescription(Integer currentUserId, String friendId, String displayName, String region, String phone, String description, String imageUri) throws ServiceException {
+
+        Example example = new Example(Friendships.class);
+        example.createCriteria().andEqualTo("userId", currentUserId)
+                .andEqualTo("friendId", friendId);
+
+        Friendships friendships = friendshipsService.getOneByExample(example);
+
+        if (friendships != null) {
+
+            Friendships newFriendships = new Friendships();
+            if (displayName != null) {
+                newFriendships.setDisplayName(displayName);
+            }
+
+            if (region != null && phone != null) {
+                newFriendships.setRegion(region);
+                newFriendships.setPhone(phone);
+            }
+
+            if (description != null) {
+                newFriendships.setDescription(description);
+            }
+
+            if (imageUri != null) {
+                newFriendships.setImageUri(imageUri);
+            }
+
+            friendshipsService.updateByExample(newFriendships, example);
+            CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
+
+            return;
+        } else {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+
+    }
+
+    /**
+     * 获取朋友备注和名称
+     *
+     * @param currentUserId
+     * @param friendId
+     */
+    public FriendDTO getFriendDescription(Integer currentUserId, String friendId) {
+        FriendDTO friendDTO = new FriendDTO();
+        Example example = new Example(Friendships.class);
+        example.createCriteria().andEqualTo("userId", currentUserId)
+                .andEqualTo("friendId", friendId);
+        example.selectProperties("displayName", "region", "phone", "description", "imageUri");
+
+        Friendships friendships = friendshipsService.getOneByExample(example);
+
+        if (friendships != null) {
+            friendDTO.setDescription(friendships.getDescription());
+            friendDTO.setDisplayName(friendships.getDisplayName());
+            friendDTO.setImageUri(friendships.getImageUri());
+            friendDTO.setRegion(friendships.getRegion());
+            friendDTO.setPhone(friendships.getPhone());
+        }
+        return friendDTO;
     }
 }
