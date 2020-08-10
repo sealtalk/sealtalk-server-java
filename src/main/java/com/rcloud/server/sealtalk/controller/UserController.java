@@ -1,8 +1,6 @@
 package com.rcloud.server.sealtalk.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
-import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.Users;
@@ -20,7 +18,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -48,14 +45,12 @@ public class UserController extends BaseController {
     private UserManager userManager;
 
     @Resource
-    private SmsManager smsManager;
+    private SmsManager smsManager;//TODO
 
-    @Resource
-    private SealtalkConfig sealtalkConfig;
 
     @ApiOperation(value = "向手机发送验证码(RongCloud)")
     @RequestMapping(value = "/send_code", method = RequestMethod.POST)
-    public APIResult<String> sendCode(
+    public APIResult<Object> sendCode(
             @ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
             @RequestParam String region,
             @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
@@ -71,7 +66,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "向手机发送验证码(云片服务)")
     @RequestMapping(value = "/send_code_yp", method = RequestMethod.POST)
-    public APIResult<String> sendCodeYp(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
+    public APIResult<Object> sendCodeYp(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                         @RequestParam String region,
                                         @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
                                         @RequestParam String phone,
@@ -80,9 +75,7 @@ public class UserController extends BaseController {
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
 
-        Object object = httpSession.getAttribute(Constants.SERVER_API_PARAMS);
-        Assert.notNull(object, "serverApiParams error");
-        ServerApiParams serverApiParams = (ServerApiParams) object;
+        ServerApiParams serverApiParams = getServerApiParams(httpSession);
         userManager.sendCode(region, phone, SmsServiceType.YUNPIAN, serverApiParams);
         return APIResultWrap.ok("");
     }
@@ -104,7 +97,7 @@ public class UserController extends BaseController {
      */
     @ApiOperation(value = "校验验证码")
     @RequestMapping(value = "/verify_code", method = RequestMethod.POST)
-    public APIResult<String> verifyCode(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
+    public APIResult<Object> verifyCode(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                         @RequestParam String region,
                                         @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
                                         @RequestParam String phone,
@@ -135,7 +128,7 @@ public class UserController extends BaseController {
      */
     @ApiOperation(value = "校验验证码(云片服务)")
     @RequestMapping(value = "/verify_code_yp", method = RequestMethod.POST)
-    public APIResult<String> verifyCodeYP(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
+    public APIResult<Object> verifyCodeYP(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                           @RequestParam String region,
                                           @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
                                           @RequestParam String phone,
@@ -156,6 +149,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/regionlist", method = RequestMethod.GET)
     public APIResult<Object> regionlist() throws ServiceException {
 
+        //TODO
         JsonNode jsonNode = smsManager.getRegionList();
         return APIResultWrap.ok(jsonNode);
     }
@@ -194,7 +188,7 @@ public class UserController extends BaseController {
      */
     @ApiOperation(value = "注册新用户")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public APIResult<String> register(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
+    public APIResult<Object> register(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
                                       @RequestParam String nickname,
                                       @ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
                                       @RequestParam String password,
@@ -225,7 +219,7 @@ public class UserController extends BaseController {
      */
     @ApiOperation(value = "用户登录")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public APIResult<String> login(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
+    public APIResult<Object> login(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                    @RequestParam String region,
                                    @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
                                    @RequestParam String phone,
@@ -248,9 +242,9 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "用户注销")
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    public APIResult<String> logout(HttpServletResponse response) throws ServiceException {
+    public APIResult<Object> logout(HttpServletResponse response) throws ServiceException {
 
-        Cookie newCookie = new Cookie(sealtalkConfig.getAuthCookieName(), null);
+        Cookie newCookie = new Cookie(getSealtalkConfig().getAuthCookieName(), null);
         newCookie.setMaxAge(0);
         newCookie.setPath("/");
         response.addCookie(newCookie);
@@ -260,7 +254,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "重置密码")
     @RequestMapping(value = "/reset_password", method = RequestMethod.POST)
-    public APIResult<String> resetPassword(@ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
+    public APIResult<Object> resetPassword(@ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
                                            @RequestParam String password,
                                            @ApiParam(name = "verification_token", value = "凭证token", required = true, type = "String", example = "xxx")
                                            @RequestParam("verification_token") String verificationToken) throws ServiceException {
@@ -275,7 +269,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "修改密码")
     @RequestMapping(value = "/change_password", method = RequestMethod.POST)
-    public APIResult<String> changePassword(@ApiParam(name = "newPassword", value = "新密码", required = true, type = "String", example = "xxx")
+    public APIResult<Object> changePassword(@ApiParam(name = "newPassword", value = "新密码", required = true, type = "String", example = "xxx")
                                             @RequestParam String newPassword,
                                             @ApiParam(name = "oldPassword", value = "老密码", required = true, type = "String", example = "xxx")
                                             @RequestParam String oldPassword,
@@ -310,11 +304,9 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "设置昵称")
     @RequestMapping(value = "/set_nickname", method = RequestMethod.POST)
-    public APIResult<String> setNickName(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
+    public APIResult<Object> setNickName(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
                                          @RequestParam String nickname,
                                          HttpServletRequest request) throws ServiceException {
-
-
         ValidateUtils.checkNickName(nickname);
 
         Integer currentUserId = getCurrentUserId(request);
@@ -324,7 +316,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "设置头像")
     @RequestMapping(value = "/set_portrait_uri", method = RequestMethod.POST)
-    public APIResult<String> setPortraitUri(@ApiParam(name = "portraitUri", value = "头像", required = true, type = "String", example = "xxx")
+    public APIResult<Object> setPortraitUri(@ApiParam(name = "portraitUri", value = "头像", required = true, type = "String", example = "xxx")
                                             @RequestParam String portraitUri,
                                             HttpServletRequest request) throws ServiceException {
 
@@ -340,7 +332,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取token")
     @RequestMapping(value = "/get_token", method = RequestMethod.GET)
-    public APIResult<String> getToken(HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> getToken(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
         Pair<String, String> pairResult = userManager.getToken(currentUserId);
@@ -355,7 +347,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取当前用户黑名单列表")
     @RequestMapping(value = "/blacklist", method = RequestMethod.GET)
-    public APIResult<String> blacklist(HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> blacklist(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
         String result = userManager.getBlackList(currentUserId);
@@ -365,7 +357,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "将好友加入黑名单")
     @RequestMapping(value = "/add_to_blacklist", method = RequestMethod.POST)
-    public APIResult<String> addBlackList(
+    public APIResult<Object> addBlackList(
             @ApiParam(name = "friendId", value = "好友ID", required = true, type = "String", example = "xxx")
             @RequestParam String friendId,
             @ApiParam(name = "encodedFriendId", value = "encodedFriendId", required = true, type = "String", example = "xxx")
@@ -381,7 +373,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "将好友移除黑名单")
     @RequestMapping(value = "/remove_from_blacklist", method = RequestMethod.POST)
-    public APIResult<String> removeBlacklist(
+    public APIResult<Object> removeBlacklist(
             @ApiParam(name = "friendId", value = "好友ID", required = true, type = "String", example = "xxx")
             @RequestParam String friendId,
             @ApiParam(name = "encodedFriendId", value = "encodedFriendId", required = true, type = "String", example = "xxx")
@@ -397,7 +389,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取七牛云存储token")
     @RequestMapping(value = "/get_image_token", method = RequestMethod.POST)
-    public APIResult<String> getImageToken() throws ServiceException {
+    public APIResult<Object> getImageToken() throws ServiceException {
 
         //TODO
         return APIResultWrap.ok("");
@@ -406,7 +398,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取短信图片验证码")
     @RequestMapping(value = "/get_sms_img_code", method = RequestMethod.POST)
-    public APIResult<String> getSmsImgCode() throws ServiceException {
+    public APIResult<Object> getSmsImgCode() throws ServiceException {
 
         //TODO
         return APIResultWrap.ok("");
@@ -414,7 +406,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取当前用户所属群组")
     @RequestMapping(value = "/groups", method = RequestMethod.POST)
-    public APIResult<String> getGroups(HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> getGroups(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
         String result = userManager.getGroups(currentUserId);
@@ -425,12 +417,12 @@ public class UserController extends BaseController {
     //TODO
     @ApiOperation(value = "同步用户的好友、黑名单、群组、群组成员数据")
     @RequestMapping(value = "/sync/{version}", method = RequestMethod.POST)
-    public APIResult<String> getGroups(@ApiParam(name = "version", value = "请求的时间戳(版本号)", required = true, type = "Integer", example = "xxx")
+    public APIResult<Object> getGroups(@ApiParam(name = "version", value = "请求的时间戳(版本号)", required = true, type = "Integer", example = "xxx")
                                        @PathVariable("version") Integer timeStampVersion,
                                        HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
-        //TODO
+
         String result = userManager.getGroups(currentUserId);
 
         return APIResultWrap.ok(result);
@@ -439,11 +431,11 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "根据手机号查找用户信息")
     @RequestMapping(value = "/find/{region}/{phone}", method = RequestMethod.POST)
-    public APIResult<String> getUserByPhone(@ApiParam(name = "region", value = "region", required = true, type = "String", example = "xxx")
+    public APIResult<Object> getUserByPhone(@ApiParam(name = "region", value = "region", required = true, type = "String", example = "xxx")
                                             @PathVariable("id") String region,
                                             @ApiParam(name = "phone", value = "phone", required = true, type = "String", example = "xxx")
                                             @PathVariable("phone") String phone,
-                                            HttpServletRequest request) throws Exception {
+                                            HttpServletRequest request) throws ServiceException {
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
 
@@ -461,9 +453,9 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取用户信息")
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
-    public APIResult<String> getUserInfo(@ApiParam(name = "id", value = "用户ID", required = true, type = "Integer", example = "xxx")
+    public APIResult<Object> getUserInfo(@ApiParam(name = "id", value = "用户ID", required = true, type = "Integer", example = "xxx")
                                          @PathVariable("id") Integer id,
-                                         HttpServletRequest request) throws Exception {
+                                         HttpServletRequest request) throws ServiceException {
 
         Users users = userManager.getUser(id);
         if (users != null) {
@@ -483,11 +475,11 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取通讯录群组")
     @RequestMapping(value = "/favgroups", method = RequestMethod.GET)
-    public APIResult<String> getFavGroups(@ApiParam(name = "limit", value = "limit", required = false, type = "Integer", example = "xxx")
+    public APIResult<Object> getFavGroups(@ApiParam(name = "limit", value = "limit", required = false, type = "Integer", example = "xxx")
                                           @RequestParam("limit") Integer limit,
                                           @ApiParam(name = "offset", value = "offset", required = false, type = "Integer", example = "xxx")
                                           @RequestParam("offset") Integer offset,
-                                          HttpServletRequest request) throws Exception {
+                                          HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
         String result = userManager.getFavGroups(currentUserId, limit, offset);
@@ -497,7 +489,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "设置 SealTalk 号")
     @RequestMapping(value = "/set_st_account", method = RequestMethod.POST)
-    public APIResult<String> setStAccount(@ApiParam(name = "stAccount", value = "sealtalk 号", required = true, type = "String", example = "xxx")
+    public APIResult<Object> setStAccount(@ApiParam(name = "stAccount", value = "sealtalk 号", required = true, type = "String", example = "xxx")
                                           @RequestParam("stAccount") String stAccount,
                                           HttpServletRequest request) throws ServiceException {
 
@@ -511,7 +503,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "设置性别")
     @RequestMapping(value = "/set_gender", method = RequestMethod.POST)
-    public APIResult<String> setGender(@ApiParam(name = "gender", value = "性别：男性 male 女性 female", required = true, type = "String", example = "xxx")
+    public APIResult<Object> setGender(@ApiParam(name = "gender", value = "性别：男性 male 女性 female", required = true, type = "String", example = "xxx")
                                        @RequestParam("gender") String gender,
                                        HttpServletRequest request) throws ServiceException {
 
@@ -527,7 +519,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "设置个人隐私设置")
     @RequestMapping(value = "/set_privacy", method = RequestMethod.POST)
-    public APIResult<String> setPrivacy(@ApiParam(name = "phoneVerify", value = "是否允许通过手机号搜索到我", required = false, type = "Integer", example = "xxx")
+    public APIResult<Object> setPrivacy(@ApiParam(name = "phoneVerify", value = "是否允许通过手机号搜索到我", required = false, type = "Integer", example = "xxx")
                                         @RequestParam("phoneVerify") Integer phoneVerify,
                                         @ApiParam(name = "stSearchVerify", value = "是否允许 SealTalk 号搜索到我", required = false, type = "Integer", example = "xxx")
                                         @RequestParam("stSearchVerify") Integer stSearchVerify,
@@ -555,7 +547,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取个人隐私设置")
     @RequestMapping(value = "/get_privacy", method = RequestMethod.GET)
-    public APIResult<String> getPrivacy(HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> getPrivacy(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
 
@@ -571,7 +563,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "设置接收戳一下消息状态")
     @RequestMapping(value = "/set_poke", method = RequestMethod.POST)
-    public APIResult<String> setPokeStatus(@ApiParam(name = "pokeStatus", value = "接收戳一下消息状态", required = true, type = "Integer", example = "xxx")
+    public APIResult<Object> setPokeStatus(@ApiParam(name = "pokeStatus", value = "接收戳一下消息状态", required = true, type = "Integer", example = "xxx")
                                            @RequestParam("pokeStatus") Integer pokeStatus,
                                            HttpServletRequest request) throws ServiceException {
 
@@ -587,7 +579,7 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = "获取接收戳一下消息状态")
     @RequestMapping(value = "/get_poke", method = RequestMethod.GET)
-    public APIResult<String> getPokeStatus(HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> getPokeStatus(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
         Users users = userManager.getUser(currentUserId);

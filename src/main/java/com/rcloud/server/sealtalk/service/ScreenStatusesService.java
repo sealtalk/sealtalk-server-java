@@ -1,11 +1,11 @@
 package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.ScreenStatusesMapper;
-import javax.annotation.Resource;
-
 import com.rcloud.server.sealtalk.domain.ScreenStatuses;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
+
+import javax.annotation.Resource;
 
 /**
  * @Author: xiuwei.nie
@@ -14,7 +14,7 @@ import tk.mybatis.mapper.common.Mapper;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class ScreenStatusesService extends AbstractBaseService<ScreenStatuses,Integer>{
+public class ScreenStatusesService extends AbstractBaseService<ScreenStatuses, Integer> {
 
     @Resource
     private ScreenStatusesMapper mapper;

@@ -12,4 +12,11 @@ import lombok.Data;
 public class InviteResponse {
 
     private String action;
+
+    private String message;
+
+    public InviteResponse(String action, String message) {
+        this.action = action;
+        this.message = message;
+    }
 }

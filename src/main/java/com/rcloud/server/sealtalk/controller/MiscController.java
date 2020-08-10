@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Author: xiuwei.nie
+ * @Author: Jianlu.Yu
  * @Date: 2020/7/6
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
@@ -18,5 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Timed(percentiles = {0.9, 0.95, 0.99})
 @Slf4j
 public class MiscController {
+
+
 
 }

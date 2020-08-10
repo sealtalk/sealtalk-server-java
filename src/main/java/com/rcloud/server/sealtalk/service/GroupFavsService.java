@@ -1,12 +1,11 @@
 package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.GroupFavsMapper;
-import javax.annotation.Resource;
-
 import com.rcloud.server.sealtalk.domain.GroupFavs;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class GroupFavsService extends AbstractBaseService<GroupFavs,Integer> {
+public class GroupFavsService extends AbstractBaseService<GroupFavs, Integer> {
 
     @Resource
     private GroupFavsMapper mapper;
@@ -26,7 +25,7 @@ public class GroupFavsService extends AbstractBaseService<GroupFavs,Integer> {
         return mapper;
     }
 
-    public List<GroupFavs> queryGroupFavsWithGroupByUserId(Integer userId, Integer limit, Integer offset){
-        return mapper.queryGroupFavsWithGroupByUserId(userId,limit,offset);
+    public List<GroupFavs> queryGroupFavsWithGroupByUserId(Integer userId, Integer limit, Integer offset) {
+        return mapper.queryGroupFavsWithGroupByUserId(userId, limit, offset);
     }
 }

@@ -53,6 +53,7 @@ public class JacksonUtil {
     public static String toJson(Object object) throws Exception {
 
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
             return mapper.writeValueAsString(object);
         } catch (IOException e) {
             throw new Exception(e.getMessage());

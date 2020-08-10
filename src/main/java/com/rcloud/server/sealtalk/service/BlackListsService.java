@@ -2,14 +2,11 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.BlackListsMapper;
 import com.rcloud.server.sealtalk.domain.BlackLists;
-
-import javax.annotation.Resource;
-
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
-import tk.mybatis.mapper.entity.Example;
 
-import java.util.List;
+import javax.annotation.Resource;
 
 /**
  * @Author: xiuwei.nie
@@ -18,7 +15,7 @@ import java.util.List;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class BlackListsService extends AbstractBaseService<BlackLists,Integer> {
+public class BlackListsService extends AbstractBaseService<BlackLists, Integer> {
 
     @Resource
     private BlackListsMapper mapper;
@@ -28,21 +25,14 @@ public class BlackListsService extends AbstractBaseService<BlackLists,Integer> {
         return mapper;
     }
 
-    public BlackLists queryOne(Integer currentUserId, Integer friendId) {
-//        BlackListsExample example = new BlackListsExample()
-//            .createCriteria()
-//            .andFriendIdEqualTo(currentUserId)
-//            .andUserIdEqualTo(friendId)
-//            .example();
-//        return mapper.selectOneByExample(example);
-
-        return null;
-    }
 
     public void saveOrUpdate(Integer currentUserId, Integer friendId, boolean status, long currentTimeMillis) {
         //TODO
-    }
 
+//        mapper.existsWithPrimaryKey()
+//                mapper.selectByRowBounds(RowBounds)
+//                        mapper.
+    }
 
 
 }

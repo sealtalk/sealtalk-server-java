@@ -62,6 +62,16 @@ public class Users implements Serializable {
     @Column(name="deletedAt")
     private Date deletedAt;
 
+    private Groups groups;
+
+    public Groups getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Groups groups) {
+        this.groups = groups;
+    }
+
     private static final long serialVersionUID = 1L;
 
     /**

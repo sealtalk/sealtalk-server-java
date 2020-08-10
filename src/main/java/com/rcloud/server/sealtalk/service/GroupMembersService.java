@@ -16,7 +16,7 @@ import java.util.List;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
-public class GroupMembersService extends AbstractBaseService<GroupMembers,Integer>{
+public class GroupMembersService extends AbstractBaseService<GroupMembers, Integer> {
 
     @Resource
     private GroupMembersMapper mapper;
@@ -33,10 +33,10 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers,Intege
      * @param memberId 用户id
      * @return
      */
-    public List<GroupMembers> queryGroupMembersWithGroupByMemberId(int memberId){
+    public List<GroupMembers> queryGroupMembersWithGroupByMemberId(int memberId) {
         Example example = new Example(GroupMembers.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("memberId",memberId);
+        criteria.andEqualTo("memberId", memberId);
         return mapper.queryGroupMembersWithGroupByMemberId(example);
     }
 

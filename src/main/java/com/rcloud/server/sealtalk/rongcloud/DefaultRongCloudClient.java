@@ -143,4 +143,10 @@ public class DefaultRongCloudClient implements RongCloudClient {
             }
         });
     }
+
+    @Override
+    public void sendContactNotification(Integer currentUserId, String currentUserNickName, Integer friendId, String contactOperationType, String message, long timestamp) {
+        //TODO
+        return;
+    }
 }

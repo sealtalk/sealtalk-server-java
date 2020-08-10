@@ -27,8 +27,6 @@ public class CacheUtil {
 
 
 
-
-
     private static Cache<String,String> cache = CacheBuilder.newBuilder()
             .maximumSize(100000)
             .expireAfterWrite(3600000, TimeUnit.MILLISECONDS)

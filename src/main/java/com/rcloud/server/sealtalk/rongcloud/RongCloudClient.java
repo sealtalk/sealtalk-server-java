@@ -76,4 +76,14 @@ public interface RongCloudClient {
     Result removeBlackList(int id, String[] blackUserIds) throws ServiceException;
 
 
+    /**
+     *发送通知
+     * @param currentUserId
+     * @param currentUserNickName
+     * @param friendId
+     * @param contactOperationType
+     * @param message
+     * @param timestamp
+     */
+    void sendContactNotification(Integer currentUserId, String currentUserNickName, Integer friendId, String contactOperationType, String message, long timestamp);
 }

@@ -1,13 +1,24 @@
 package com.rcloud.server.sealtalk.util;
 
+import com.alibaba.druid.support.json.JSONUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.domain.Groups;
+import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.model.response.APIResultWrap;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * @Author: Jianlu.Yu
@@ -15,15 +26,18 @@ import java.util.Map;
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
+@Slf4j
 public class MiscUtils {
 
+    /**
+     * 地区、标示map
+     */
     private static Map<String, String> regionMap = new HashMap<>();
-
-
 
     static {
         regionMap.put("86", "zh-CN");
     }
+
 
     /**
      * 地区添加前缀 "+"
@@ -60,13 +74,6 @@ public class MiscUtils {
         }
     }
 
-    public static void main(String[] args) {
-        String text = "abcd123";
-        int salt = 9988;
-
-        //a2d46a186480138852a18cb1c8b2af530f3e5166
-        System.out.println(hash(text, salt));
-    }
 
     public static String merge(String content, String key, String code) {
         content = content.replaceAll(key, code);
@@ -79,14 +86,158 @@ public class MiscUtils {
 
 
     /**
-     * 返回结果编码 TODO
+     * 文本xss处理
      *
-     * @param o
+     * @param str
+     * @param maxLength
      * @return
      */
-    public static String encodeResults(Object o) {
+    public static String xss(String str, int maxLength) {
+        String result = "";
+        if (StringUtils.isEmpty(str) || str.length() > maxLength) {
+            return result;
+        }
+        result = StringEscapeUtils.escapeHtml4(str);
+        if (result.length() > maxLength) {
+            result = result.substring(0, maxLength);
+        }
+        return result;
+    }
 
-        return "";
+    /**
+     * 根据propertyExpression 对结果对象中的ID进行N3D编码
+     *
+     * propertyExpression 用点 "." 导航，如下
+     *
+     *  Object{
+     *      userId：     //propertyExpression=userId
+     *      groups{
+     *          id:1   // propertyExpression = groups.id
+     *      }
+     *
+     *      [           //  如果是数组或list同上
+     *          groups{
+     *              id   // propertyExpression = groups.id
+     *          },
+     *          groups{
+     *              id
+     *          }
+     *      ]
+     *  }
+     *
+     *  如果参数propertyExpression 为空默认为 propertyExpression = id
+     *
+     * @param o
+     * @param propertyExpressions
+     * @return
+     */
+    public static Object encodeResults(Object o, String... propertyExpressions) throws ServiceException {
+        try {
+            if (o == null) {
+                return null;
+            }
+            if(propertyExpressions==null || propertyExpressions.length==0){
+                //默认对ID进行加密
+                propertyExpressions = new String[]{"id"};
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(o));
+
+            for(String propertyExpression:propertyExpressions){
+                processResult(jsonNode,propertyExpression);
+            }
+            return jsonNode;
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
+        }
+    }
+
+    private static void processResult(JsonNode jsonNode, String propertyExpression) {
+        if(jsonNode.isArray()){
+            Iterator<JsonNode> it = jsonNode.iterator();
+            while(it.hasNext()){
+                JsonNode jsonNode1 = it.next();
+                processResult(jsonNode1,propertyExpression);
+            }
+        }else{
+            String[] elements = propertyExpression.split("\\.");
+            JsonNode targetNode = null;
+
+            if(elements.length==1){
+                targetNode = jsonNode;
+            }else {
+                int index=0;
+                for(int i=0;i<elements.length-1;i++){
+                    targetNode = jsonNode.get(elements[i]);
+                    index = index +elements[i].length()+1;
+                    if(targetNode!=null && targetNode.isArray()){
+                        processResult(targetNode,propertyExpression.substring(index));
+                        return;
+                    }
+                    if(targetNode==null){
+                        return;
+                    }
+                }
+            }
+            ObjectNode objectNode = (ObjectNode)targetNode;
+            if(objectNode.get(elements[elements.length-1]) != null){
+                if(!objectNode.get(elements[elements.length-1]).isNull()){
+                    objectNode.put(elements[elements.length-1],N3d.encode(objectNode.get(elements[elements.length-1]).asInt()));
+                }
+            }
+
+            return;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        List<Users> usersList = new ArrayList<>(3);
+        for(int i=0;i<3;i++){
+            Users users = new Users();
+            users.setId(12+i);
+            users.setNickname("test22"+i);
+            users.setPhone("18810183283");
+            users.setDeletedAt(new Date());
+            Groups groups = new Groups();
+            groups.setId(null);
+            groups.setCreatorId(33+i);
+            groups.setCreatedAt(new Date());
+            groups.setName("gnameTest");
+            users.setGroups(groups);
+            usersList.add(users);
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Object object = MiscUtils.encodeResults(usersList);
+        System.out.println(objectMapper.writeValueAsString(APIResultWrap.ok(object)));
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("id",12);
+        map.put("name","test");
+
+        List<Object> list = new ArrayList<>();
+
+        Map<String,Object> map2 = new HashMap<>();
+        map2.put("userId",33);
+        map2.put("name","testname");
+        list.add(map2);
+        Map<String,Object> map3 = new HashMap<>();
+        map3.put("userId",33);
+        map3.put("name","testname");
+        map3.put("users",usersList);
+        list.add(map3);
+        map.put("list",list);
+        map.put("users",usersList);
+        System.out.println(MiscUtils.encodeResults(map,"list.users.groups.creatorId","id","mapGroup.userId","list.userId","users.id","users.groups.id","users.groups.creatorId"));
+
+        String text = "abcd123";
+        int salt = 9988;
+
+        //a2d46a186480138852a18cb1c8b2af530f3e5166
+        System.out.println(hash(text, salt));
     }
 
 

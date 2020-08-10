@@ -47,6 +47,12 @@ public enum ErrorCode {
     UNKNOW_USER(404,"Unknown user."),
 
 
+    //friendShip error
+    INVALID_INVITE_MESSAGE_LENGTH(400,"Length of friend request message is out of limit."),
+
+
+
+
     //yunpian error 云片服务错误，错误码3000 开头
     YP_SERVER_FAILD(3000, "YunPian server error"),
     YP_GET_TEMPLATE_FAILD(3001, "Failed to get YunPian template"),

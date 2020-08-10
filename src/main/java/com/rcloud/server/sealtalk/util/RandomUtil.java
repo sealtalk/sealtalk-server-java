@@ -1,5 +1,8 @@
 package com.rcloud.server.sealtalk.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -12,7 +15,15 @@ public class RandomUtil {
 
     private static Random random = new Random();
 
-    public static int randomBetween(Integer min, Integer max){
-        return random.nextInt() * (max - min + 1) + min;
+    /**
+     * 生成随机数，区间[min,max]
+     *
+     * @param min
+     * @param max
+     * @return
+     */
+    public static int randomBetween(Integer min, Integer max) {
+        return random.nextInt(max - min + 1) + min;
     }
+
 }

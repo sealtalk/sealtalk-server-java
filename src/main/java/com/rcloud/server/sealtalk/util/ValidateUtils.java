@@ -17,6 +17,15 @@ import java.util.regex.Pattern;
  */
 public class ValidateUtils {
 
+
+    private static final int FRIEND_REQUEST_MESSAGE_MIN_LENGTH = 0;
+
+    private static final int FRIEND_REQUEST_MESSAGE_MAX_LENGTH = 64;
+
+    private static final int FRIEND_DISPLAY_NAME_MIN_LENGTH = 1;
+
+    private static final int FRIEND_DISPLAY_NAME_MAX_LENGTH = 32;
+
     //TODO
     public static void checkCompletePhone(String completePhone) throws ServiceException {
 
@@ -126,5 +135,14 @@ public class ValidateUtils {
         if (!Pattern.matches(regex, stAccount)) {
             throw new ServiceException(ErrorCode.EMPTY_STACCOUNT_ERROR);
         }
+    }
+
+    public static void checkInviteMessage(String message) throws ServiceException {
+        message = MiscUtils.xss(message,FRIEND_REQUEST_MESSAGE_MAX_LENGTH);
+
+        if(StringUtils.isEmpty(message) || message.length()<FRIEND_REQUEST_MESSAGE_MIN_LENGTH || message.length()>FRIEND_REQUEST_MESSAGE_MAX_LENGTH){
+            throw new ServiceException(ErrorCode.INVALID_INVITE_MESSAGE_LENGTH);
+        }
+
     }
 }

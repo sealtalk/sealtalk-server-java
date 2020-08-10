@@ -1,11 +1,15 @@
 package com.rcloud.server.sealtalk.controller;
 
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
+import com.rcloud.server.sealtalk.constant.Constants;
+import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.util.AES256;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * @Author: Jianlu.Yu
@@ -30,4 +34,18 @@ public abstract class BaseController {
         }
         return null;
     }
+
+    protected SealtalkConfig getSealtalkConfig() {
+        return sealtalkConfig;
+    }
+
+    protected ServerApiParams getServerApiParams(HttpSession httpSession){
+        Object object = httpSession.getAttribute(Constants.SERVER_API_PARAMS);
+        Assert.notNull(object, "serverApiParams error");
+        return (ServerApiParams) object;
+    }
+
+
+
+
 }

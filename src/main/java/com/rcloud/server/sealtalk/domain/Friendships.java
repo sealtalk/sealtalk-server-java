@@ -7,11 +7,17 @@ import javax.persistence.*;
 @Table(name = "friendships")
 public class Friendships implements Serializable {
 
-    public static final Integer FRIENDSHIP_STATUS_AGREED = 20;
+    public static final Integer FRIENDSHIP_REQUESTING = 10;
 
-    public static final Integer FRIENDSHIP_STATUS_DELETED = 30;
+    public static final Integer FRIENDSHIP_REQUESTED = 11;
 
-    public static final Integer  FRIENDSHIP_STATUS_BLACK = 31;
+    public static final Integer FRIENDSHIP_AGREED = 20;
+
+    public static final Integer FRIENDSHIP_IGNORED = 21;
+
+    public static final Integer FRIENDSHIP_DELETED = 30;
+
+    public static final Integer FRIENDSHIP_PULLEDBLACK = 31;
 
 
     @Id

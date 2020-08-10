@@ -438,7 +438,7 @@ public class UserManager extends BaseManager {
     }
 
     /**
-     * 清除use相关缓存并更新dataversion版本
+     * 清除user相关缓存并更新dataversion版本
      *
      * @param currentUserId
      */
@@ -612,13 +612,18 @@ public class UserManager extends BaseManager {
         }
 
         //TODO
-        String results = MiscUtils.encodeResults(dbBlackLists);
-        results = addUpdateTimeToList(results);
+        try {
+            String results = JacksonUtil.toJson(MiscUtils.encodeResults(dbBlackLists));
+            results = addUpdateTimeToList(results);
+            //缓存用户黑名单列表
+            CacheUtil.set(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId, results);
 
-        //缓存用户黑名单列表
-        CacheUtil.set(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId, results);
+            return results;
 
-        return results;
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
+        }
     }
 
     private String addUpdateTimeToList(String result) {
@@ -669,11 +674,11 @@ public class UserManager extends BaseManager {
         friendships.setDisplayName("");
         friendships.setMessage("");
         friendships.setTimestamp(System.currentTimeMillis());
-        friendships.setStatus(Friendships.FRIENDSHIP_STATUS_BLACK);
+        friendships.setStatus(Friendships.FRIENDSHIP_PULLEDBLACK);
 
         Example example = new Example(Friendships.class);
         example.createCriteria().andEqualTo("friendId", friendId)
-                .andEqualTo("status", Friendships.FRIENDSHIP_STATUS_AGREED);
+                .andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
         friendshipsService.updateByExampleSelective(friendships, example);
 
         //清除friendship相关缓存
@@ -731,11 +736,11 @@ public class UserManager extends BaseManager {
         friendships.setDisplayName("");
         friendships.setMessage("");
         friendships.setTimestamp(System.currentTimeMillis());
-        friendships.setStatus(Friendships.FRIENDSHIP_STATUS_AGREED);
+        friendships.setStatus(Friendships.FRIENDSHIP_AGREED);
 
         Example example1 = new Example(Friendships.class);
         example.createCriteria().andEqualTo("friendId", friendId)
-                .andEqualTo("status", Friendships.FRIENDSHIP_STATUS_BLACK);
+                .andEqualTo("status", Friendships.FRIENDSHIP_PULLEDBLACK);
         friendshipsService.updateByExampleSelective(friendships, example);
 
         log.info("result--remove db black currentUserId={},friendId={}", currentUserId, friendId);
@@ -756,7 +761,7 @@ public class UserManager extends BaseManager {
      * @param currentUserId
      * @return
      */
-    public String getGroups(Integer currentUserId) {
+    public String getGroups(Integer currentUserId) throws ServiceException {
 
         String userGroups = CacheUtil.get(CacheUtil.USER_GROUP_CACHE_PREFIX);
         if (!StringUtils.isEmpty(userGroups)) {
@@ -766,7 +771,14 @@ public class UserManager extends BaseManager {
         //缓存中为空，去查询db
         List<GroupMembers> groupMembersList = groupMembersService.queryGroupMembersWithGroupByMemberId(currentUserId);
 
-        userGroups = MiscUtils.encodeResults(groupMembersList);
+        //TODO
+        try {
+            userGroups = JacksonUtil.toJson(MiscUtils.encodeResults(groupMembersList));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
+        }
+
         // 缓存结果
         if (!CollectionUtils.isEmpty(groupMembersList)) {
             CacheUtil.set(CacheUtil.USER_GROUP_CACHE_PREFIX + currentUserId, userGroups);
@@ -828,7 +840,7 @@ public class UserManager extends BaseManager {
 
     }
 
-    public String getFavGroups(Integer userId, Integer limit, Integer offset) throws Exception {
+    public String getFavGroups(Integer userId, Integer limit, Integer offset) throws ServiceException {
         List<String> groupsList = new ArrayList<>();
         List<GroupFavs> groupFavsList = groupFavsService.queryGroupFavsWithGroupByUserId(userId, limit, offset);
 
@@ -836,7 +848,12 @@ public class UserManager extends BaseManager {
             for (GroupFavs groupFavs : groupFavsList) {
                 if (groupFavs.getGroups() != null) {
                     //TODO
-                    groupsList.add(MiscUtils.encodeResults(groupFavs.getGroups()));
+                    try {
+                        groupsList.add(JacksonUtil.toJson(MiscUtils.encodeResults(groupFavs.getGroups())));
+                    }catch (Exception e){
+                        log.error(e.getMessage(),e);
+                        throw new ServiceException(ErrorCode.SERVER_ERROR);
+                    }
                 }
             }
         }
@@ -849,8 +866,12 @@ public class UserManager extends BaseManager {
         result.put("offset", offset);
 
         //TODO
-        //TODO
-        return JacksonUtil.toJson(result);
+        try {
+            return JacksonUtil.toJson(result);
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
+        }
     }
     //TODO
     private Object addUpdateTimeToList(List<String> groupsList) {

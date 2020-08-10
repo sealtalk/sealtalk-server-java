@@ -27,5 +27,10 @@ public class Constants {
     public static final String DEFAULT_VERIFY_CODE = "9999";
 
 
+    public static final String CONTACT_OPERATION_ACCEPT_RESPONSE = "AcceptResponse";
+
+    public static final String CONTACT_OPERATION_REQUEST = "Request";
+
+
 
 }
