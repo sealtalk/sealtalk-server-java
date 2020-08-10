@@ -456,7 +456,7 @@ public class UserManager extends BaseManager {
         //清除缓存"user_" + currentUserId
         //清除缓存"friendship_profile_user_" + currentUserId
         CacheUtil.delete(CacheUtil.USER_CACHE_PREFIX + currentUserId);
-        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId);
 
         //查询该用户所有好友关系,并清除缓存friendship_all_+friendId
         Friendships f = new Friendships();
@@ -540,7 +540,8 @@ public class UserManager extends BaseManager {
 
         if (ArrayUtils.isNotEmpty(serverBlackList)) {
             for (UserModel userModel : serverBlackList) {
-                serverBlackListIds.add(N3d.decode(userModel.getId()));
+                long id = N3d.decode(userModel.getId());
+                serverBlackListIds.add(id);
             }
         }
 
@@ -565,11 +566,11 @@ public class UserManager extends BaseManager {
         //如果远程存在，本地不存在，插入本地数据表
         if (ArrayUtils.isNotEmpty(serverBlackList)) {
             for (UserModel userModel : serverBlackList) {
-                Long userId = N3d.decode(userModel.getId());
+                int userId = N3d.decode(userModel.getId());
                 if (!dbBlacklistUserIds.contains(userModel.getId())) {
                     BlackLists blackLists = new BlackLists();
                     blackLists.setUserId(currentUserId);
-                    blackLists.setFriendId(userId.intValue());
+                    blackLists.setFriendId(userId);
                     blackLists.setStatus(true);
                     blackLists.setTimestamp(System.currentTimeMillis());
                     blackLists.setCreatedAt(new Date());
@@ -614,7 +615,7 @@ public class UserManager extends BaseManager {
         //TODO
         try {
             String results = JacksonUtil.toJson(MiscUtils.encodeResults(dbBlackLists));
-            results = addUpdateTimeToList(results);
+            results = MiscUtils.addUpdateTimeToList(results);
             //缓存用户黑名单列表
             CacheUtil.set(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId, results);
 
@@ -626,10 +627,6 @@ public class UserManager extends BaseManager {
         }
     }
 
-    private String addUpdateTimeToList(String result) {
-        //TODO
-        return "";
-    }
 
     /**
      * 将好友加入黑名单
@@ -683,7 +680,7 @@ public class UserManager extends BaseManager {
 
         //清除friendship相关缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
-        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
 
@@ -746,7 +743,7 @@ public class UserManager extends BaseManager {
         log.info("result--remove db black currentUserId={},friendId={}", currentUserId, friendId);
         //清除friendship相关缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
-        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
         log.info("result--remove cache black currentUserId={},friendId={}", currentUserId, friendId);

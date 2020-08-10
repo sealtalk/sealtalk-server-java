@@ -1,4 +1,4 @@
-package com.rcloud.server.sealtalk.model.response;
+package com.rcloud.server.sealtalk.model.response.dto;
 
 import lombok.Data;
 
@@ -9,13 +9,13 @@ import lombok.Data;
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Data
-public class InviteResponse {
+public class InviteDTO {
 
     private String action;
 
     private String message;
 
-    public InviteResponse(String action, String message) {
+    public InviteDTO(String action, String message) {
         this.action = action;
         this.message = message;
     }

@@ -366,7 +366,7 @@ public class UserController extends BaseController {
 
 
         Integer currentUserId = getCurrentUserId(request);
-        userManager.addBlackList(currentUserId, ((Long) N3d.decode(friendId)).intValue(), encodedFriendId);
+        userManager.addBlackList(currentUserId, N3d.decode(friendId), encodedFriendId);
         return APIResultWrap.ok("");
     }
 
@@ -382,7 +382,7 @@ public class UserController extends BaseController {
 
 
         Integer currentUserId = getCurrentUserId(request);
-        userManager.removeBlackList(currentUserId, ((Long) N3d.decode(friendId)).intValue(), encodedFriendId);
+        userManager.removeBlackList(currentUserId, N3d.decode(friendId), encodedFriendId);
         return APIResultWrap.ok("");
     }
 

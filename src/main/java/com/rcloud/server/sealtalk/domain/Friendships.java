@@ -47,6 +47,9 @@ public class Friendships implements Serializable {
 
     private Date updatedAt;
 
+    @Transient
+    private Users users;
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -229,5 +232,13 @@ public class Friendships implements Serializable {
      */
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
     }
 }

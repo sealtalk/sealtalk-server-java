@@ -145,4 +145,14 @@ public class ValidateUtils {
         }
 
     }
+
+    public static void checkDisplayName(String displayName) throws ServiceException {
+        displayName = MiscUtils.xss(displayName,FRIEND_REQUEST_MESSAGE_MAX_LENGTH);
+
+        if(StringUtils.isEmpty(displayName)|| displayName.length()<FRIEND_DISPLAY_NAME_MIN_LENGTH|| displayName.length()>FRIEND_DISPLAY_NAME_MAX_LENGTH){
+            throw new ServiceException(ErrorCode.INVALID_INVITE_MESSAGE_LENGTH,"Length of displayName is out of limit.");
+
+        }
+
+    }
 }

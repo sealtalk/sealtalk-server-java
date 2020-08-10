@@ -154,7 +154,12 @@ public class MiscUtils {
         }
     }
 
-    private static void processResult(JsonNode jsonNode, String propertyExpression) {
+    public static String addUpdateTimeToList(String result){
+        //TODO
+        return "";
+    }
+
+    private static void processResult(JsonNode jsonNode, String propertyExpression) throws ServiceException {
         if(jsonNode.isArray()){
             Iterator<JsonNode> it = jsonNode.iterator();
             while(it.hasNext()){

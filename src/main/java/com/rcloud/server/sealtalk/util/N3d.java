@@ -1,5 +1,8 @@
 package com.rcloud.server.sealtalk.util;
 
+import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.exception.ServiceException;
+
 public class N3d {
 
     private static final String N3D_KEY = "11EdDIaqpcim";
@@ -113,12 +116,22 @@ public class N3d {
         return result;
     }
 
-    public static String encode(long num){
-        return n3d.encrypt(num);
+    public static String encode(long num) throws ServiceException {
+        try {
+            return n3d.encrypt(num);
+        }catch (Exception e){
+            throw new ServiceException(ErrorCode.REQUEST_ERROR,"id format error");
+        }
     }
 
-    public static long decode(String str){
-        return n3d.decrypt(str);
+    public static int decode(String str) throws ServiceException {
+        try {
+            Long id= n3d.decrypt(str);
+            return id.intValue();
+        }catch (Exception e){
+            throw new ServiceException(ErrorCode.REQUEST_ERROR,"id format error");
+        }
+
     }
 
     public static void main(String[] args) {

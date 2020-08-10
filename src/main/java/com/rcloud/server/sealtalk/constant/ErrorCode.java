@@ -49,6 +49,8 @@ public enum ErrorCode {
 
     //friendShip error
     INVALID_INVITE_MESSAGE_LENGTH(400,"Length of friend request message is out of limit."),
+    UNKNOW_FRIEND_USER_OR_INVALID_STATUS(404,"Unknown friend user or invalid status."),
+    NOT_FRIEND_USER(403,"Current user is not friend of user"),
 
 
 

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.exception.ServiceException;
+
 import java.io.IOException;
 
 /**
@@ -50,13 +53,13 @@ public class JacksonUtil {
     /**
      * Object可以是POJO，也可以是Collection或数组。 如果对象为Null, 返回"null". 如果集合为空集合, 返回"[]".
      */
-    public static String toJson(Object object) throws Exception {
+    public static String toJson(Object object) throws ServiceException {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             return mapper.writeValueAsString(object);
         } catch (IOException e) {
-            throw new Exception(e.getMessage());
+            throw new ServiceException(ErrorCode.SERVER_ERROR,e.getMessage());
         }
     }
 
@@ -135,13 +138,13 @@ public class JacksonUtil {
     /**
      * 将json串转成 JsonNode
      */
-    public static JsonNode getJsonNode(String json) throws IOException {
+    public static JsonNode getJsonNode(String json) throws ServiceException {
         try {
             json = json.replaceAll("\r|\n|\t", "");
             ObjectMapper objectMapper = getMapperInstance(false);
             return objectMapper.reader().readTree(json);
         } catch (IOException e) {
-            throw new IOException(e.getMessage());
+            throw new ServiceException(ErrorCode.SERVER_ERROR,e.getMessage());
         }
     }
 
