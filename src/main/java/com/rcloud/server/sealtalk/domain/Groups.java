@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
-@Table(name = "groups")
+@Table(name = "`groups`")
 public class Groups implements Serializable {
     @Id
     private Integer id;

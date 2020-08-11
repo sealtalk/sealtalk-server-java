@@ -4,10 +4,19 @@ import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.util.N3d;
 import io.rong.RongCloud;
+import io.rong.methods.message._private.Private;
+import io.rong.methods.message.chatroom.Chatroom;
+import io.rong.methods.message.discussion.Discussion;
+import io.rong.methods.message.group.Group;
+import io.rong.methods.message.history.History;
+import io.rong.methods.message.system.MsgSystem;
 import io.rong.methods.user.User;
 import io.rong.methods.user.blacklist.Blacklist;
 import io.rong.models.Result;
+import io.rong.models.message.GroupMessage;
+import io.rong.models.message.PrivateMessage;
 import io.rong.models.response.BlackListResult;
+import io.rong.models.response.ResponseResult;
 import io.rong.models.response.TokenResult;
 import io.rong.models.response.UserResult;
 import io.rong.models.user.UserModel;
@@ -33,11 +42,24 @@ public class DefaultRongCloudClient implements RongCloudClient {
     private User User;
     private Blacklist BlackList;
 
+    private Private Private;
+    private MsgSystem system;
+    private Group group ;
+    private Chatroom chatroom;
+    private Discussion discussion;
+    private History history;
+
     @PostConstruct
     public void postConstruct() {
         rongCloud = RongCloud.getInstance(sealtalkConfig.getRongcloudAppKey(), sealtalkConfig.getRongcloudAppSecret());
         User = rongCloud.user;
         BlackList = rongCloud.user.blackList;
+        Private = rongCloud.message.msgPrivate;
+        system = rongCloud.message.system;
+        group = rongCloud.message.group;
+        chatroom = rongCloud.message.chatroom;
+        discussion = rongCloud.message.discussion;
+        history = rongCloud.message.history;
     }
 
 
@@ -148,5 +170,27 @@ public class DefaultRongCloudClient implements RongCloudClient {
     public void sendContactNotification(Integer currentUserId, String currentUserNickName, Integer friendId, String contactOperationType, String message, long timestamp) {
         //TODO
         return;
+    }
+
+    @Override
+    public ResponseResult sendPrivateMessage(PrivateMessage privateMessage) throws ServiceException {
+
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<ResponseResult>() {
+            @Override
+            public ResponseResult doInvoker() throws Exception {
+                return Private.send(privateMessage);
+            }
+        });
+    }
+
+    @Override
+    public ResponseResult sendGroupMessage(GroupMessage groupMessage) throws ServiceException {
+        //TODO
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<ResponseResult>() {
+            @Override
+            public ResponseResult doInvoker() throws Exception {
+                return null;
+            }
+        });
     }
 }

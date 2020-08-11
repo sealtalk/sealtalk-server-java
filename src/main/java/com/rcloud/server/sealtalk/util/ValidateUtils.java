@@ -26,6 +26,18 @@ public class ValidateUtils {
 
     private static final int FRIEND_DISPLAY_NAME_MAX_LENGTH = 32;
 
+    public static void notNull(Object o) throws ServiceException{
+        if(o==null){
+            throw new ServiceException(ErrorCode.PARAM_ERROR);
+        }
+    }
+
+    public static void notEmpty(String str) throws ServiceException {
+        if (StringUtils.isEmpty(str)) {
+            throw new ServiceException(ErrorCode.PARAM_ERROR);
+        }
+    }
+
     //TODO
     public static void checkCompletePhone(String completePhone) throws ServiceException {
 
@@ -76,12 +88,6 @@ public class ValidateUtils {
 
         if (password.indexOf(" ") > -1) {
             throw new ServiceException(ErrorCode.INVALID_PASSWORD);
-        }
-    }
-
-    public static void notNull(String str) throws ServiceException {
-        if (StringUtils.isEmpty(str)) {
-            throw new ServiceException(ErrorCode.PARAM_ERROR);
         }
     }
 

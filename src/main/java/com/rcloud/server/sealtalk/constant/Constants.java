@@ -32,5 +32,9 @@ public class Constants {
     public static final String CONTACT_OPERATION_REQUEST = "Request";
 
 
+    public static final String CONVERSATION_TYPE_PRIVATE = "PRIVATE";
+    public static final String CONVERSATION_TYPE_GROUP = "GROUP";
+
+
 
 }

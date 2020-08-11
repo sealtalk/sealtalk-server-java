@@ -21,6 +21,7 @@ public class ServiceException extends BaseException {
     public ServiceException(int errorCode,String errorMessage){
         super(errorMessage,errorCode,errorMessage);
     }
+
     public ServiceException(String message, ErrorCode errorCode, Throwable cause) {
         super(message, errorCode, cause);
     }

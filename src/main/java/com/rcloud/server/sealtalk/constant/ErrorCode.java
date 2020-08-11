@@ -46,6 +46,12 @@ public enum ErrorCode {
     FRIEND_USER_NOT_EXIST(400,"friendId is not an available userId."),
     UNKNOW_USER(404,"Unknown user."),
 
+    //misc error
+    UNSUPPORTED_CONVERSATION_TYPE(403,"Unsupported conversation type."),
+    NOT_YOUR_FRIEND(403,"User {} is not your friend."),
+    NOT_YOUR_GROUP(403,"Your are not member of Group {} ."),
+
+
 
     //friendShip error
     INVALID_INVITE_MESSAGE_LENGTH(400,"Length of friend request message is out of limit."),

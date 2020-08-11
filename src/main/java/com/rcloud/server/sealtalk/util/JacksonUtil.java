@@ -34,7 +34,7 @@ public class JacksonUtil {
      *
      * @param createNew 方式：true，新实例；false,存在的mapper实例
      */
-    public static synchronized ObjectMapper getMapperInstance(boolean createNew) {
+    public static  ObjectMapper getMapperInstance(boolean createNew) {
         if (createNew) {
             return new ObjectMapper();
         } else if (mapper == null) {
@@ -152,4 +152,5 @@ public class JacksonUtil {
         ObjectMapper objectMapper = getMapperInstance(false);
         return objectMapper.convertValue(fromValue, toValueType);
     }
-}
+
+ }

@@ -277,7 +277,7 @@ public class UserController extends BaseController {
 
 
         ValidateUtils.checkPassword(newPassword);
-        ValidateUtils.notNull(oldPassword);
+        ValidateUtils.notEmpty(oldPassword);
 
         Integer currentUserId = getCurrentUserId(request);
         userManager.changePassword(newPassword, oldPassword, currentUserId);

@@ -23,6 +23,9 @@ public class CacheUtil {
     public static final String FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX = "friendship_profile_displayName_";
 
     public static final String USER_GROUP_CACHE_PREFIX = "user_groups_";
+    public static final String LAST_UPDATE_VERSION_INFO = "last_update_version_info";
+    public static final String CLIENT_VERSION_INFO = "client_version_info";
+    public static final String MOBILE_VERSION_INFO = "mobile_version_info";
 
 
 

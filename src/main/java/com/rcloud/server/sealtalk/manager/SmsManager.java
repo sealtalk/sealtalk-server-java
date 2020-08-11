@@ -138,11 +138,6 @@ public class SmsManager extends BaseManager {
     }
 
     private JsonNode jsonStrToJsonNode(String jsonStr) throws ServiceException {
-        try {
-            return JacksonUtil.getJsonNode(jsonStr);
-        } catch (IOException e) {
-            log.error("jsonStr to jsonNode error.", e);
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
-        }
+        return JacksonUtil.getJsonNode(jsonStr);
     }
 }

@@ -55,7 +55,7 @@ public class DefaultSmsService implements SmsService {
                             "RongCloud Server API Error Code: " + code);
                 }
                 return sessionId;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("Send sms result to json error.", e);
                 throw new ServiceException(ErrorCode.SERVER_ERROR);
             }

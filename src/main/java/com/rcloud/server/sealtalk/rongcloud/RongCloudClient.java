@@ -2,7 +2,10 @@ package com.rcloud.server.sealtalk.rongcloud;
 
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import io.rong.models.Result;
+import io.rong.models.message.GroupMessage;
+import io.rong.models.message.PrivateMessage;
 import io.rong.models.response.BlackListResult;
+import io.rong.models.response.ResponseResult;
 import io.rong.models.response.TokenResult;
 import io.rong.models.response.UserResult;
 
@@ -86,4 +89,11 @@ public interface RongCloudClient {
      * @param timestamp
      */
     void sendContactNotification(Integer currentUserId, String currentUserNickName, Integer friendId, String contactOperationType, String message, long timestamp);
+
+
+    //TODO
+    ResponseResult sendPrivateMessage(PrivateMessage privateMessage) throws ServiceException;
+
+    //TODO
+    ResponseResult sendGroupMessage(GroupMessage groupMessage) throws ServiceException;
 }
