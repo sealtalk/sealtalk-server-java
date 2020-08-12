@@ -32,4 +32,8 @@ public class DataVersionsService extends AbstractBaseService<DataVersions,Intege
     }
 
 
+    public void updateGroupMemberVersion(Integer groupId, long timestamp) {
+
+        mapper.updateGroupMemberVersion(groupId,timestamp);
+    }
 }

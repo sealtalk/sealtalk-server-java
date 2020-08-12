@@ -50,6 +50,7 @@ public class FriendshipController extends BaseController {
             HttpServletRequest request
     ) throws ServiceException {
 
+        message = MiscUtils.xss(message, ValidateUtils.FRIEND_REQUEST_MESSAGE_MAX_LENGTH);
         ValidateUtils.checkInviteMessage(message);
         Integer currentUserId = getCurrentUserId(request);
         InviteDTO inviteResponse = friendShipManager.invite(currentUserId, N3d.decode(friendId), message);
@@ -102,6 +103,7 @@ public class FriendshipController extends BaseController {
             @RequestParam String displayName,
             HttpServletRequest request) throws ServiceException {
 
+        displayName = MiscUtils.xss(displayName, ValidateUtils.FRIEND_REQUEST_MESSAGE_MAX_LENGTH);
         ValidateUtils.checkDisplayName(displayName);
         Integer currentUserId = getCurrentUserId(request);
         friendShipManager.setDisplayName(currentUserId, N3d.decode(friendId), displayName);

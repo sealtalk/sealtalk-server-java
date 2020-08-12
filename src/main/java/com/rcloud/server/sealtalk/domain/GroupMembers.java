@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Table(name = "group_members")
 public class GroupMembers implements Serializable {
     @Id
+    @GeneratedValue(generator = "JDBC")
     private Integer id;
 
     @Column(name = "groupId")

@@ -35,6 +35,8 @@ public class Constants {
     public static final String CONVERSATION_TYPE_PRIVATE = "PRIVATE";
     public static final String CONVERSATION_TYPE_GROUP = "GROUP";
 
+    public static final int MAX_USER_GROUP_OWN_COUNT = 500;
+
 
 
 }

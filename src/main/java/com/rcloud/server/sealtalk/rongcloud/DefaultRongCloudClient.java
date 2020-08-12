@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author: Jianlu.Yu
@@ -192,5 +193,10 @@ public class DefaultRongCloudClient implements RongCloudClient {
                 return null;
             }
         });
+    }
+
+    @Override
+    public void createGroup(String encode, List<String> encodeMemberIds, String name) {
+
     }
 }

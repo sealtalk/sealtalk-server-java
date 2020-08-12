@@ -6,6 +6,16 @@ import javax.persistence.*;
 
 @Table(name = "group_receivers")
 public class GroupReceivers implements Serializable {
+
+    public static final Integer GROUP_RECEIVE_STATUS_IGNORE = 0;  //忽略
+    public static final Integer GROUP_RECEIVE_STATUS_AGREED = 1;  //同意
+    public static final Integer GROUP_RECEIVE_STATUS_WAIT = 2;  //等待
+    public static final Integer GROUP_RECEIVE_STATUS_EXPIRED = 3; //过期
+
+
+    public static final Integer GROUP_RECEIVE_TYPE_MEMBER = 1;
+    public static final Integer GROUP_RECEIVE_TYPE_MANAGER = 2;
+
     @Id
     private Integer id;
 

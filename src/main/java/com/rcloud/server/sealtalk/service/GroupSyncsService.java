@@ -23,4 +23,22 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
     protected Mapper<GroupSyncs> getMapper() {
         return mapper;
     }
+
+    public void saveOrUpdate(Integer id, boolean syncInfo, boolean syncMember) {
+
+        GroupSyncs groupSyncs = this.getByPrimaryKey(id);
+        if (groupSyncs == null) {
+            groupSyncs = new GroupSyncs();
+            groupSyncs.setGroupId(id);
+            groupSyncs.setSyncInfo(syncInfo);
+            groupSyncs.setSyncMember(syncMember);
+            this.saveSelective(groupSyncs);
+        } else {
+
+            groupSyncs.setSyncInfo(syncInfo);
+            groupSyncs.setSyncMember(syncMember);
+            this.updateByPrimaryKey(groupSyncs);
+        }
+
+    }
 }

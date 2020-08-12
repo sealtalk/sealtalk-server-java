@@ -9,6 +9,8 @@ import io.rong.models.response.ResponseResult;
 import io.rong.models.response.TokenResult;
 import io.rong.models.response.UserResult;
 
+import java.util.List;
+
 /**
  * @Author: Jianlu.Yu
  * @Date: 2020/8/6
@@ -96,4 +98,12 @@ public interface RongCloudClient {
 
     //TODO
     ResponseResult sendGroupMessage(GroupMessage groupMessage) throws ServiceException;
+
+    /**
+     * 创建群组 TODO
+     * @param encode
+     * @param encodeMemberIds
+     * @param name
+     */
+    void createGroup(String encode, List<String> encodeMemberIds, String name);
 }

@@ -94,7 +94,7 @@ public class MiscUtils {
      */
     public static String xss(String str, int maxLength) {
         String result = "";
-        if (StringUtils.isEmpty(str) || str.length() > maxLength) {
+        if (StringUtils.isEmpty(str)) {
             return result;
         }
         result = StringEscapeUtils.escapeHtml4(str);
@@ -102,6 +102,7 @@ public class MiscUtils {
             result = result.substring(0, maxLength);
         }
         return result;
+
     }
 
     /**

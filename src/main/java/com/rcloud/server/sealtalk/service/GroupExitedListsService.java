@@ -4,8 +4,10 @@ import com.rcloud.server.sealtalk.dao.GroupExitedListsMapper;
 import com.rcloud.server.sealtalk.domain.GroupExitedLists;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author: xiuwei.nie
@@ -22,5 +24,20 @@ public class GroupExitedListsService extends AbstractBaseService<GroupExitedList
     @Override
     protected Mapper<GroupExitedLists> getMapper() {
         return mapper;
+    }
+
+    /**
+     * 删除群组退出列表
+     *
+     * @param groupId
+     * @param quitUserIds
+     */
+    public void deleteGroupExitedListItems(String groupId, List<Integer> quitUserIds) {
+
+        Example example = new Example(GroupExitedLists.class);
+        example.createCriteria().andEqualTo("groupId", groupId)
+                .andIn("quitUserId", quitUserIds);
+        this.deleteByExample(example);
+
     }
 }

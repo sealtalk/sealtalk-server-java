@@ -58,7 +58,13 @@ public enum ErrorCode {
     UNKNOW_FRIEND_USER_OR_INVALID_STATUS(404,"Unknown friend user or invalid status."),
     NOT_FRIEND_USER(403,"Current user is not friend of user"),
 
-
+    //group error
+    INVALID_GROUP_NAME_LENGTH(400,"Length of group name is out of limit."),
+    INVALID_GROUP_MEMNBER_COUNT(400,"Group's member count should be greater than 1 at least."),
+    INVALID_GROUP_MEMNBER_MAX_COUNT(400,"Group's member count is out of max group member count limit."),
+    INVALID_USER_GROUP_COUNT_LIMIT(1000,"Current user's group count is out of max user group count limit."),
+    INVALID_PARAM_CREATOR(400,"Creator is not in memeber list."),
+    GROUP_LIMIT_ERROR(20002,"Creator is not in memeber list."),
 
 
     //yunpian error 云片服务错误，错误码3000 开头

@@ -26,6 +26,8 @@ public class WebConfiguration implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(requestInterceptor)
             .addPathPatterns("/friendship/**")
-            .addPathPatterns("/user/**");
+            .addPathPatterns("/user/**")
+            .addPathPatterns("/misc/**")
+            .addPathPatterns("/group/**");
     }
 }

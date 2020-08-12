@@ -6,6 +6,11 @@ import javax.persistence.*;
 
 @Table(name = "users")
 public class Users implements Serializable {
+
+    public static final Integer GROUP_VERIFY_CLOSED = 1;
+    public static final Integer GROUP_VERIFY_OPENED = 0;
+
+
     @Id
     @GeneratedValue(generator = "JDBC")
     private Integer id;

@@ -18,16 +18,33 @@ import java.util.regex.Pattern;
 public class ValidateUtils {
 
 
-    private static final int FRIEND_REQUEST_MESSAGE_MIN_LENGTH = 0;
+    public static final int FRIEND_REQUEST_MESSAGE_MIN_LENGTH = 0;
 
-    private static final int FRIEND_REQUEST_MESSAGE_MAX_LENGTH = 64;
+    public static final int FRIEND_REQUEST_MESSAGE_MAX_LENGTH = 64;
 
-    private static final int FRIEND_DISPLAY_NAME_MIN_LENGTH = 1;
+    public static final int FRIEND_DISPLAY_NAME_MIN_LENGTH = 1;
 
-    private static final int FRIEND_DISPLAY_NAME_MAX_LENGTH = 32;
+    public static final int FRIEND_DISPLAY_NAME_MAX_LENGTH = 32;
 
-    public static void notNull(Object o) throws ServiceException{
-        if(o==null){
+    public static final int GROUP_NAME_MIN_LENGTH = 2;
+
+    public static final int GROUP_NAME_MAX_LENGTH = 32;
+
+    public static final int GROUP_BULLETIN_MAX_LENGTH = 1024;
+
+    public static final int PORTRAIT_URI_MIN_LENGTH = 12;
+
+    public static final int PORTRAIT_URI_MAX_LENGTH = 256;
+
+    public static final int GROUP_MEMBER_DISPLAY_NAME_MAX_LENGTH = 32;
+
+    public static final int DEFAULT_MAX_GROUP_MEMBER_COUNT = 500;
+
+    public static final int MAX_USER_GROUP_OWN_COUNT = 500;
+
+
+    public static void notNull(Object o) throws ServiceException {
+        if (o == null) {
             throw new ServiceException(ErrorCode.PARAM_ERROR);
         }
     }
@@ -144,21 +161,42 @@ public class ValidateUtils {
     }
 
     public static void checkInviteMessage(String message) throws ServiceException {
-        message = MiscUtils.xss(message,FRIEND_REQUEST_MESSAGE_MAX_LENGTH);
-
-        if(StringUtils.isEmpty(message) || message.length()<FRIEND_REQUEST_MESSAGE_MIN_LENGTH || message.length()>FRIEND_REQUEST_MESSAGE_MAX_LENGTH){
+        if (StringUtils.isEmpty(message) || message.length() < FRIEND_REQUEST_MESSAGE_MIN_LENGTH || message.length() > FRIEND_REQUEST_MESSAGE_MAX_LENGTH) {
             throw new ServiceException(ErrorCode.INVALID_INVITE_MESSAGE_LENGTH);
+        }
+    }
+
+    public static void checkDisplayName(String displayName) throws ServiceException {
+
+        if (StringUtils.isEmpty(displayName) || displayName.length() < FRIEND_DISPLAY_NAME_MIN_LENGTH || displayName.length() > FRIEND_DISPLAY_NAME_MAX_LENGTH) {
+            throw new ServiceException(ErrorCode.INVALID_INVITE_MESSAGE_LENGTH, "Length of displayName is out of limit.");
         }
 
     }
 
-    public static void checkDisplayName(String displayName) throws ServiceException {
-        displayName = MiscUtils.xss(displayName,FRIEND_REQUEST_MESSAGE_MAX_LENGTH);
-
-        if(StringUtils.isEmpty(displayName)|| displayName.length()<FRIEND_DISPLAY_NAME_MIN_LENGTH|| displayName.length()>FRIEND_DISPLAY_NAME_MAX_LENGTH){
-            throw new ServiceException(ErrorCode.INVALID_INVITE_MESSAGE_LENGTH,"Length of displayName is out of limit.");
-
+    public static boolean isLength(String str, int minLength, int maxLength) throws ServiceException {
+        if (str == null || maxLength < minLength || maxLength <= 0 || minLength < 0) {
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
 
+        return (str.length() >= minLength && str.length() <= maxLength);
+    }
+
+    public static void checkGroupName(String name) throws ServiceException {
+
+        if(!isLength(name,GROUP_NAME_MIN_LENGTH,GROUP_NAME_MAX_LENGTH)){
+            throw new ServiceException(ErrorCode.INVALID_GROUP_NAME_LENGTH);
+        }
+
+    }
+
+    public static void checkMemberIds(String[] memberIds) throws ServiceException {
+        if(memberIds==null || memberIds.length<=1 ){
+            throw new ServiceException(ErrorCode.INVALID_GROUP_MEMNBER_COUNT);
+        }
+
+        if(memberIds.length>DEFAULT_MAX_GROUP_MEMBER_COUNT){
+            throw new ServiceException(ErrorCode.INVALID_GROUP_MEMNBER_MAX_COUNT);
+        }
     }
 }

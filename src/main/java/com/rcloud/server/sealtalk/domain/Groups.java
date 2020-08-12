@@ -8,6 +8,13 @@ import javax.persistence.*;
 
 @Table(name = "`groups`")
 public class Groups implements Serializable {
+
+    //关闭群组认证状态标示
+    public static final Integer CERTI_STATUS_CLOSED = 1;
+    //开启群组认证状态标示
+    public static final Integer CERTI_STATUS_OPENED = 0;
+
+
     @Id
     private Integer id;
 

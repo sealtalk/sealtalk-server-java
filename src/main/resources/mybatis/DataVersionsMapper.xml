@@ -15,7 +15,14 @@
 
 
   <update id="updateAllFriendshipVersion" parameterType="map">
-    UPDATE data_versions d JOIN friendships f ON d.userId = f.userId AND f.friendId = #{userId} AND f.status = 20 SET d.friendshipVersion =#{timestamp}
+        UPDATE data_versions d JOIN friendships f ON d.userId = f.userId AND f.friendId = #{userId} AND f.status = 20 SET d.friendshipVersion =#{timestamp}
   </update>
+
+  <update id="updateGroupMemberVersion" parameterType="map">
+        UPDATE data_versions d JOIN group_members g ON d.userId = g.memberId AND g.groupId = #{groupId} AND g.isDeleted = 0 SET d.groupVersion = #{timestamp}, d.groupMemberVersion = #{timestamp}
+  </update>
+
+
+
 
 </mapper>
