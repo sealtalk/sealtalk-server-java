@@ -1,9 +1,13 @@
 package com.rcloud.server.sealtalk.domain;
 
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
+/**
+ * 群公告
+ */
 @Table(name = "group_bulletins")
 public class GroupBulletins implements Serializable {
     @Id
@@ -16,7 +20,7 @@ public class GroupBulletins implements Serializable {
     private Date createdAt;
 
     private Date updatedAt;
-
+    //公告内容
     private String content;
 
     private static final long serialVersionUID = 1L;

@@ -1,22 +1,22 @@
 package com.rcloud.server.sealtalk.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.rcloud.server.sealtalk.constant.Constants;
-import com.rcloud.server.sealtalk.constant.ErrorCode;
-import com.rcloud.server.sealtalk.constant.GroupRole;
-import com.rcloud.server.sealtalk.constant.UserAddStatus;
+import com.rcloud.server.sealtalk.constant.*;
 import com.rcloud.server.sealtalk.domain.*;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import com.rcloud.server.sealtalk.model.response.dto.GroupAddStatusDTO;
-import com.rcloud.server.sealtalk.model.response.dto.UserStatusDTO;
+import com.rcloud.server.sealtalk.model.dto.GroupAddStatusDTO;
+import com.rcloud.server.sealtalk.model.dto.UserStatusDTO;
 import com.rcloud.server.sealtalk.rongcloud.RongCloudClient;
 import com.rcloud.server.sealtalk.service.*;
 import com.rcloud.server.sealtalk.util.CacheUtil;
+import com.rcloud.server.sealtalk.util.JacksonUtil;
+import com.rcloud.server.sealtalk.util.MiscUtils;
 import com.rcloud.server.sealtalk.util.N3d;
+import io.rong.messages.GroupNotificationMessage;
+import io.rong.models.message.GroupMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
@@ -63,6 +63,12 @@ public class GroupManager extends BaseManager {
     private GroupExitedListsService groupExitedListsService;
 
 
+    /**
+     * 根据群Id批量获取群列表
+     *
+     * @param groupIds
+     * @return
+     */
     public List<Groups> getGroupList(List<Integer> groupIds) {
 
         Example example = new Example(Groups.class);
@@ -70,9 +76,18 @@ public class GroupManager extends BaseManager {
         return groupsService.getByExample(example);
     }
 
+    /**
+     * 根据群Id获取群信息
+     *
+     * @param groupId
+     * @return
+     */
+    public Groups getGroup(Integer groupId) {
+        return groupsService.getByPrimaryKey(groupId);
+    }
+
     //TODO 重点测试
     //TODO 重点测试
-    @Transactional(rollbackFor = Exception.class)
     public GroupAddStatusDTO createGroup(Integer currentUserId, String name, String[] memberIds, String portraitUri) throws ServiceException {
 
         List<UserStatusDTO> userStatusDTOList = new ArrayList<>();
@@ -150,10 +165,6 @@ public class GroupManager extends BaseManager {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             //如果失败，插入GroupSync表进行记录 组信息同步失败记录
-            GroupSyncs groupSyncs = new GroupSyncs();
-            groupSyncs.setGroupId(groups.getId());
-            groupSyncs.setSyncInfo(false);
-            groupSyncs.setSyncMember(false);
             groupSyncsService.saveOrUpdate(groups.getId(), false, false);
         }
 
@@ -182,11 +193,8 @@ public class GroupManager extends BaseManager {
         return groupAddStatusDTO;
     }
 
-    //TODO
-
-
     /**
-     * 发送群申请消息
+     * 发送群申请消息 TODO
      */
     private void sendGroupApplyMessage() {
     }
@@ -335,6 +343,435 @@ public class GroupManager extends BaseManager {
      * @param currentUserId
      */
     private void addMember0(String groupId, List<Integer> verifyClosedUserIds, Integer currentUserId) {
+
+    }
+
+
+    /**
+     * 用户加入群组
+     * <p>
+     * 1、通过groupId 查询Groups信息，如果查询不到返回404，Unknown group.
+     * 2、memberCount=memberCount+1，后计算组员数量是否超过限制，超过返回400错误
+     * 3、根据groupId，update Group表中的memberCount、timestamp、批量保存或修改GroupMember
+     * 4、刷新GroupMemberVersion数据版本
+     * 5、调用融云接口join 加入群组方法，同步信息
+     * ====》调用成功，获取昵称 并发送通知 sendGroupNotification
+     * ====》保存信息到 GroupSync
+     * 6、清除相关缓存
+     * ====》Cache.del("user_groups_" + currentUserId);
+     * ====》Cache.del("group_" + groupId);
+     * ====》Cache.del("group_members_" + groupId);
+     *
+     * @param currentUserId
+     * @param groupId
+     * @param encodedGroupId
+     */
+    public void joinGroup(Integer currentUserId, Integer groupId, String encodedGroupId) throws ServiceException {
+
+        long timestamp = System.currentTimeMillis();
+
+        Groups groups = groupsService.getByPrimaryKey(groupId);
+        if (groups == null) {
+            throw new ServiceException(ErrorCode.GROUP_UNKNOWN_ERROR);
+        }
+
+        int memberCount = groups.getMemberCount() + 1;
+        if (memberCount > groups.getMaxMemberCount()) {
+            throw new ServiceException(ErrorCode.INVALID_GROUP_MEMNBER_MAX_COUNT);
+        }
+
+        //根据groupId，update Group表中的memberCount、timestamp、
+        Groups newGroup = new Groups();
+        newGroup.setId(groups.getId());
+        newGroup.setTimestamp(timestamp);
+        groupsService.updateByPrimaryKeySelective(newGroup);
+        //批量保存或修改GroupMember
+        groupMembersService.batchSaveOrUpdate(groupId, ImmutableList.of(currentUserId), timestamp, null);
+
+        //刷新dataversion GroupMemberVersion数据版本
+        dataVersionsService.updateGroupMemberVersion(groups.getId(), timestamp);
+
+        //调用融云接口join 加入群组
+        try {
+            //TODO
+            rongCloudClient.joinGroup(new String[]{N3d.encode(currentUserId)}, encodedGroupId, groups.getName());
+            //如果成功则调用融云接口发送通知
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            //如果失败，插入GroupSync表进行记录 组信息同步失败记录
+            groupSyncsService.saveOrUpdate(groups.getId(), null, false);
+        }
+
+        //清除相关缓存
+        CacheUtil.delete(CacheUtil.USER_GROUP_CACHE_PREFIX + currentUserId);
+        CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+        CacheUtil.delete(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX + groupId);
+    }
+
+
+    /**
+     * 设置群成员保护模式 TODO 普通组员也能执行这个方法吗？
+     *
+     * @param currentUserId
+     * @param groupId
+     * @param memberProtection
+     */
+    public void setMemberProtection(Integer currentUserId, Integer groupId, Integer memberProtection) throws ServiceException {
+
+        String operation = "openMemberProtection";
+        if (memberProtection == 0) {
+            operation = "closeMemberProtection";
+        }
+        Groups groups = new Groups();
+        groups.setId(groupId);
+        groups.setMemberProtection(memberProtection);
+        groupsService.updateByPrimaryKey(groups);
+
+        CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+        //发送群组通知
+        try {
+            sendGroupNtfMsg(currentUserId, groupId, operation, MessageType.GROUP_NOTIFICATION);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 发送群组消息
+     *
+     * @param currentUserId
+     * @param groupId
+     * @param operation
+     * @param groupNotificationType
+     * @throws ServiceException
+     */
+    private void sendGroupNtfMsg(Integer currentUserId, Integer groupId, String operation, MessageType groupNotificationType) throws ServiceException {
+
+        String encodeUserId = N3d.encode(currentUserId);
+        GroupMessage groupMessage = new GroupMessage();
+        groupMessage.setSenderId(encodeUserId);
+        groupMessage.setTargetId(MiscUtils.one2Array(N3d.encode(groupId)));
+        groupMessage.setObjectName(MessageType.GROUP_NOTIFICATION.getObjectName());
+
+        GroupNotificationMessage groupNotificationMessage = new GroupNotificationMessage(encodeUserId, operation, null, null, null);
+        groupMessage.setContent(groupNotificationMessage);
+        groupMessage.setIsIncludeSender(1);
+//        isMentioned: 0, TODO  新版本没找到此字段
+        rongCloudClient.sendGroupMessage(groupMessage);
+    }
+
+    /**
+     * 获取退群列表
+     *
+     * @param currentUserId
+     * @param groupId
+     * @return
+     * @throws ServiceException
+     */
+    public List<GroupExitedLists> getExitedList(Integer currentUserId, Integer groupId) throws ServiceException {
+
+        Example example = new Example(GroupMembers.class);
+
+        example.createCriteria().andEqualTo("groupId", groupId)
+                .andEqualTo("memberId", currentUserId);
+        GroupMembers groupMembers = groupMembersService.getOneByExample(example);
+        if (groupMembers == null) {
+            throw new ServiceException(ErrorCode.REQUEST_ERROR);
+        }
+
+        if (GroupRole.MEMBER.getCode().equals(groupMembers.getRole())) {
+            throw new ServiceException(ErrorCode.NOT_GROUP_MANAGER);
+        }
+
+        Example example1 = new Example(GroupExitedLists.class);
+        example1.createCriteria().andEqualTo("groupId", groupId);
+        List<GroupExitedLists> groupExitedListsList = groupExitedListsService.getByExample(example1);
+
+        return groupExitedListsList;
+
+    }
+
+    /**
+     * 获取群成员信息
+     *
+     * @param groupId
+     * @param memberId
+     * @return
+     * @throws ServiceException
+     */
+    public GroupMembers getMemberInfo(String groupId, String memberId) throws ServiceException {
+
+        GroupMembers groupMembers = groupMembersService.getGroupMember(Integer.valueOf(groupId), Integer.valueOf(memberId));
+
+        //TODO getDeleted
+        if (groupMembers != null || groupMembers.getDeleted()) {
+            throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER);
+        }
+
+        return groupMembers;
+    }
+
+    /**
+     * 设置群成员信息 设置哪个传哪个，不传为不设置
+     *
+     * @param groupId
+     * @param memberId
+     * @param groupNickname
+     * @param region
+     * @param phone
+     * @param weChat
+     * @param alipay
+     * @param memberDesc
+     */
+    public void setMemberInfo(String groupId, String memberId, String groupNickname, String region, String phone, String weChat, String alipay, String[] memberDesc) throws ServiceException {
+
+        GroupMembers groupMembers = groupMembersService.getGroupMember(Integer.valueOf(groupId), Integer.valueOf(memberId));
+
+        if (groupMembers != null || groupMembers.getDeleted()) {
+            throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER);
+        }
+
+        //更新GroupMember 信息
+        GroupMembers newGroupMembers = new GroupMembers();
+        newGroupMembers.setId(groupMembers.getId());
+        newGroupMembers.setGroupNickname(groupNickname);
+        newGroupMembers.setRegion(region);
+        newGroupMembers.setPhone(phone);
+        newGroupMembers.setWeChat(weChat);
+        newGroupMembers.setAlipay(alipay);
+        newGroupMembers.setMemberDesc(JacksonUtil.toJson(memberDesc));
+
+        groupMembersService.updateByPrimaryKeySelective(newGroupMembers);
+
+        CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+        CacheUtil.delete(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX + groupId);
+        return;
+    }
+
+    /**
+     * 开启/更新 清理群离线消息
+     *
+     * @param currentUserId
+     * @param groupId
+     * @param clearStatus   清理选项 0-》关闭、 3-》清理 3 天前、 7-》清理 7 天前、 36-》清理 36 小时前
+     */
+    public void setRegularClear(Integer currentUserId, String groupId, Integer clearStatus) throws ServiceException {
+
+        String operation = "openRegularClear";
+
+        if (clearStatus == 0) {
+            operation = "closeRegularClear";
+        }
+
+        GroupMembers groupMembers = groupMembersService.getGroupMember(Integer.valueOf(groupId), currentUserId);
+
+        if (groupMembers == null || !GroupRole.CREATOR.getCode().equals(groupMembers.getRole())) {
+            throw new ServiceException(ErrorCode.NOT_GROUP_OWNER);
+        }
+
+        Groups group = new Groups();
+        group.setId(Integer.valueOf(groupId));
+        group.setClearStatus(clearStatus);
+        group.setClearTimeAt(System.currentTimeMillis());
+
+        groupsService.updateByPrimaryKeySelective(group);
+        //发送群组通知信息
+        try {
+            sendGroupNtfMsg(currentUserId, Integer.valueOf(groupId), operation, MessageType.CON_NOTIFICATION);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new ServiceException(ErrorCode.SERVER_ERROR);
+        }
+
+    }
+
+    /**
+     * 设置/取消 禁言状态
+     *
+     * @param currentUserId
+     * @param groupId
+     * @param muteStatus    禁言状态：0 关闭 1 开启
+     * @param userId        可发言用户，不传全员禁言，仅群组和管理员可发言
+     */
+    public void setMuteAll(Integer currentUserId, Integer groupId, Integer muteStatus, String[] userId) {
+
+        if (Groups.MUTE_STATUS_CLOSE.equals(muteStatus)) {
+            //如果是取消禁言
+            //调用融云接口 取消禁言 rongCloud.group.ban.remove
+
+            Groups groups = new Groups();
+            groups.setId(groupId);
+            groups.setIsMute(muteStatus);
+            groupsService.updateByPrimaryKeySelective(groups);
+
+            CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+            return;
+        } else {
+            //如果是开启全员禁言
+            Example example = new Example(GroupMembers.class);
+            example.createCriteria().andEqualTo("groupId", groupId)
+                    .andIn("role", ImmutableList.of(GroupRole.CREATOR.getCode(), GroupRole.MANAGER.getCode()));
+            List<GroupMembers> groupMembersList = groupMembersService.getByExample(example);
+
+            if (!CollectionUtils.isEmpty(groupMembersList)) {
+
+                //调用融云接口设置禁言rongCloud.group.ban.add
+
+                //调用融云接口 将管理员添加到白名单rongCloud.group.ban.addWhitelist
+
+
+                //Group更新
+
+
+            }
+
+        }
+
+    }
+
+    /**
+     * 清空群验证通知消息
+     *
+     * @param currentUserId
+     */
+    public void clearNotice(Integer currentUserId) {
+
+        Example example = new Example(GroupReceivers.class);
+        example.createCriteria().andEqualTo("userId", currentUserId);
+        groupReceiversService.deleteByExample(example);
+        return;
+    }
+
+    /**
+     * 根据userID获取群验证通知消息
+     *
+     * @param currentUserId
+     * @return
+     */
+    public List<GroupReceivers> getNoticeInfo(Integer currentUserId) {
+
+        Example example = new Example(GroupReceivers.class);
+        example.createCriteria().andEqualTo("userId", currentUserId);
+        example.setOrderByClause(" timestamp DESC ");
+        return groupReceiversService.getByExample(example);
+
+    }
+
+    /**
+     * 设置群认证
+     *
+     * @param currentUserId
+     * @param groupId
+     * @param certiStatus   认证状态： 0 开启(需要认证)、1 关闭（不需要认证）
+     */
+    public void setCertification(Integer currentUserId, Integer groupId, Integer certiStatus) throws ServiceException {
+
+        GroupMembers groupMembers = groupMembersService.getGroupMember(groupId, currentUserId);
+
+        if (groupMembers != null && isManagerRole(groupMembers.getRole())) {
+
+            Groups groups = new Groups();
+            groups.setCertiStatus(certiStatus);
+            groups.setIsMute(groupId);
+            groupsService.updateByPrimaryKeySelective(groups);
+            CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+        } else {
+            throw new ServiceException(ErrorCode.NO_PERMISSION);
+        }
+    }
+
+    private boolean isManagerRole(Integer role) {
+        return GroupRole.CREATOR.getCode().equals(role) || GroupRole.MANAGER.getCode().equals(role);
+    }
+
+
+    public List<GroupMembers> getGroupMembers(Integer currentUserId, int groupId) throws ServiceException {
+
+        String members = CacheUtil.get(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX+groupId);
+        if(members!=null){
+//            return JacksonUtil.jsonToBean(members,null); TODO
+            return null;
+        }
+
+        Example example = new Example(GroupMembers.class);
+        example.createCriteria().andEqualTo("groupId",groupId);
+        List<GroupMembers> groupMembersList = groupMembersService.getByExample(example);
+
+        if(CollectionUtils.isEmpty(groupMembersList)){
+            throw  new ServiceException(ErrorCode.GROUP_UNKNOWN_ERROR);
+        }
+        if(!isInGroupMember(groupMembersList,currentUserId)){
+            throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER_2);
+        }
+
+        CacheUtil.set(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX+groupId,JacksonUtil.toJson(groupMembersList));
+
+        return groupMembersList;
+
+    }
+
+    private boolean isInGroupMember(List<GroupMembers> groupMembersList,Integer userId){
+        if(groupMembersList!=null){
+            for(GroupMembers groupMembers:groupMembersList){
+                if(groupMembers.getMemberId().equals(userId)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * 根据groupId获取群信息
+     *
+     * @param currentUserId
+     * @param groupId
+     * @return
+     */
+    public Groups getGroupInfo(Integer currentUserId, Integer groupId) throws ServiceException {
+
+        String groupJson = CacheUtil.get(CacheUtil.GROUP_CACHE_PREFIX+groupId);
+        if(groupJson!=null){
+//            return JacksonUtil.jsonToBean(groupJson,Groups.class); TODO
+            return null;
+        }
+
+        Groups groups = groupsService.getByPrimaryKey(groupId);
+        if(groups==null){
+            throw new ServiceException(ErrorCode.GROUP_UNKNOWN_ERROR);
+        }
+
+        CacheUtil.set(CacheUtil.GROUP_CACHE_PREFIX+groupId,JacksonUtil.toJson(groups));
+
+        return groups;
+    }
+
+    /**
+     * 设置群名片
+     * @param currentUserId
+     * @param groupId
+     * @param displayName
+     */
+    public void setDisPlayName(Integer currentUserId, Integer groupId, String displayName) throws ServiceException {
+
+        long timestamp = System.currentTimeMillis();
+        GroupMembers groupMembers = new GroupMembers();
+        groupMembers.setDisplayName(displayName);
+        groupMembers.setTimestamp(timestamp);
+        Example example = new Example(GroupMembers.class);
+        example.createCriteria().andEqualTo("groupId",groupId)
+                .andEqualTo("memberId",currentUserId);
+        int affectedCount = groupMembersService.updateByExampleSelective(groupMembers,example);
+
+        if(affectedCount==0){
+            throw new ServiceException(ErrorCode.GROUP_UNKNOWN_ERROR);
+        }
+
+        dataVersionsService.updateGroupVersion(currentUserId,timestamp);
+
+        CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+
 
     }
 }

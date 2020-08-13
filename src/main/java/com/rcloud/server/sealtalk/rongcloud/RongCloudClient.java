@@ -82,7 +82,8 @@ public interface RongCloudClient {
 
 
     /**
-     *发送通知
+     * 发送通知
+     *
      * @param currentUserId
      * @param currentUserNickName
      * @param friendId
@@ -101,9 +102,22 @@ public interface RongCloudClient {
 
     /**
      * 创建群组 TODO
+     *
      * @param encode
      * @param encodeMemberIds
      * @param name
      */
-    void createGroup(String encode, List<String> encodeMemberIds, String name);
+    Result createGroup(String encode, List<String> encodeMemberIds, String name);
+
+
+    /**
+     * 用户加入指定群组 TODO
+     *
+     * @param memberIds
+     * @param groupId
+     * @param groupName
+     * @return
+     */
+    Result joinGroup(String[] memberIds, String groupId, String groupName);
+
 }

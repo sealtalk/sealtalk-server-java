@@ -65,6 +65,13 @@ public enum ErrorCode {
     INVALID_USER_GROUP_COUNT_LIMIT(1000,"Current user's group count is out of max user group count limit."),
     INVALID_PARAM_CREATOR(400,"Creator is not in memeber list."),
     GROUP_LIMIT_ERROR(20002,"Creator is not in memeber list."),
+    GROUP_UNKNOWN_ERROR(404,"Unknown group."),
+    NOT_GROUP_MANAGER(400,"Current user is not group manager."),
+    NOT_GROUP_MEMBER(404,"Not a group member"),
+    NOT_GROUP_OWNER(400,"Not a group owner ."),
+    NO_PERMISSION(20001,"No permission"),
+    NOT_GROUP_MEMBER_2(403,"Only group member can get group member info."),
+    INVALID_DISPLAY_NAME_LENGTH(400,"Length of display name invalid."),
 
 
     //yunpian error 云片服务错误，错误码3000 开头

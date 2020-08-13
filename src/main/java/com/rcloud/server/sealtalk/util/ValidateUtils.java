@@ -6,6 +6,7 @@ import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,10 @@ public class ValidateUtils {
     public static final int DEFAULT_MAX_GROUP_MEMBER_COUNT = 500;
 
     public static final int MAX_USER_GROUP_OWN_COUNT = 500;
+
+
+
+
 
 
     public static void notNull(Object o) throws ServiceException {
@@ -184,19 +189,42 @@ public class ValidateUtils {
 
     public static void checkGroupName(String name) throws ServiceException {
 
-        if(!isLength(name,GROUP_NAME_MIN_LENGTH,GROUP_NAME_MAX_LENGTH)){
+        if (!isLength(name, GROUP_NAME_MIN_LENGTH, GROUP_NAME_MAX_LENGTH)) {
             throw new ServiceException(ErrorCode.INVALID_GROUP_NAME_LENGTH);
         }
 
     }
 
     public static void checkMemberIds(String[] memberIds) throws ServiceException {
-        if(memberIds==null || memberIds.length<=1 ){
+        if (memberIds == null || memberIds.length <= 1) {
             throw new ServiceException(ErrorCode.INVALID_GROUP_MEMNBER_COUNT);
         }
 
-        if(memberIds.length>DEFAULT_MAX_GROUP_MEMBER_COUNT){
+        if (memberIds.length > DEFAULT_MAX_GROUP_MEMBER_COUNT) {
             throw new ServiceException(ErrorCode.INVALID_GROUP_MEMNBER_MAX_COUNT);
         }
+    }
+
+
+
+    /**
+     * 判断 value是否在rangeList 区间范围内
+     *
+     * @param value
+     * @param rangeList
+     */
+    public static <T> void inRange(T value, List<T> rangeList) throws ServiceException {
+        if (value == null || !rangeList.contains(value)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+    }
+
+    public static void checkGroupDisplayName(String displayName) throws ServiceException {
+
+        if(StringUtils.isEmpty(displayName) || displayName.length()>GROUP_MEMBER_DISPLAY_NAME_MAX_LENGTH){
+            throw new ServiceException(ErrorCode.INVALID_DISPLAY_NAME_LENGTH);
+        }
+
+
     }
 }

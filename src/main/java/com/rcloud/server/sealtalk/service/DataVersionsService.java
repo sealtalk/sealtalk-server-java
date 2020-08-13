@@ -36,4 +36,9 @@ public class DataVersionsService extends AbstractBaseService<DataVersions,Intege
 
         mapper.updateGroupMemberVersion(groupId,timestamp);
     }
+
+    public void updateGroupVersion(Integer currentUserId, long timestamp) {
+
+        //TODO
+    }
 }

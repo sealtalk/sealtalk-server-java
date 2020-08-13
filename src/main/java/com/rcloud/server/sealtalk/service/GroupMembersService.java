@@ -45,6 +45,17 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
     }
 
 
+    //TODO
+
+    /**
+     * 批量保存或更新GroupMembers
+     *
+     * @param groupId
+     * @param memberIdList
+     * @param timestamp
+     * @param creatorId
+     * @throws ServiceException
+     */
     public void batchSaveOrUpdate(Integer groupId, List<Integer> memberIdList, long timestamp, Integer creatorId) throws ServiceException {
         Example example = new Example(GroupMembers.class);
         example.createCriteria().andEqualTo("groupId", groupId);
@@ -109,5 +120,21 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
         }
 
         return;
+    }
+
+    /**
+     * 根据groupId、memberId 查询 GroupMembers
+     *
+     * @param groupId
+     * @param memberId
+     * @return
+     */
+    public GroupMembers getGroupMember(Integer groupId, Integer memberId) {
+
+        Example example = new Example(GroupMembers.class);
+
+        example.createCriteria().andEqualTo("groupId", groupId)
+                .andEqualTo("memberId", memberId);
+        return this.getOneByExample(example);
     }
 }

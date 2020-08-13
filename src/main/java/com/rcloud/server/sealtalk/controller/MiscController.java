@@ -11,7 +11,7 @@ import com.rcloud.server.sealtalk.manager.GroupManager;
 import com.rcloud.server.sealtalk.manager.MiscManager;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
-import com.rcloud.server.sealtalk.model.response.dto.DemoSquareDTO;
+import com.rcloud.server.sealtalk.model.dto.DemoSquareDTO;
 import com.rcloud.server.sealtalk.util.CacheUtil;
 import com.rcloud.server.sealtalk.util.JacksonUtil;
 import com.rcloud.server.sealtalk.util.MiscUtils;

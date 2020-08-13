@@ -24,7 +24,14 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
         return mapper;
     }
 
-    public void saveOrUpdate(Integer id, boolean syncInfo, boolean syncMember) {
+    /**
+     * 保存或更新GroupSyncs
+     *
+     * @param id
+     * @param syncInfo
+     * @param syncMember
+     */
+    public void saveOrUpdate(Integer id, Boolean syncInfo, Boolean syncMember) {
 
         GroupSyncs groupSyncs = this.getByPrimaryKey(id);
         if (groupSyncs == null) {
@@ -34,11 +41,9 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
             groupSyncs.setSyncMember(syncMember);
             this.saveSelective(groupSyncs);
         } else {
-
             groupSyncs.setSyncInfo(syncInfo);
             groupSyncs.setSyncMember(syncMember);
             this.updateByPrimaryKey(groupSyncs);
         }
-
     }
 }

@@ -47,6 +47,14 @@ public class GroupReceivers implements Serializable {
 
     private Date updatedAt;
 
+    @Transient
+    private Users requester;
+    @Transient
+    private Users receiver;
+    @Transient
+    private Groups group;
+
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -257,5 +265,29 @@ public class GroupReceivers implements Serializable {
      */
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Users getRequester() {
+        return requester;
+    }
+
+    public void setRequester(Users requester) {
+        this.requester = requester;
+    }
+
+    public Users getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(Users receiver) {
+        this.receiver = receiver;
+    }
+
+    public Groups getGroup() {
+        return group;
+    }
+
+    public void setGroup(Groups group) {
+        this.group = group;
     }
 }

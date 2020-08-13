@@ -14,6 +14,12 @@ public class Groups implements Serializable {
     //开启群组认证状态标示
     public static final Integer CERTI_STATUS_OPENED = 0;
 
+    //全员禁言状态 否
+    public static final Integer MUTE_STATUS_CLOSE = 0;
+
+    //全员禁言状态 是
+    public static final Integer MUTE_STATUS_OPENED = 1;
+
 
     @Id
     private Integer id;

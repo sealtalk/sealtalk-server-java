@@ -1,4 +1,4 @@
-package com.rcloud.server.sealtalk.model.response.dto;
+package com.rcloud.server.sealtalk.model.dto;
 
 import lombok.Data;
 

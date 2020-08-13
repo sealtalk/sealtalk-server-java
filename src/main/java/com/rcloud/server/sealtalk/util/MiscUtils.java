@@ -1,9 +1,7 @@
 package com.rcloud.server.sealtalk.util;
 
-import com.alibaba.druid.support.json.JSONUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
@@ -13,11 +11,9 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -107,26 +103,26 @@ public class MiscUtils {
 
     /**
      * 根据propertyExpression 对结果对象中的ID进行N3D编码
-     *
+     * <p>
      * propertyExpression 用点 "." 导航，如下
-     *
-     *  Object{
-     *      userId：     //propertyExpression=userId
-     *      groups{
-     *          id:1   // propertyExpression = groups.id
-     *      }
-     *
-     *      [           //  如果是数组或list同上
-     *          groups{
-     *              id   // propertyExpression = groups.id
-     *          },
-     *          groups{
-     *              id
-     *          }
-     *      ]
-     *  }
-     *
-     *  如果参数propertyExpression 为空默认为 propertyExpression = id
+     * <p>
+     * Object{
+     * userId：     //propertyExpression=userId
+     * groups{
+     * id:1   // propertyExpression = groups.id
+     * }
+     * <p>
+     * [           //  如果是数组或list同上
+     * groups{
+     * id   // propertyExpression = groups.id
+     * },
+     * groups{
+     * id
+     * }
+     * ]
+     * }
+     * <p>
+     * 如果参数propertyExpression 为空默认为 propertyExpression = id
      *
      * @param o
      * @param propertyExpressions
@@ -137,7 +133,7 @@ public class MiscUtils {
             if (o == null) {
                 return null;
             }
-            if(propertyExpressions==null || propertyExpressions.length==0){
+            if (propertyExpressions == null || propertyExpressions.length == 0) {
                 //默认对ID进行加密
                 propertyExpressions = new String[]{"id"};
             }
@@ -145,52 +141,52 @@ public class MiscUtils {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsBytes(o));
 
-            for(String propertyExpression:propertyExpressions){
-                processResult(jsonNode,propertyExpression);
+            for (String propertyExpression : propertyExpressions) {
+                processResult(jsonNode, propertyExpression);
             }
             return jsonNode;
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
     }
 
-    public static String addUpdateTimeToList(String result){
+    public static String addUpdateTimeToList(String result) {
         //TODO
         return "";
     }
 
     private static void processResult(JsonNode jsonNode, String propertyExpression) throws ServiceException {
-        if(jsonNode.isArray()){
+        if (jsonNode.isArray()) {
             Iterator<JsonNode> it = jsonNode.iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 JsonNode jsonNode1 = it.next();
-                processResult(jsonNode1,propertyExpression);
+                processResult(jsonNode1, propertyExpression);
             }
-        }else{
+        } else {
             String[] elements = propertyExpression.split("\\.");
             JsonNode targetNode = null;
 
-            if(elements.length==1){
+            if (elements.length == 1) {
                 targetNode = jsonNode;
-            }else {
-                int index=0;
-                for(int i=0;i<elements.length-1;i++){
+            } else {
+                int index = 0;
+                for (int i = 0; i < elements.length - 1; i++) {
                     targetNode = jsonNode.get(elements[i]);
-                    index = index +elements[i].length()+1;
-                    if(targetNode!=null && targetNode.isArray()){
-                        processResult(targetNode,propertyExpression.substring(index));
+                    index = index + elements[i].length() + 1;
+                    if (targetNode != null && targetNode.isArray()) {
+                        processResult(targetNode, propertyExpression.substring(index));
                         return;
                     }
-                    if(targetNode==null){
+                    if (targetNode == null) {
                         return;
                     }
                 }
             }
-            ObjectNode objectNode = (ObjectNode)targetNode;
-            if(objectNode.get(elements[elements.length-1]) != null){
-                if(!objectNode.get(elements[elements.length-1]).isNull()){
-                    objectNode.put(elements[elements.length-1],N3d.encode(objectNode.get(elements[elements.length-1]).asInt()));
+            ObjectNode objectNode = (ObjectNode) targetNode;
+            if (objectNode.get(elements[elements.length - 1]) != null) {
+                if (!objectNode.get(elements[elements.length - 1]).isNull()) {
+                    objectNode.put(elements[elements.length - 1], N3d.encode(objectNode.get(elements[elements.length - 1]).asInt()));
                 }
             }
 
@@ -201,15 +197,15 @@ public class MiscUtils {
     public static void main(String[] args) throws Exception {
 
         List<Users> usersList = new ArrayList<>(3);
-        for(int i=0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
             Users users = new Users();
-            users.setId(12+i);
-            users.setNickname("test22"+i);
+            users.setId(12 + i);
+            users.setNickname("test22" + i);
             users.setPhone("18810183283");
             users.setDeletedAt(new Date());
             Groups groups = new Groups();
             groups.setId(null);
-            groups.setCreatorId(33+i);
+            groups.setCreatorId(33 + i);
             groups.setCreatedAt(new Date());
             groups.setName("gnameTest");
             users.setGroups(groups);
@@ -220,24 +216,24 @@ public class MiscUtils {
         Object object = MiscUtils.encodeResults(usersList);
         System.out.println(objectMapper.writeValueAsString(APIResultWrap.ok(object)));
 
-        Map<String,Object> map = new HashMap<>();
-        map.put("id",12);
-        map.put("name","test");
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", 12);
+        map.put("name", "test");
 
         List<Object> list = new ArrayList<>();
 
-        Map<String,Object> map2 = new HashMap<>();
-        map2.put("userId",33);
-        map2.put("name","testname");
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("userId", 33);
+        map2.put("name", "testname");
         list.add(map2);
-        Map<String,Object> map3 = new HashMap<>();
-        map3.put("userId",33);
-        map3.put("name","testname");
-        map3.put("users",usersList);
+        Map<String, Object> map3 = new HashMap<>();
+        map3.put("userId", 33);
+        map3.put("name", "testname");
+        map3.put("users", usersList);
         list.add(map3);
-        map.put("list",list);
-        map.put("users",usersList);
-        System.out.println(MiscUtils.encodeResults(map,"list.users.groups.creatorId","id","mapGroup.userId","list.userId","users.id","users.groups.id","users.groups.creatorId"));
+        map.put("list", list);
+        map.put("users", usersList);
+        System.out.println(MiscUtils.encodeResults(map, "list.users.groups.creatorId", "id", "mapGroup.userId", "list.userId", "users.id", "users.groups.id", "users.groups.creatorId"));
 
         String text = "abcd123";
         int salt = 9988;
@@ -247,4 +243,13 @@ public class MiscUtils {
     }
 
 
+    /**
+     * 单个元素转换成数组
+     *
+     * @param str
+     * @return
+     */
+    public static String[] one2Array(String str) {
+        return new String[]{str};
+    }
 }

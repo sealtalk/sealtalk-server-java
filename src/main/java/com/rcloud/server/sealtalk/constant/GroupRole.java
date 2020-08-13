@@ -8,8 +8,8 @@ package com.rcloud.server.sealtalk.constant;
  */
 public enum GroupRole {
     CREATOR(0, "CREATOR"),
-    MEMBER(0, "MEMBER"),
-    MANAGER(0, "MANAGER");
+    MEMBER(1, "MEMBER"),
+    MANAGER(2, "MANAGER");
 
 
     private Integer code;

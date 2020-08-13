@@ -53,6 +53,9 @@ public class GroupMembers implements Serializable {
     @Transient
     private Groups groups;
 
+    @Transient
+    private Users users;
+
     private static final long serialVersionUID = 1L;
 
 
@@ -182,5 +185,13 @@ public class GroupMembers implements Serializable {
 
     public void setGroups(Groups groups) {
         this.groups = groups;
+    }
+
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
     }
 }

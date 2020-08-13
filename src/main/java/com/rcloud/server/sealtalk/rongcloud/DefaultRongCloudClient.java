@@ -45,7 +45,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
     private Private Private;
     private MsgSystem system;
-    private Group group ;
+    private Group group;
     private Chatroom chatroom;
     private Discussion discussion;
     private History history;
@@ -196,7 +196,13 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public void createGroup(String encode, List<String> encodeMemberIds, String name) {
+    public Result createGroup(String encode, List<String> encodeMemberIds, String name) {
 
+        return null;
+    }
+
+    @Override
+    public Result joinGroup(String[] memberIds, String groupId, String groupName) {
+        return null;
     }
 }
