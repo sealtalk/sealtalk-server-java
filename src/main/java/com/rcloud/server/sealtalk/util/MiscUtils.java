@@ -14,6 +14,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -260,6 +261,19 @@ public class MiscUtils {
 
             for(int i=0;i<ids.length;i++){
                 result[i] = N3d.encode(Integer.valueOf(ids[i]));
+            }
+
+            return result;
+        }
+        return null;
+    }
+
+    public static String[] encodeIds(List<Integer> ids) throws ServiceException {
+        if(!CollectionUtils.isEmpty(ids)){
+            String[] result = new String[ids.size()];
+
+            for(int i=0;i<ids.size();i++){
+                result[i] = N3d.encode(ids.get(i));
             }
 
             return result;

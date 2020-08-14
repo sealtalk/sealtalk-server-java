@@ -598,24 +598,45 @@ public class GroupManager extends BaseManager {
 
     /**
      * 设置/取消 禁言状态
+     * 1、参数合法性验证，muteStatus校验失败返回400，Illegal parameter
+     * 2、如果是取消禁言muteStatus == 0
+     * ====》调用融云接口rongCloud.group.ban.remove，失败打印日志
+     * ====》调用成功根据groupId更新Group的isMute字段，并清除缓存Cache.del("group_" + groupId)，然后返回
+     * 3、如果是开启禁言
+     * ====》根据groupId查询GroupMember ，查询出群主和管理员
+     * ====》然后调用rongCloud.group.ban.add  设置禁言
+     * ====》调用rongCloud.group.ban.addWhitelist将可发言用户加入白名单
+     * 4、然后根据groupId更新Group的isMute
+     * 5、然后清除缓存group_
      *
      * @param currentUserId
      * @param groupId
      * @param muteStatus    禁言状态：0 关闭 1 开启
      * @param userId        可发言用户，不传全员禁言，仅群组和管理员可发言
      */
-    public void setMuteAll(Integer currentUserId, Integer groupId, Integer muteStatus, String[] userId) {
+    public void setMuteAll(Integer currentUserId, Integer groupId, Integer muteStatus, String[] userIds) throws ServiceException {
 
         if (Groups.MUTE_STATUS_CLOSE.equals(muteStatus)) {
             //如果是取消禁言
             //调用融云接口 取消禁言 rongCloud.group.ban.remove
 
-            Groups groups = new Groups();
-            groups.setId(groupId);
-            groups.setIsMute(muteStatus);
-            groupsService.updateByPrimaryKeySelective(groups);
+            try {
+                Result result = rongCloudClient.removeMuteStatus(N3d.encode(groupId));
+                if (result.getCode() == 200) {
+                    Groups groups = new Groups();
+                    groups.setId(groupId);
+                    groups.setIsMute(muteStatus);
+                    groupsService.updateByPrimaryKeySelective(groups);
 
-            CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+                    CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+                }
+                {
+                    log.error("Error: rollback group failed on IM server, error,code: " + result.getCode());
+                }
+
+            } catch (Exception e) {
+                log.error("Error: rollback group failed on IM server, error: " + e.getMessage(), e);
+            }
             return;
         } else {
             //如果是开启全员禁言
@@ -624,18 +645,45 @@ public class GroupManager extends BaseManager {
                     .andIn("role", ImmutableList.of(GroupRole.CREATOR.getCode(), GroupRole.MANAGER.getCode()));
             List<GroupMembers> groupMembersList = groupMembersService.getByExample(example);
 
+            List<Integer> memberIds = CollectionUtils.arrayToList(MiscUtils.covertString2Int(userIds));
+
             if (!CollectionUtils.isEmpty(groupMembersList)) {
-
-                //调用融云接口设置禁言rongCloud.group.ban.add
-
-                //调用融云接口 将管理员添加到白名单rongCloud.group.ban.addWhitelist
-
-
-                //Group更新
-
-
+                for (GroupMembers groupMembers : groupMembersList) {
+                    memberIds.add(groupMembers.getMemberId());
+                }
             }
 
+            //调用融云接口设置禁言rongCloud.group.ban.add
+            try {
+                Result result = rongCloudClient.setMuteStatus(N3d.encode(groupId));
+                if (result.getCode() == 200) {
+
+                    try {
+                        Result result1 = rongCloudClient.addGroupWhitelist(N3d.encode(groupId), MiscUtils.encodeIds(memberIds));
+
+                        if (result1.getCode() == 200) {
+
+                            Groups groups = new Groups();
+                            groups.setId(groupId);
+                            groups.setIsMute(muteStatus);
+                            groupsService.updateByPrimaryKeySelective(groups);
+
+                            CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+
+                        } else {
+                            log.error("Error: add group whitelist failed on IM server, error code={} " + result1.getCode());
+                        }
+                    } catch (Exception e) {
+                        log.error("Error: add group whitelist failed on IM server, error: " + e.getMessage());
+                    }
+                } else {
+                    log.error("Error: rollback group failed on IM server, error,code: " + result.getCode());
+                }
+
+            } catch (Exception e) {
+                log.error("Error: rollback group failed on IM server, error: " + e.getMessage(), e);
+            }
+            return;
         }
 
     }
@@ -1437,6 +1485,22 @@ public class GroupManager extends BaseManager {
     }
 
     /**
+     * 群主或群管理将群成员踢出群组
+     * 1、校验参数合法性，不能踢出自己、不能踢出创建者
+     * 2、根据groupId 查询 GroupMember，判断当前用户是否有权限踢人(只有群创建者或管理者才有权限踢人)
+     * 3、校验memberIds 是否有空的情况、是否存在不是当前群的的成员Id
+     * 4、获取memberIds 对应的用户昵称
+     * 5、获取当前用户的昵称
+     * 6、根据groupI更新Group的 memberCount、timestamp
+     * 7、根据groupId，memberIds 更新GroupMember的isDeleted=true、timestamp
+     * 8、刷新GroupMemberVersion数据版本
+     * 9、发送组通知消息sendGroupNotification
+     * 10、调用融云服务接口 quit
+     * ====》调用失败，返回500错误，Quit failed on IM server.  调用失败不用回滚本地数据库！！！ 打印日志！！！！
+     * 11、清除相关缓存 user_groups_、group_、group_members_
+     * 12、根据groupId, memberIds 删除GroupFav表
+     * 13、根据memberIds 循环保存或更新群组退出列表GroupExitedList
+     *
      * @param currentUserId
      * @param groupId
      * @param encodeGroupId

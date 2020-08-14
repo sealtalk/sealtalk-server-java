@@ -164,4 +164,20 @@ public interface RongCloudClient {
      * @return
      */
     Result quitGroup(String[] encodedMemberIds, String encodedGroupId);
+
+    /**
+     * 取消群组禁言
+     *
+     * @param encodeGroupId
+     * @return
+     */
+    Result removeMuteStatus(String encodeGroupId);
+
+    /**
+     * 设置群组禁言
+     *
+     * @param encode
+     * @return
+     */
+    Result setMuteStatus(String encode);
 }

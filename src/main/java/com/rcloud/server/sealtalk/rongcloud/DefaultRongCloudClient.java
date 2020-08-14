@@ -229,4 +229,14 @@ public class DefaultRongCloudClient implements RongCloudClient {
     public Result quitGroup(String[] encodedMemberIds, String encodedGroupId) {
         return null;
     }
+
+    @Override
+    public Result removeMuteStatus(String encodeGroupId) {
+        return null;
+    }
+
+    @Override
+    public Result setMuteStatus(String encode) {
+        return null;
+    }
 }
