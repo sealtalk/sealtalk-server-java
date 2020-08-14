@@ -183,7 +183,7 @@ public class FriendShipManager extends BaseManager {
                 //获取当前用户昵称
                 String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
                 //调用融云发送通知接口
-                rongCloudClient.sendContactNotification(currentUserId, currentUserNickName, friendId, Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+                rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
                 //清除缓存
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -245,7 +245,7 @@ public class FriendShipManager extends BaseManager {
                 //获取当前用户昵称
                 String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
                 //调用融云发送通知接口
-                rongCloudClient.sendContactNotification(currentUserId, currentUserNickName, friendId, Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+                rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
                 //清除缓存
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -287,7 +287,7 @@ public class FriendShipManager extends BaseManager {
         //获取当前用户昵称
         String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
         //调用融云发送通知接口
-        rongCloudClient.sendContactNotification(currentUserId, currentUserNickName, friendId, Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
         //清除缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -410,7 +410,7 @@ public class FriendShipManager extends BaseManager {
         //获取当前用户昵称
         String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
         //调用融云发送通知接口
-        rongCloudClient.sendContactNotification(currentUserId, currentUserNickName, friendId, Constants.CONTACT_OPERATION_REQUEST, "", timestamp);
+        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, "", timestamp);
         //清除缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -428,8 +428,8 @@ public class FriendShipManager extends BaseManager {
      * @throws ServiceException
      */
     private void removeBlackList(Integer currentUserId, Integer friendId) throws ServiceException {
-        rongCloudClient.removeBlackList(currentUserId, new String[]{N3d.encode(friendId)});
-        rongCloudClient.removeBlackList(friendId, new String[]{N3d.encode(currentUserId)});
+        rongCloudClient.removeUserBlackList(N3d.encode(currentUserId), new String[]{N3d.encode(friendId)});
+        rongCloudClient.removeUserBlackList(N3d.encode(friendId), new String[]{N3d.encode(currentUserId)});
         updateBlackListStatus(currentUserId, friendId);
         updateBlackListStatus(friendId, currentUserId);
         CacheUtil.delete(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
@@ -499,7 +499,7 @@ public class FriendShipManager extends BaseManager {
 
         if (u != null) {
             //调用融云黑名单接口新增,删除好友（请求），相当于告诉融云服务端把删除的好友加入黑名单不在接收他发的消息
-            rongCloudClient.addBlackList(currentUserId, new String[]{N3d.encode(friendId)});
+            rongCloudClient.addUserBlackList(N3d.encode(currentUserId), new String[]{N3d.encode(friendId)});
             //同时插入或更新本地黑名单表
             blackListsService.saveOrUpdate(currentUserId, friendId, true, timestamp);
             //刷新黑名单版本
@@ -709,7 +709,7 @@ public class FriendShipManager extends BaseManager {
             encodeFriendIds[i++] = N3d.encode(Integer.valueOf(fId));
         }
 
-        rongCloudClient.addBlackList(currentUserId, encodeFriendIds);
+        rongCloudClient.addUserBlackList(N3d.encode(currentUserId), encodeFriendIds);
     }
 
     /**

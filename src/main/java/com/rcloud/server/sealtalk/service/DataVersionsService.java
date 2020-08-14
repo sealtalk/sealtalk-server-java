@@ -34,11 +34,13 @@ public class DataVersionsService extends AbstractBaseService<DataVersions,Intege
 
     public void updateGroupMemberVersion(Integer groupId, long timestamp) {
 
+        //TODO
+        //UPDATE data_versions d JOIN group_members g ON d.userId = g.memberId AND g.groupId = ? AND g.isDeleted = 0 SET d.groupVersion = ?, d.groupMemberVersion = ?
         mapper.updateGroupMemberVersion(groupId,timestamp);
     }
 
     public void updateGroupVersion(Integer currentUserId, long timestamp) {
-
-        //TODO
+//UPDATE data_versions d JOIN group_members g ON d.userId = g.memberId AND g.groupId = ? AND g.isDeleted = 0 SET d.groupVersion = ?
+//TODO
     }
 }

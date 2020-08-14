@@ -37,12 +37,20 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
         if (groupSyncs == null) {
             groupSyncs = new GroupSyncs();
             groupSyncs.setGroupId(id);
-            groupSyncs.setSyncInfo(syncInfo);
-            groupSyncs.setSyncMember(syncMember);
+            if(syncInfo!=null){
+                groupSyncs.setSyncInfo(syncInfo);
+            }
+            if(syncMember!=null){
+                groupSyncs.setSyncMember(syncMember);
+            }
             this.saveSelective(groupSyncs);
         } else {
-            groupSyncs.setSyncInfo(syncInfo);
-            groupSyncs.setSyncMember(syncMember);
+            if(syncInfo!=null){
+                groupSyncs.setSyncInfo(syncInfo);
+            }
+            if(syncMember!=null){
+                groupSyncs.setSyncMember(syncMember);
+            }
             this.updateByPrimaryKey(groupSyncs);
         }
     }

@@ -31,6 +31,7 @@ public class GlobalControllerExceptionHandler {
     public APIResult serviceAPIExceptionHandler(HttpServletRequest request,
                                                 ServiceException e) {
         String url = request.getRequestURI();
+
         log.error("Error found: url:[{}]", url, e);
         return APIResultWrap.error(e);
     }

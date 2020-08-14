@@ -22,76 +22,76 @@ public interface RongCloudClient {
     /**
      * 注册并获取token
      *
-     * @param id       用户id  调用方传入int类型id，内部调用融云id需要n3d编码
+     * @param encodeId 用户id  n3d编码
      * @param name     昵称
      * @param portrait 头像地址
      * @return
      * @throws ServiceException
      */
-    TokenResult register(int id, String name, String portrait) throws ServiceException;
+    TokenResult register(String encodeId, String name, String portrait) throws ServiceException;
 
     /**
      * 修改用户信息
      *
-     * @param id       用户id
+     * @param encodeId 用户id
      * @param name     昵称
      * @param portrait 头像地址
      * @return
      * @throws ServiceException
      */
-    Result updateUser(int id, String name, String portrait) throws ServiceException;
+    Result updateUser(String encodeId, String name, String portrait) throws ServiceException;
 
     /**
      * 获取用户信息
      *
-     * @param id 用户id
+     * @param encodeId 用户id
      * @return
      * @throws ServiceException
      */
-    UserResult getUserInfo(int id) throws ServiceException;
+    UserResult getUserInfo(String encodeId) throws ServiceException;
 
     /**
      * 用户添加黑名单
      *
-     * @param id
-     * @param blackUserIds
+     * @param encodeId
+     * @param encodeBlackUserIds
      * @return
      * @throws ServiceException
      */
-    public Result addBlackList(int id, String[] blackUserIds) throws ServiceException;
+    public Result addUserBlackList(String encodeId, String[] encodeBlackUserIds) throws ServiceException;
 
     /**
      * 查询用户黑名单
      *
-     * @param id
+     * @param encodeId
      * @return
      * @throws ServiceException
      */
-    BlackListResult queryBlackList(int id) throws ServiceException;
+    BlackListResult queryUserBlackList(String encodeId) throws ServiceException;
 
 
     /**
      * 用户移除黑名单
      *
-     * @param id
-     * @param blackUserIds
+     * @param encodeId
+     * @param encodeBlackUserIds
      * @return
      * @throws ServiceException
      */
-    Result removeBlackList(int id, String[] blackUserIds) throws ServiceException;
+    Result removeUserBlackList(String encodeId, String[] encodeBlackUserIds) throws ServiceException;
 
 
     /**
      * 发送通知
      *
-     * @param currentUserId
+     * @param encodeCurrentUserId
      * @param currentUserNickName
-     * @param friendId
+     * @param encodeFriendId
      * @param contactOperationType
      * @param message
      * @param timestamp
      */
-    void sendContactNotification(Integer currentUserId, String currentUserNickName, Integer friendId, String contactOperationType, String message, long timestamp);
+    void sendContactNotification(String encodeCurrentUserId, String currentUserNickName, String encodeFriendId, String contactOperationType, String message, long timestamp);
 
 
     //TODO
@@ -103,21 +103,65 @@ public interface RongCloudClient {
     /**
      * 创建群组 TODO
      *
-     * @param encode
+     * @param encodeGroupId
      * @param encodeMemberIds
      * @param name
      */
-    Result createGroup(String encode, List<String> encodeMemberIds, String name);
+    Result createGroup(String encodeGroupId, List<String> encodeMemberIds, String name);
 
 
     /**
      * 用户加入指定群组 TODO
      *
-     * @param memberIds
-     * @param groupId
+     * @param encodedMemberIds
+     * @param encodedGroupId
      * @param groupName
      * @return
      */
-    Result joinGroup(String[] memberIds, String groupId, String groupName);
+    Result joinGroup(String[] encodedMemberIds, String encodedGroupId, String groupName);
 
+    /**
+     * 刷新群组名称 TODO
+     *
+     * @param encodedGroupId
+     * @param name
+     * @return
+     */
+    Result refreshGroupName(String encodedGroupId, String name);
+
+    /**
+     * 移除白名单 TODO
+     *
+     * @param encodedGroupId
+     * @param encodedMemberIds
+     * @return
+     */
+    Result removeGroupWhiteList(String encodedGroupId, String[] encodedMemberIds);
+
+    /**
+     * 新增白名单 TODO
+     *
+     * @param encodedGroupId
+     * @param encodedMemberIds
+     * @return
+     */
+    Result addGroupWhitelist(String encodedGroupId, String[] encodedMemberIds);
+
+    /**
+     * 解散群组
+     *
+     * @param encodeUserId
+     * @param encodedGroupId
+     * @return
+     */
+    Result dismiss(String encodeUserId, String encodedGroupId);
+
+    /**
+     * 用户退群
+     *
+     * @param encodedMemberIds
+     * @param encodedGroupId
+     * @return
+     */
+    Result quitGroup(String[] encodedMemberIds, String encodedGroupId);
 }

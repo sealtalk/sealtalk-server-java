@@ -321,7 +321,7 @@ public class UserController extends BaseController {
                                             HttpServletRequest request) throws ServiceException {
 
 
-        ValidateUtils.checkURL(portraitUri);
+        ValidateUtils.checkURLFormat(portraitUri);
         ValidateUtils.checkPortraitUri(portraitUri);
 
         Integer currentUserId = getCurrentUserId(request);

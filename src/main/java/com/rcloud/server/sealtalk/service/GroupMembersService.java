@@ -137,4 +137,37 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
                 .andEqualTo("memberId", memberId);
         return this.getOneByExample(example);
     }
+
+    /**
+     * 根据groupId、userId 更新群组角色信息
+     *
+     * @param groupId
+     * @param memberId
+     * @param groupRole
+     * @param timestamp
+     */
+    public void updateRoleAndTimestamp(Integer groupId, Integer memberId, GroupRole groupRole, long timestamp) {
+        GroupMembers groupMembers = new GroupMembers();
+        groupMembers.setRole(groupRole.getCode());
+        groupMembers.setTimestamp(timestamp);
+        Example example = new Example(GroupMembers.class);
+        example.createCriteria().andEqualTo("groupId", groupId)
+                .andEqualTo("memberId", memberId);
+        this.updateByExampleSelective(groupMembers, example);
+    }
+
+    /**
+     * 更新isDelete字段 TODO
+     * @param groupId
+     * @param memberId
+     * @param isDeleted
+     */
+    public void updateDeleteStatus(Integer groupId, Integer memberId, boolean isDeleted) {
+    }
+
+    public void updateDeleteStatusAndRole(Integer groupId, Integer memberId, GroupRole role, long timestamp, boolean isDelete) {
+    }
+
+    public void updateDeleteStatus(Integer groupId, boolean isDelete,long timestamp) {
+    }
 }

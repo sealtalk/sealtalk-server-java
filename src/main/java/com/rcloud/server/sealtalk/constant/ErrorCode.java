@@ -72,6 +72,15 @@ public enum ErrorCode {
     NO_PERMISSION(20001,"No permission"),
     NOT_GROUP_MEMBER_2(403,"Only group member can get group member info."),
     INVALID_DISPLAY_NAME_LENGTH(400,"Length of display name invalid."),
+    INVALID_GROUP_PORTRAITURI_LENGTH(400,"Length of portraitUri invalid."),
+    GROUP_OR_CREATOR_UNKNOW(400,"Unknown group or not creator."),
+    NO_GROUP_BULLETIN(402,"No group bulletin."),
+    INVALID_GROUP_BULLETIN(400,"Length of bulletin invalid."),
+    ALREADY_EXISTS_GROUP(405,"Group already exists."),
+    TRANSFER_TO_CREATOR_ERROR(403,"Can not transfer creator role to yourself."),
+    INVALID_GROUPID_USERID(403,"Invalid groupId or userId."),
+    DISMISS_ERROR(500,"Quit failed on IM server."),
+    NOT_GROUP_MEMBER_3(403,"Current user is not group member."),
 
 
     //yunpian error 云片服务错误，错误码3000 开头

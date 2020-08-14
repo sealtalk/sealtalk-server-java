@@ -321,7 +321,7 @@ public class UserManager extends BaseManager {
         if (StringUtils.isEmpty(token)) {
             //如果user表中的融云token为空，
             //调用融云sdk 获取token
-            TokenResult tokenResult = rongCloudClient.register(u.getId(), u.getNickname(), u.getPortraitUri());
+            TokenResult tokenResult = rongCloudClient.register(N3d.encode(u.getId()), u.getNickname(), u.getPortraitUri());
             token = tokenResult.getToken();
 
             //获取后根据userId更新表中token
@@ -408,7 +408,7 @@ public class UserManager extends BaseManager {
         usersService.updateByPrimaryKeySelective(users);
 
         //调用融云刷新用户信息
-        rongCloudClient.updateUser(currentUserId, nickname, null);
+        rongCloudClient.updateUser(N3d.encode(currentUserId), nickname, null);
 
         //缓存用户昵称
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + currentUserId, nickname);
@@ -430,7 +430,7 @@ public class UserManager extends BaseManager {
         usersService.updateByPrimaryKeySelective(users);
 
         //调用融云刷新用户信息
-        rongCloudClient.updateUser(currentUserId, null, portraitUri);
+        rongCloudClient.updateUser(N3d.encode(currentUserId), null, portraitUri);
 
         //清空缓存、更新版本
         clearCacheAndUpdateVersion(currentUserId);
@@ -494,7 +494,7 @@ public class UserManager extends BaseManager {
         Users user = usersService.getByPrimaryKey(currentUserId);
 
         //调用融云用户注册接口，获取token
-        TokenResult tokenResult = rongCloudClient.register(user.getId(), user.getNickname(), user.getPortraitUri());
+        TokenResult tokenResult = rongCloudClient.register(N3d.encode(user.getId()), user.getNickname(), user.getPortraitUri());
         String token = tokenResult.getToken();
 
         //根据userId更新本地数据users表中rongCloudToken
@@ -532,7 +532,7 @@ public class UserManager extends BaseManager {
         List<BlackLists> dbBlackLists = blackListsService.getByExample(example);
 
         //调用融云服务接口获取黑名单
-        BlackListResult blackListResult = rongCloudClient.queryBlackList(currentUserId);
+        BlackListResult blackListResult = rongCloudClient.queryUserBlackList(N3d.encode(currentUserId));
 
         UserModel[] serverBlackList = blackListResult.getUsers();
 
@@ -651,7 +651,7 @@ public class UserManager extends BaseManager {
 
         String[] blackFriendIds = {encodedFriendId};
         //调用融云服务接口新增黑名单
-        rongCloudClient.addBlackList(currentUserId, blackFriendIds);
+        rongCloudClient.addUserBlackList(N3d.encode(currentUserId), blackFriendIds);
 
         //将黑名单信息插入或更新本地数据库
         blackListsService.saveOrUpdate(currentUserId, friendId, true, System.currentTimeMillis());
@@ -704,7 +704,7 @@ public class UserManager extends BaseManager {
 
         String[] blackFriendIds = {encodedFriendId};
         //调用融云服务接口移除黑名单
-        rongCloudClient.removeBlackList(currentUserId, blackFriendIds);
+        rongCloudClient.removeUserBlackList(N3d.encode(currentUserId), blackFriendIds);
 
         //更新本地Blacklist 表，设置记录状态status为false
         BlackLists blackLists = new BlackLists();

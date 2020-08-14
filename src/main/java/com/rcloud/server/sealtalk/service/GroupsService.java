@@ -23,4 +23,34 @@ public class GroupsService extends AbstractBaseService<Groups, Integer> {
     protected Mapper<Groups> getMapper() {
         return mapper;
     }
+
+    /**
+     * 根据groupId更新群成员数量
+     * @param groupId
+     * @param memberCount
+     * @param timestamp
+     */
+    public void updateMemberCount(Integer groupId, int memberCount, long timestamp) {
+        Groups groups = new Groups();
+        groups.setId(groupId);
+        groups.setMemberCount(memberCount);
+        groups.setTimestamp(timestamp);
+        this.updateByPrimaryKeySelective(groups);
+    }
+
+    /**
+     * 更新memberCount 和creatorId
+     * @param groupId
+     * @param memberCount
+     * @param timestamp
+     * @param creatorId
+     */
+    public void updateMemberCountAndCreatorId(Integer groupId, int memberCount, long timestamp, Integer creatorId) {
+        Groups groups = new Groups();
+        groups.setId(groupId);
+        groups.setMemberCount(memberCount);
+        groups.setTimestamp(timestamp);
+        groups.setCreatorId(creatorId);
+        this.updateByPrimaryKeySelective(groups);
+    }
 }

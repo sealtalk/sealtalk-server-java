@@ -3,10 +3,7 @@ package com.rcloud.server.sealtalk.controller;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
-import com.rcloud.server.sealtalk.domain.GroupExitedLists;
-import com.rcloud.server.sealtalk.domain.GroupMembers;
-import com.rcloud.server.sealtalk.domain.GroupReceivers;
-import com.rcloud.server.sealtalk.domain.Groups;
+import com.rcloud.server.sealtalk.domain.*;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.GroupManager;
 import com.rcloud.server.sealtalk.model.dto.*;
@@ -135,6 +132,199 @@ public class GroupController extends BaseController {
 //
 //    }
 
+    @ApiOperation(value = "解散群组")
+    @RequestMapping(value = "/用户退出群组", method = RequestMethod.POST)
+    public APIResult<?> quitGroup(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "encodedGroupId", value = "编码群组ID", required = true, type = "String", example = "86")
+            @RequestParam String encodedGroupId,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+        ValidateUtils.notEmpty(encodedGroupId);
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        String resultMessage = groupManager.quitGroup(currentUserId, Integer.valueOf(groupId), encodedGroupId);
+        return APIResultWrap.ok(resultMessage);
+    }
+
+
+    @ApiOperation(value = "解散群组")
+    @RequestMapping(value = "/dismiss", method = RequestMethod.POST)
+    public APIResult<?> dismiss(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "encodedGroupId", value = "编码群组ID", required = true, type = "String", example = "86")
+            @RequestParam String encodedGroupId,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+        ValidateUtils.notEmpty(encodedGroupId);
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        groupManager.dismiss(currentUserId, Integer.valueOf(groupId), encodedGroupId);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "转让群主")
+    @RequestMapping(value = "/transfer", method = RequestMethod.POST)
+    public APIResult<?> transfer(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "userId", value = "用户ID", required = true, type = "String", example = "86")
+            @RequestParam String userId,
+            @ApiParam(name = "encodedUserId", value = "编码用户ID", required = true, type = "String", example = "86")
+            @RequestParam String encodedUserId,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+        ValidateUtils.notEmpty(userId);
+        ValidateUtils.notEmpty(encodedUserId);
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        groupManager.transfer(currentUserId, Integer.valueOf(groupId), Integer.valueOf(userId), encodedUserId);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "批量删除管理员")
+    @RequestMapping(value = "/set_manager", method = RequestMethod.POST)
+    public APIResult<?> batchSetManager(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "memberIds", value = "删除管理员权限的用户列表", required = true, type = "Array", example = "86")
+            @RequestParam String[] memberIds,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+        ValidateUtils.notEmpty(memberIds);
+
+        Integer currentUserId = getCurrentUserId(request);
+        Integer[] memberIdsInt = MiscUtils.covertString2Int(memberIds);
+        String[] encodedMemberIds = MiscUtils.encodeIds(memberIds);
+        groupManager.batchSetManager(currentUserId, Integer.valueOf(groupId), memberIdsInt, encodedMemberIds);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "批量删除管理员")
+    @RequestMapping(value = "/remove_manager", method = RequestMethod.POST)
+    public APIResult<?> batchRemoveManager(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "memberIds", value = "删除管理员权限的用户列表", required = true, type = "Array", example = "86")
+            @RequestParam String[] memberIds,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+        ValidateUtils.notEmpty(memberIds);
+
+        Integer currentUserId = getCurrentUserId(request);
+        Integer[] memberIdsInt = MiscUtils.covertString2Int(memberIds);
+        String[] encodedMemberIds = MiscUtils.encodeIds(memberIds);
+        groupManager.batchRemoveManager(currentUserId, Integer.valueOf(groupId), memberIdsInt, encodedMemberIds);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "群组重命名")
+    @RequestMapping(value = "/rename", method = RequestMethod.POST)
+    public APIResult<?> rename(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "encodedGroupId", value = "编码群组ID", required = true, type = "String", example = "86")
+            @RequestParam String encodedGroupId,
+            @ApiParam(name = "name", value = "名称", required = true, type = "String", example = "86")
+            @RequestParam String name,
+            HttpServletRequest request) throws ServiceException {
+
+
+        name = MiscUtils.xss(name, ValidateUtils.GROUP_NAME_MAX_LENGTH);
+        ValidateUtils.checkGroupName(name);
+
+        Integer currentUserId = getCurrentUserId(request);
+        groupManager.rename(currentUserId, Integer.valueOf(groupId), name, encodedGroupId);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "保存群组至通讯录")
+    @RequestMapping(value = "/fav", method = RequestMethod.POST)
+    public APIResult<?> fav(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+
+        Integer currentUserId = getCurrentUserId(request);
+        groupManager.fav(currentUserId, Integer.valueOf(groupId));
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "发布群公告")
+    @RequestMapping(value = "/set_bulletin", method = RequestMethod.GET)
+    public APIResult<?> setBulletin(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "bulletin", value = "群公告内容", required = true, type = "String", example = "86")
+            @RequestParam String bulletin,
+            @ApiParam(name = "content", value = "群公告内容2", required = true, type = "String", example = "86")
+            @RequestParam String content,
+            HttpServletRequest request) throws ServiceException {
+
+        bulletin = bulletin == null ? content : bulletin;
+        ValidateUtils.notNull(bulletin);
+
+        bulletin = MiscUtils.xss(bulletin, ValidateUtils.GROUP_BULLETIN_MAX_LENGTH);
+        ValidateUtils.checkGroupBulletion(bulletin);
+
+        Integer currentUserId = getCurrentUserId(request);
+        groupManager.setBulletin(currentUserId, Integer.valueOf(groupId), bulletin);
+        return APIResultWrap.ok("");
+    }
+
+    @ApiOperation(value = "获取群公告")
+    @RequestMapping(value = "/get_bulletin", method = RequestMethod.GET)
+    public APIResult<?> getBulletin(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        GroupBulletins groupBulletins = groupManager.getBulletin(currentUserId, N3d.decode(groupId));
+        if (groupBulletins == null) {
+            throw new ServiceException(ErrorCode.NO_GROUP_BULLETIN);
+        }
+        GroupBulletinsDTO dto = new GroupBulletinsDTO();
+        BeanUtils.copyProperties(groupBulletins, dto);
+        return APIResultWrap.ok(dto);
+    }
+
+    @ApiOperation(value = "设置群头像")
+    @RequestMapping(value = "/set_portrait_uri", method = RequestMethod.POST)
+    public APIResult<?> setGroupPortraitUri(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "portraitUri", value = "群头像地址, 长度不能超过 256 个字符  ", required = true, type = "String", example = "86")
+            @RequestParam String portraitUri,
+            HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.notEmpty(groupId);
+
+        ValidateUtils.checkURLFormat(portraitUri);
+        portraitUri = MiscUtils.xss(portraitUri, ValidateUtils.PORTRAIT_URI_MAX_LENGTH);
+        ValidateUtils.checkGroupPortraitUri(portraitUri);
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        groupManager.setGroupPortraitUri(currentUserId, N3d.decode(groupId), portraitUri);
+        return APIResultWrap.ok("");
+    }
+
     @ApiOperation(value = "设置自己的群名片")
     @RequestMapping(value = "/set_display_name", method = RequestMethod.POST)
     public APIResult<?> setDisplayName(
@@ -151,7 +341,7 @@ public class GroupController extends BaseController {
 
         Integer currentUserId = getCurrentUserId(request);
 
-        groupManager.setDisPlayName(currentUserId,N3d.decode(groupId),displayName);
+        groupManager.setDisPlayName(currentUserId, N3d.decode(groupId), displayName);
         return APIResultWrap.ok("");
     }
 
@@ -166,8 +356,8 @@ public class GroupController extends BaseController {
 
         Integer currentUserId = getCurrentUserId(request);
 
-        Groups group = groupManager.getGroupInfo(currentUserId,N3d.decode(groupId));
-        Object object = MiscUtils.encodeResults(group,"id","creatorId");
+        Groups group = groupManager.getGroupInfo(currentUserId, N3d.decode(groupId));
+        Object object = MiscUtils.encodeResults(group, "id", "creatorId");
         return APIResultWrap.ok(object);
     }
 
@@ -181,9 +371,9 @@ public class GroupController extends BaseController {
 
         Integer currentUserId = getCurrentUserId(request);
 
-        List<GroupMembers> groupMembersList = groupManager.getGroupMembers(currentUserId,N3d.decode(groupId));
+        List<GroupMembers> groupMembersList = groupManager.getGroupMembers(currentUserId, N3d.decode(groupId));
 
-        Object object = MiscUtils.encodeResults(groupMembersList,"users.id");
+        Object object = MiscUtils.encodeResults(groupMembersList, "users.id");
         String result = MiscUtils.addUpdateTimeToList(JacksonUtil.toJson(object));
 
         //TODO
@@ -201,11 +391,11 @@ public class GroupController extends BaseController {
     ) throws ServiceException {
 
         ValidateUtils.notEmpty(groupId);
-        ValidateUtils.inRange(certiStatus,ImmutableList.of(0,1));
+        ValidateUtils.valueOf(certiStatus, ImmutableList.of(0, 1));
 
         Integer currentUserId = getCurrentUserId(request);
 
-        groupManager.setCertification(currentUserId,Integer.valueOf(groupId),certiStatus);
+        groupManager.setCertification(currentUserId, Integer.valueOf(groupId), certiStatus);
         return APIResultWrap.ok("");
     }
 
@@ -217,31 +407,31 @@ public class GroupController extends BaseController {
 
         List<GroupReceivers> groupReceiversList = groupManager.getNoticeInfo(currentUserId);
         List<GroupReceiverDTO> groupReceiverDTOList = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(groupReceiversList)){
-            for(GroupReceivers groupReceivers:groupReceiversList){
-                GroupReceiverDTO dto =new GroupReceiverDTO();
+        if (!CollectionUtils.isEmpty(groupReceiversList)) {
+            for (GroupReceivers groupReceivers : groupReceiversList) {
+                GroupReceiverDTO dto = new GroupReceiverDTO();
                 dto.setId(N3d.encode(groupReceivers.getId()));
                 dto.setCreatedTime(groupReceivers.getCreatedAt());
                 dto.setStatus(groupReceivers.getStatus());
                 dto.setType(groupReceivers.getType());
-                Map<String,Object> group = Maps.newHashMap();
-                Map<String,Object> receiver = Maps.newHashMap();
-                Map<String,Object> requester = Maps.newHashMap();
-                if(groupReceivers.getGroup()!=null){
+                Map<String, Object> group = Maps.newHashMap();
+                Map<String, Object> receiver = Maps.newHashMap();
+                Map<String, Object> requester = Maps.newHashMap();
+                if (groupReceivers.getGroup() != null) {
                     group.put("id", N3d.encode(groupReceivers.getGroup().getId()));
-                    group.put("name",groupReceivers.getGroup().getName());
+                    group.put("name", groupReceivers.getGroup().getName());
 
                 }
                 dto.setGroup(group);
 
-                if(groupReceivers.getReceiver()!=null){
-                    receiver.put("id",N3d.encode(groupReceivers.getReceiver().getId()));
-                    receiver.put("nickname",groupReceivers.getReceiver().getNickname());
+                if (groupReceivers.getReceiver() != null) {
+                    receiver.put("id", N3d.encode(groupReceivers.getReceiver().getId()));
+                    receiver.put("nickname", groupReceivers.getReceiver().getNickname());
                 }
                 dto.setReceiver(receiver);
-                if(groupReceivers.getRequester()!=null){
-                    requester.put("id",N3d.encode(groupReceivers.getRequester().getId()));
-                    requester.put("nickname",groupReceivers.getRequester().getNickname());
+                if (groupReceivers.getRequester() != null) {
+                    requester.put("id", N3d.encode(groupReceivers.getRequester().getId()));
+                    requester.put("nickname", groupReceivers.getRequester().getNickname());
                 }
                 dto.setRequester(requester);
                 groupReceiverDTOList.add(dto);
@@ -278,11 +468,11 @@ public class GroupController extends BaseController {
 
         ValidateUtils.notEmpty(groupId);
         ValidateUtils.notNull(muteStatus);
-        ValidateUtils.inRange(muteStatus,ImmutableList.of(0,1));
+        ValidateUtils.valueOf(muteStatus, ImmutableList.of(0, 1));
 
         Integer currentUserId = getCurrentUserId(request);
 
-        groupManager.setMuteAll(currentUserId,Integer.valueOf(groupId),muteStatus,userId);
+        groupManager.setMuteAll(currentUserId, Integer.valueOf(groupId), muteStatus, userId);
 
         return APIResultWrap.ok("");
     }
@@ -298,11 +488,11 @@ public class GroupController extends BaseController {
     ) throws ServiceException {
 
         ValidateUtils.notEmpty(groupId);
-        ValidateUtils.inRange(clearStatus,ImmutableList.of(0,3,7,36));
+        ValidateUtils.valueOf(clearStatus, ImmutableList.of(0, 3, 7, 36));
 
         Integer currentUserId = getCurrentUserId(request);
 
-        groupManager.setRegularClear(currentUserId,groupId,clearStatus);
+        groupManager.setRegularClear(currentUserId, groupId, clearStatus);
 
         return APIResultWrap.ok("");
     }
@@ -418,7 +608,7 @@ public class GroupController extends BaseController {
     ) throws ServiceException {
 
         ValidateUtils.notEmpty(groupId);
-        ValidateUtils.inRange(memberProtection, ImmutableList.of(0, 1));
+        ValidateUtils.valueOf(memberProtection, ImmutableList.of(0, 1));
 
         Integer currentUserId = getCurrentUserId(request);
         groupManager.setMemberProtection(currentUserId, Integer.valueOf(groupId), memberProtection);

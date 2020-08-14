@@ -2,7 +2,6 @@ package com.rcloud.server.sealtalk.rongcloud;
 
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import com.rcloud.server.sealtalk.util.N3d;
 import io.rong.RongCloud;
 import io.rong.methods.message._private.Private;
 import io.rong.methods.message.chatroom.Chatroom;
@@ -65,13 +64,13 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
 
     @Override
-    public TokenResult register(int id, String name, String portrait) throws ServiceException {
+    public TokenResult register(String encodeId, String name, String portrait) throws ServiceException {
 
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<TokenResult>() {
             @Override
             public TokenResult doInvoker() throws Exception {
                 UserModel user = new UserModel()
-                        .setId(N3d.encode(id)) //n3d编码id
+                        .setId(encodeId)
                         .setName(name)
                         .setPortrait(portrait);
 
@@ -81,13 +80,13 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public Result updateUser(int id, String name, String portrait) throws ServiceException {
+    public Result updateUser(String encodeId, String name, String portrait) throws ServiceException {
 
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
                 UserModel user = new UserModel()
-                        .setId(N3d.encode(id)) //n3d编码id
+                        .setId(encodeId)
                         .setName(name)
                         .setPortrait(portrait);
 
@@ -98,12 +97,12 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public UserResult getUserInfo(int id) throws ServiceException {
+    public UserResult getUserInfo(String encodeId) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<UserResult>() {
             @Override
             public UserResult doInvoker() throws Exception {
                 UserModel user = new UserModel()
-                        .setId(N3d.encode(id)); //n3d编码id
+                        .setId(encodeId); //n3d编码id
 
                 return User.get(user);
             }
@@ -111,19 +110,19 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public Result addBlackList(int id, String[] blackUserIds) throws ServiceException {
+    public Result addUserBlackList(String encodeId, String[] encodeBlackUserIds) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
 
-                UserModel[] blacklist = new UserModel[blackUserIds.length];
+                UserModel[] blacklist = new UserModel[encodeBlackUserIds.length];
                 int i = 0;
-                for (String blackUserId : blackUserIds) {
+                for (String blackUserId : encodeBlackUserIds) {
                     UserModel userModel = new UserModel().setId(blackUserId);
                     blacklist[i++] = userModel;
                 }
                 UserModel user = new UserModel()
-                        .setId(N3d.encode(id))
+                        .setId(encodeId)
                         .setBlacklist(blacklist);
 
                 return BlackList.add(user);
@@ -132,12 +131,12 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public BlackListResult queryBlackList(int id) throws ServiceException {
+    public BlackListResult queryUserBlackList(String encodeId) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<BlackListResult>() {
             @Override
             public BlackListResult doInvoker() throws Exception {
 
-                UserModel user = new UserModel().setId(N3d.encode(id));
+                UserModel user = new UserModel().setId(encodeId);
 
                 return BlackList.getList(user);
 
@@ -147,19 +146,19 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
 
     @Override
-    public Result removeBlackList(int id, String[] blackUserIds) throws ServiceException {
+    public Result removeUserBlackList(String encodeId, String[] encodeBlackUserIds) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
 
-                UserModel[] blacklist = new UserModel[blackUserIds.length];
+                UserModel[] blacklist = new UserModel[encodeBlackUserIds.length];
                 int i = 0;
-                for (String blackUserId : blackUserIds) {
+                for (String blackUserId : encodeBlackUserIds) {
                     UserModel userModel = new UserModel().setId(blackUserId);
                     blacklist[i++] = userModel;
                 }
                 UserModel user = new UserModel()
-                        .setId(N3d.encode(id))
+                        .setId(encodeId)
                         .setBlacklist(blacklist);
 
                 return BlackList.remove(user);
@@ -168,10 +167,10 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public void sendContactNotification(Integer currentUserId, String currentUserNickName, Integer friendId, String contactOperationType, String message, long timestamp) {
+    public void sendContactNotification(String encodeCurrentUserId, String currentUserNickName, String encodeFriendId, String contactOperationType, String message, long timestamp) {
         //TODO
-        return;
     }
+
 
     @Override
     public ResponseResult sendPrivateMessage(PrivateMessage privateMessage) throws ServiceException {
@@ -203,6 +202,31 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
     @Override
     public Result joinGroup(String[] memberIds, String groupId, String groupName) {
+        return null;
+    }
+
+    @Override
+    public Result refreshGroupName(String encodedGroupId, String name) {
+        return null;
+    }
+
+    @Override
+    public Result removeGroupWhiteList(String encode, String[] encodedMemberIds) {
+        return null;
+    }
+
+    @Override
+    public Result addGroupWhitelist(String encodedGroupId, String[] encodedMemberIds) {
+        return null;
+    }
+
+    @Override
+    public Result dismiss(String encodeUserId, String encodedGroupId) {
+        return null;
+    }
+
+    @Override
+    public Result quitGroup(String[] encodedMemberIds, String encodedGroupId) {
         return null;
     }
 }

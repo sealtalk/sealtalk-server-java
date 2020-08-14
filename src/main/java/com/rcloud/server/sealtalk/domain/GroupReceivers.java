@@ -1,9 +1,15 @@
 package com.rcloud.server.sealtalk.domain;
 
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
+/**
+ * 组信息接收者
+ * （群主，管理员）？
+ */
 @Table(name = "group_receivers")
 public class GroupReceivers implements Serializable {
 

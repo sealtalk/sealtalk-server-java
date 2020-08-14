@@ -40,4 +40,8 @@ public class GroupExitedListsService extends AbstractBaseService<GroupExitedList
         this.deleteByExample(example);
 
     }
+
+    //TODO
+    public void saveOrUpdate(Integer groupId, Integer currentUserId, int kickStatus) {
+    }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -44,10 +45,6 @@ public class ValidateUtils {
     public static final int MAX_USER_GROUP_OWN_COUNT = 500;
 
 
-
-
-
-
     public static void notNull(Object o) throws ServiceException {
         if (o == null) {
             throw new ServiceException(ErrorCode.PARAM_ERROR);
@@ -56,6 +53,12 @@ public class ValidateUtils {
 
     public static void notEmpty(String str) throws ServiceException {
         if (StringUtils.isEmpty(str)) {
+            throw new ServiceException(ErrorCode.PARAM_ERROR);
+        }
+    }
+
+    public static void notEmpty(String[] str) throws ServiceException {
+        if (str==null || str.length==0) {
             throw new ServiceException(ErrorCode.PARAM_ERROR);
         }
     }
@@ -113,7 +116,7 @@ public class ValidateUtils {
         }
     }
 
-    public static void checkURL(String portraitUri) throws ServiceException {
+    public static void checkURLFormat(String portraitUri) throws ServiceException {
 
         if (!RegexUtils.checkURL(portraitUri)) {
             throw new ServiceException(ErrorCode.INVALID_PORTRAITURI_FORMAT);
@@ -181,7 +184,7 @@ public class ValidateUtils {
 
     public static boolean isLength(String str, int minLength, int maxLength) throws ServiceException {
         if (str == null || maxLength < minLength || maxLength <= 0 || minLength < 0) {
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
         }
 
         return (str.length() >= minLength && str.length() <= maxLength);
@@ -206,14 +209,13 @@ public class ValidateUtils {
     }
 
 
-
     /**
      * 判断 value是否在rangeList 区间范围内
      *
      * @param value
      * @param rangeList
      */
-    public static <T> void inRange(T value, List<T> rangeList) throws ServiceException {
+    public static <T> void valueOf(T value, List<T> rangeList) throws ServiceException {
         if (value == null || !rangeList.contains(value)) {
             throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
         }
@@ -221,10 +223,32 @@ public class ValidateUtils {
 
     public static void checkGroupDisplayName(String displayName) throws ServiceException {
 
-        if(StringUtils.isEmpty(displayName) || displayName.length()>GROUP_MEMBER_DISPLAY_NAME_MAX_LENGTH){
+        if (StringUtils.isEmpty(displayName) || displayName.length() > GROUP_MEMBER_DISPLAY_NAME_MAX_LENGTH) {
             throw new ServiceException(ErrorCode.INVALID_DISPLAY_NAME_LENGTH);
         }
 
 
+    }
+
+    /**
+     * 验证群头像地址
+     *
+     * @param portraitUri
+     */
+    public static void checkGroupPortraitUri(String portraitUri) throws ServiceException {
+        if (!isLength(portraitUri, PORTRAIT_URI_MIN_LENGTH, PORTRAIT_URI_MAX_LENGTH)) {
+            throw new ServiceException(ErrorCode.INVALID_GROUP_PORTRAITURI_LENGTH);
+        }
+    }
+
+    /**
+     * 群公告校验
+     * @param bulletin
+     */
+    public static void checkGroupBulletion(String bulletin) throws ServiceException {
+
+        if(bulletin==null || bulletin.length()>GROUP_BULLETIN_MAX_LENGTH ){
+            throw new ServiceException(ErrorCode.INVALID_GROUP_BULLETIN);
+        }
     }
 }

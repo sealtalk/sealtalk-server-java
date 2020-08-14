@@ -11,6 +11,7 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -251,5 +252,30 @@ public class MiscUtils {
      */
     public static String[] one2Array(String str) {
         return new String[]{str};
+    }
+
+    public static String[] encodeIds(String[] ids) throws ServiceException {
+        if(ArrayUtils.isNotEmpty(ids)){
+            String[] result = new String[ids.length];
+
+            for(int i=0;i<ids.length;i++){
+                result[i] = N3d.encode(Integer.valueOf(ids[i]));
+            }
+
+            return result;
+        }
+        return null;
+    }
+
+    public static Integer[] covertString2Int(String[] memberIds) {
+
+        if(memberIds!=null){
+            Integer[] v = new Integer[memberIds.length];
+            for(int i=0;i<memberIds.length;i++){
+                v[i] = Integer.valueOf(memberIds[i]);
+            }
+            return v;
+        }
+        return null;
     }
 }
