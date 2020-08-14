@@ -110,30 +110,35 @@ public class GroupController extends BaseController {
 
         return APIResultWrap.ok("");
     }
-//
-//    @ApiOperation(value = "用户加入群组")
-//    @RequestMapping(value = "/kickMemberOfGroup", method = RequestMethod.POST)
-//    public APIResult<Object> kickMemberOfGroup(
-//            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
-//            @RequestParam String groupId,
-//            @ApiParam(name = "memberIds", value = "userId 列表", required = true, type = "String", example = "18811111111")
-//            @RequestParam String[] memberIds,
-//            HttpServletRequest request
-//    ) throws ServiceException {
-//
-//        ValidateUtils.notEmpty(groupId);
-//        ValidateUtils.notNull(memberIds);
-//
-//        Integer currentUserId = getCurrentUserId(request);
-////        groupManager.kickMemberOfGroup(currentUserId, Integer.valueOf(groupId), encodedGroupId);
-//
-//        return APIResultWrap.ok("");
-//
-//
-//    }
+
+    @ApiOperation(value = "群主或群管理将群成员移出群组")
+    @RequestMapping(value = "/kick", method = RequestMethod.POST)
+    public APIResult<Object> kickMember(
+            @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
+            @RequestParam String groupId,
+            @ApiParam(name = "memberIds", value = "userId 列表", required = true, type = "Array", example = "18811111111")
+            @RequestParam String[] memberIds,
+            @ApiParam(name = "encodeGroupId", value = "编码群组ID", required = true, type = "String", example = "86")
+            @RequestParam String encodeGroupId,
+            @ApiParam(name = "encodeMemberIds", value = "编码userId 列表", required = true, type = "Array", example = "18811111111")
+            @RequestParam String[] encodeMemberIds,
+            HttpServletRequest request
+    ) throws ServiceException {
+        ValidateUtils.notEmpty(groupId);
+        ValidateUtils.notEmpty(memberIds);
+        ValidateUtils.notEmpty(encodeGroupId);
+        ValidateUtils.notEmpty(encodeMemberIds);
+
+        Integer currentUserId = getCurrentUserId(request);
+
+        groupManager.kickMember(currentUserId, Integer.valueOf(groupId), encodeGroupId,memberIds,encodeMemberIds);
+        return APIResultWrap.ok("");
+
+
+    }
 
     @ApiOperation(value = "解散群组")
-    @RequestMapping(value = "/用户退出群组", method = RequestMethod.POST)
+    @RequestMapping(value = "/quit", method = RequestMethod.POST)
     public APIResult<?> quitGroup(
             @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")
             @RequestParam String groupId,
@@ -613,6 +618,7 @@ public class GroupController extends BaseController {
         Integer currentUserId = getCurrentUserId(request);
         groupManager.setMemberProtection(currentUserId, Integer.valueOf(groupId), memberProtection);
         return APIResultWrap.ok("");
+
     }
 
 

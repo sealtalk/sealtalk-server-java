@@ -1219,7 +1219,7 @@ public class GroupManager extends BaseManager {
             Result result = rongCloudClient.dismiss(N3d.encode(currentUserId), encodedGroupId);
             if (result.getCode() != 200) {
                 log.error("Error: dismiss group failed on IM server, code: {},errorMessage: {}", result.getCode(), result.getErrorMessage());
-                throw new ServiceException(ErrorCode.DISMISS_ERROR);
+                throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
             } else {
                 dismiss0(currentUserId, groupId, timestamp);
                 //刷新数据版本
@@ -1270,7 +1270,7 @@ public class GroupManager extends BaseManager {
                 throw e;
             } else {
                 log.error("rongCloudClient dismiss error: " + e.getMessage(), e);
-                throw new ServiceException(ErrorCode.DISMISS_ERROR);
+                throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
             }
         }
     }
@@ -1377,13 +1377,13 @@ public class GroupManager extends BaseManager {
             result = rongCloudClient.quitGroup(encodedMemberIds, encodedGroupId);
         } catch (Exception e) {
             log.error("rongCloudClient quitGroup error: " + e.getMessage(), e);
-            throw new ServiceException(ErrorCode.DISMISS_ERROR);
+            throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
         }
 
 
         if (result != null && result.getCode() != 200) {
             log.error("Error: quit group failed on IM server, code: {}", result.getCode());
-            throw new ServiceException(ErrorCode.DISMISS_ERROR);
+            throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
         }
 
         //分三种情况处理   (1)-(2)-(3) 在同一个事务里
@@ -1403,7 +1403,7 @@ public class GroupManager extends BaseManager {
         groupFavsService.deleteByExample(example1);
 
         //保存或更新群组退出列表 TODO
-        groupExitedListsService.saveOrUpdate(groupId, currentUserId, 0);
+        groupExitedListsService.saveOrUpdate(groupId, currentUserId, currentUserId, 0);
 
 
         return resultMessage;
@@ -1434,5 +1434,140 @@ public class GroupManager extends BaseManager {
         }
 
         return resultMessage;
+    }
+
+    /**
+     * @param currentUserId
+     * @param groupId
+     * @param encodeGroupId
+     * @param memberIds
+     * @param encodeMemberIds
+     */
+    public void kickMember(Integer currentUserId, Integer groupId, String encodeGroupId, String[] memberIds, String[] encodeMemberIds) throws ServiceException {
+
+        long timestamp = System.currentTimeMillis();
+        if (ArrayUtils.contains(memberIds, currentUserId)) {
+            throw new ServiceException(ErrorCode.CAN_NOT_KICK_YOURSELF);
+        }
+
+        Groups groups = groupsService.getByPrimaryKey(groupId);
+
+        if (groups == null) {
+            throw new ServiceException(ErrorCode.GROUP_UNKNOWN_ERROR);
+        }
+
+        if (ArrayUtils.contains(memberIds, groups.getCreatorId())) {
+            throw new ServiceException(ErrorCode.CAN_NOT_KICK_CREATOR);
+        }
+
+        Example example = new Example(GroupMembers.class);
+        example.createCriteria().andEqualTo("groupId", groupId);
+
+        List<GroupMembers> groupMembersList = groupMembersService.getByExample(example);
+
+        Integer role = null;
+        if (!CollectionUtils.isEmpty(groupMembersList)) {
+            for (GroupMembers groupMembers : groupMembersList) {
+                if (groupMembers.getMemberId().equals(currentUserId)) {
+                    role = groupMembers.getRole();
+                }
+            }
+
+            if (!GroupRole.MANAGER.getCode().equals(role) && !GroupRole.CREATOR.getCode().equals(role)) {
+                throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER_3);
+            }
+        } else {
+            throw new ServiceException(ErrorCode.GROUP_MEMBER_EMPTY);
+        }
+
+        List<Integer> dbMemberIdList = new ArrayList<>();
+        for (GroupMembers groupMembers : groupMembersList) {
+            dbMemberIdList.add(groupMembers.getMemberId());
+        }
+
+        List<Integer> memberIdInts = new ArrayList<>();
+        for (String memberId : memberIds) {
+            if (StringUtils.isEmpty(memberId)) {
+                throw new ServiceException(ErrorCode.EMPTY_MEMBERID);
+            }
+            if (!dbMemberIdList.contains(Integer.valueOf(memberId))) {
+                throw new ServiceException(ErrorCode.CANT_NOT_KICK_NONE_MEMBER);
+            }
+            memberIdInts.add(Integer.valueOf(memberId));
+        }
+
+        kickMember0(groupId, memberIds, timestamp, groups);
+
+        //刷新GroupMemberVersion数据版本
+        dataVersionsService.updateGroupMemberVersion(groupId, timestamp);
+
+        String nickname = usersService.getCurrentUserNickNameWithCache(currentUserId);
+
+        List<Users> usersList = usersService.getUsers(memberIdInts);
+
+        List<String> nicknameList = new ArrayList<>();
+        for (Users u : usersList) {
+            nicknameList.add(u.getNickname());
+        }
+
+        //发送组通知消息
+        Map<String, Object> messageData = new HashMap<>();
+        messageData.put("operatorNickname", nickname);
+        messageData.put("targetUserIds", encodeMemberIds);
+        messageData.put("targetUserDisplayNames", nicknameList);
+        messageData.put("timestamp", timestamp);
+        sendGroupNotification(currentUserId, groupId, GroupNotificationType.GROUP_OPERATION_KICKED, messageData);
+
+        //调用融云退出接口
+        rongCloudClient.quitGroup(encodeMemberIds, encodeGroupId);
+
+        //调用融云退群接口
+        Result result = null;
+        try {
+            result = rongCloudClient.quitGroup(encodeMemberIds, encodeGroupId);
+        } catch (Exception e) {
+            log.error("rongCloudClient quitGroup error: " + e.getMessage(), e);
+            throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
+        }
+
+        if (result != null && result.getCode() != 200) {
+            log.error("Error: quit group failed on IM server, code: {}", result.getCode());
+            throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
+        }
+
+        //清除相关缓存
+        for (Integer memberId : memberIdInts) {
+            CacheUtil.delete(CacheUtil.USER_GROUP_CACHE_PREFIX + memberId);
+        }
+        CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
+        CacheUtil.delete(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX + groupId);
+
+        //删除groupFav
+        Example example1 = new Example(GroupFavs.class);
+        example1.createCriteria().andEqualTo("groupId", groupId)
+                .andEqualTo("memberId", memberIdInts);
+        groupFavsService.deleteByExample(example1);
+
+        //
+        for (Integer memberId : memberIdInts) {
+            groupExitedListsService.saveOrUpdate(groupId, memberId, currentUserId, 1);
+        }
+        return;
+
+    }
+
+    //TODO 事务
+    private void kickMember0(Integer groupId, String[] memberIds, long timestamp, Groups groups) {
+        groupsService.updateMemberCount(groupId, groups.getMemberCount() - memberIds.length, timestamp);
+
+        List<Integer> memberIdIntList = CollectionUtils.arrayToList(MiscUtils.covertString2Int(memberIds));
+
+        Example example1 = new Example(GroupMembers.class);
+        example1.createCriteria().andEqualTo("groupId", groupId)
+                .andIn("memberId", memberIdIntList);
+        GroupMembers groupMembers = new GroupMembers();
+        groupMembers.setDeleted(true);
+        groupMembers.setTimestamp(timestamp);
+        groupMembersService.updateByExampleSelective(groupMembers, example1);
     }
 }

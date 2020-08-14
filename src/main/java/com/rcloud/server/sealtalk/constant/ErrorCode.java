@@ -79,8 +79,13 @@ public enum ErrorCode {
     ALREADY_EXISTS_GROUP(405,"Group already exists."),
     TRANSFER_TO_CREATOR_ERROR(403,"Can not transfer creator role to yourself."),
     INVALID_GROUPID_USERID(403,"Invalid groupId or userId."),
-    DISMISS_ERROR(500,"Quit failed on IM server."),
+    QUIT_IM_SERVER_ERROR(500,"Quit failed on IM server."),
     NOT_GROUP_MEMBER_3(403,"Current user is not group member."),
+    CAN_NOT_KICK_YOURSELF(400,"Can not kick yourself."),
+    CAN_NOT_KICK_CREATOR(405,"Can not kick the host."),
+    GROUP_MEMBER_EMPTY(500,"Group member should not be empty, please check your database."),
+    EMPTY_MEMBERID(400,"Empty memberId."),
+    CANT_NOT_KICK_NONE_MEMBER(400,"Can not kick none-member from the group."),
 
 
     //yunpian error 云片服务错误，错误码3000 开头

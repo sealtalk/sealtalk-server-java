@@ -7,8 +7,10 @@ import com.rcloud.server.sealtalk.util.CacheUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author: xiuwei.nie
@@ -40,4 +42,10 @@ public class UsersService extends AbstractBaseService<Users, Integer> {
         return nickName;
     }
 
+    public List<Users> getUsers(List<Integer> ids) {
+        Example example = new Example(Users.class);
+        example.createCriteria().andIn("id",ids);
+        return this.getByExample(example);
+
+    }
 }

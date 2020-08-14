@@ -42,6 +42,17 @@ public class GroupExitedListsService extends AbstractBaseService<GroupExitedList
     }
 
     //TODO
-    public void saveOrUpdate(Integer groupId, Integer currentUserId, int kickStatus) {
+
+    /**
+     * 新增或修改退群列表
+     * <p>
+     * //退群有两种情况： 1、自己主动退出，2、 管理员踢
+     *
+     * @param groupId
+     * @param quitUserId
+     * @param operatorId
+     * @param kickStatus
+     */
+    public void saveOrUpdate(Integer groupId, Integer quitUserId, Integer operatorId, int kickStatus) {
     }
 }
