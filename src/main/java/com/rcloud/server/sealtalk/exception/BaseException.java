@@ -15,23 +15,27 @@ public class BaseException extends Exception {
 
     private int errorCode;
     private String errorMessage;
+    private int httpStatusCode;
 
     public BaseException(String message, ErrorCode errorCode) {
         super(message);
         this.errorCode = errorCode.getErrorCode();
         this.errorMessage = errorCode.getErrorMessage();
+        this.httpStatusCode = errorCode.getHttpStatusCode();
     }
 
     public BaseException(String message, ErrorCode errorCode, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode.getErrorCode();
         this.errorMessage = errorCode.getErrorMessage();
+        this.httpStatusCode = errorCode.getHttpStatusCode();
     }
 
-    public BaseException(String message, int errorCode,String errorMessage) {
+    public BaseException(String message, int errorCode,String errorMessage,int httpStatusCode) {
         super(message);
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
+        this.httpStatusCode=httpStatusCode;
     }
 
     public BaseException(String message, int errorCode,String errorMessage, Throwable cause) {

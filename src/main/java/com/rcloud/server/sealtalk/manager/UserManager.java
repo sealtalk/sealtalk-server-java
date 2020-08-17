@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.manager;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
@@ -14,6 +15,7 @@ import com.rcloud.server.sealtalk.sms.SmsServiceFactory;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthentication;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthenticationFactory;
 import com.rcloud.server.sealtalk.util.*;
+import io.micrometer.core.instrument.util.IOUtils;
 import io.rong.models.response.BlackListResult;
 import io.rong.models.response.TokenResult;
 import io.rong.models.user.UserModel;
@@ -21,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +33,7 @@ import tk.mybatis.mapper.entity.Example;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -73,6 +77,9 @@ public class UserManager extends BaseManager {
     @Resource
     private GroupFavsService groupFavsService;
 
+    @Value("classpath:region.json")
+    private org.springframework.core.io.Resource regionResource;
+
     /**
      * 向手机发送验证码
      */
@@ -84,15 +91,13 @@ public class UserManager extends BaseManager {
         }
         region = MiscUtils.removeRegionPrefix(region);
         ValidateUtils.checkRegion(region);
-        String completePhone = region + phone;
         ValidateUtils.checkCompletePhone(phone);
         VerificationCodes v = new VerificationCodes();
         v.setRegion(region);
         v.setPhone(phone);
         VerificationCodes verificationCodes = verificationCodesService.getOne(v);
         if (verificationCodes != null) {
-            Date limitDate = getLimitDate();
-            checkLimitDate(limitDate, verificationCodes);
+            checkLimitTime(verificationCodes);
         }
         if (SmsServiceType.YUNPIAN.equals(smsServiceType)) {
             check(serverApiParams);
@@ -107,62 +112,37 @@ public class UserManager extends BaseManager {
     private void upsertAndSendToSms(String region, String phone, SmsServiceType smsServiceType) throws ServiceException {
         if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
             //开发环境直接插入数据库，不调用短信接口
-            saveOrUpdate(region, phone, "");
+            verificationCodesService.saveOrUpdate(region, phone, "");
         } else {
             SmsService smsService = SmsServiceFactory.getSmsService(smsServiceType);
             String sessionId = smsService.sendVerificationCode(region, phone);
-            saveOrUpdate(region, phone, sessionId);
+            verificationCodesService.saveOrUpdate(region, phone, sessionId);
         }
     }
 
     /**
-     * 验证码添加或更新数据库
+     * 检查发送时间限制
+     * 开发环境间隔5秒后  可再次请求发送验证码
+     * 生产环境间隔1分钟后 可再次请求发送验证码
+     *
+     * @param verificationCodes
+     * @throws ServiceException
      */
-    private void saveOrUpdate(String region, String phone, String sessionId) {
-        VerificationCodes v = new VerificationCodes();
-        v.setRegion(region);
-        v.setPhone(phone);
-
-        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
-
-        if (verificationCodes == null) {
-            verificationCodes = new VerificationCodes();
-            verificationCodes.setRegion(region);
-            verificationCodes.setPhone(phone);
-            verificationCodes.setSessionId(sessionId);
-            //默认uuid str
-            verificationCodes.setToken(UUID.randomUUID().toString());
-            verificationCodes.setCreatedAt(new Date());
-            verificationCodes.setUpdatedAt(verificationCodes.getCreatedAt());
-            verificationCodesService.saveSelective(verificationCodes);
-        } else {
-            verificationCodes.setRegion(region);
-            verificationCodes.setPhone(phone);
-            verificationCodes.setSessionId(sessionId);
-            verificationCodes.setUpdatedAt(verificationCodes.getCreatedAt());
-            verificationCodesService.updateByPrimaryKeySelective(verificationCodes);
-        }
-    }
-
-    private void checkLimitDate(Date limitDate, VerificationCodes verificationCodes)
+    private void checkLimitTime(VerificationCodes verificationCodes)
             throws ServiceException {
-        long updatedTime = verificationCodes.getUpdatedAt().getTime();
-        long limitDateTime = limitDate.getTime();
-        if (limitDateTime < updatedTime) {
+
+        DateTime dateTime = new DateTime(new Date());
+        if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
+            dateTime = dateTime.minusSeconds(50);
+        } else {
+            dateTime = dateTime.minusMinutes(1);
+        }
+        Date limitDate = dateTime.toDate();
+
+        if(limitDate.before(verificationCodes.getUpdatedAt())){
             throw new ServiceException(ErrorCode.LIMIT_ERROR);
         }
     }
-
-    private Date getLimitDate() {
-        DateTime dateTime = new DateTime(new Date());
-        if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
-            dateTime.minusSeconds(5);
-        } else {
-            dateTime.minusMinutes(1);
-        }
-        return dateTime.toDate();
-    }
-
 
     private void check(ServerApiParams serverApiParams) throws ServiceException {
         String ip = serverApiParams.getRequestUriInfo().getIp();
@@ -621,8 +601,8 @@ public class UserManager extends BaseManager {
 
             return results;
 
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
     }
@@ -753,7 +733,7 @@ public class UserManager extends BaseManager {
 
     /**
      * 获取用户所属群组
-     *  -》先从缓存中获取，缓存中不存在查询db获取
+     * -》先从缓存中获取，缓存中不存在查询db获取
      *
      * @param currentUserId
      * @return
@@ -771,8 +751,8 @@ public class UserManager extends BaseManager {
         //TODO
         try {
             userGroups = JacksonUtil.toJson(MiscUtils.encodeResults(groupMembersList));
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
 
@@ -796,11 +776,12 @@ public class UserManager extends BaseManager {
 
     /**
      * 根据手机号查询用户信息
+     *
      * @param region
      * @param phone
      * @return
      */
-    public Users getUser(String region,String phone) {
+    public Users getUser(String region, String phone) {
         Users u = new Users();
         u.setRegion(region);
         u.setPhone(phone);
@@ -818,6 +799,7 @@ public class UserManager extends BaseManager {
 
     /**
      * 设置 SealTlk 号
+     *
      * @param currentUserId
      * @param stAccount
      * @throws ServiceException
@@ -847,8 +829,8 @@ public class UserManager extends BaseManager {
                     //TODO
                     try {
                         groupsList.add(JacksonUtil.toJson(MiscUtils.encodeResults(groupFavs.getGroups())));
-                    }catch (Exception e){
-                        log.error(e.getMessage(),e);
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
                         throw new ServiceException(ErrorCode.SERVER_ERROR);
                     }
                 }
@@ -865,14 +847,38 @@ public class UserManager extends BaseManager {
         //TODO
         try {
             return JacksonUtil.toJson(result);
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
     }
+
     //TODO
     private Object addUpdateTimeToList(List<String> groupsList) {
         return null;
+    }
+
+    /**
+     * 获取区域信息
+     *
+     * @return
+     * @throws ServiceException
+     */
+    public JsonNode getRegionList() throws ServiceException {
+        try {
+            String regionData = CacheUtil.get(CacheUtil.REGION_LIST_DATA);
+            if (!StringUtils.isEmpty(regionData)) {
+                return JacksonUtil.getJsonNode(regionData);
+            }
+            regionData = IOUtils
+                    .toString(regionResource.getInputStream(), StandardCharsets.UTF_8);
+            CacheUtil.set(CacheUtil.REGION_LIST_DATA, regionData);
+            return JacksonUtil.getJsonNode(regionData);
+        } catch (Exception e) {
+            log.error("get Region resource error:" + e.getMessage(), e);
+            throw new ServiceException(ErrorCode.INVALID_REGION_LIST);
+        }
+
     }
 }
 

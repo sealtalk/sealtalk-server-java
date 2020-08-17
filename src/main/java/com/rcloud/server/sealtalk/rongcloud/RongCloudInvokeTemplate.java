@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.rongcloud;
 
 
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.constant.HttpStatusCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import io.rong.models.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class RongCloudInvokeTemplate {
                     return (T) result;
                 } else {
                     log.error("invoke rongcloud exception,resultCode={},errorMessage={}", result.getCode(), result.getErrorMessage());
-                    throw new ServiceException(result.getCode(), "RongCloud Server API Error Code: " + result.getCode());
+                    throw new ServiceException(result.getCode(), "RongCloud Server API Error Code: " + result.getCode(), HttpStatusCode.CODE_200.getCode());
                 }
             } else {
                 throw new RuntimeException("invoker rongcloud server error");
@@ -33,7 +34,7 @@ public class RongCloudInvokeTemplate {
 
         } catch (Exception e) {
             log.error("调用融云服务异常：" + e.getMessage(), e);
-            throw new ServiceException(ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorCode(), ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorMessage() + e.getMessage());
+            throw new ServiceException(ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorCode(), ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorMessage() + e.getMessage(),HttpStatusCode.CODE_200.getCode());
         }
     }
 }

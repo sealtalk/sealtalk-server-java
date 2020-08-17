@@ -27,6 +27,7 @@ public class CacheUtil {
     public static final String LAST_UPDATE_VERSION_INFO = "last_update_version_info";
     public static final String CLIENT_VERSION_INFO = "client_version_info";
     public static final String MOBILE_VERSION_INFO = "mobile_version_info";
+    public static final String REGION_LIST_DATA = "region_list_data";
 
 
 

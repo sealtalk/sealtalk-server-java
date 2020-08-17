@@ -63,17 +63,16 @@ public class ValidateUtils {
         }
     }
 
-    //TODO
     public static void checkCompletePhone(String completePhone) throws ServiceException {
 
         if (!RegexUtils.checkMobile(completePhone)) {
-            throw new ServiceException(ErrorCode.REQUEST_ERROR, "Invalid region and phone number.");
+            throw new ServiceException(ErrorCode.INVALID_REGION_PHONE);
         }
     }
 
     public static void checkRegion(String region) throws ServiceException {
         if (!Constants.REGION_NUM.equals(region)) {
-            throw new ServiceException(ErrorCode.REQUEST_ERROR, "Invalid region and phone number.");
+            throw new ServiceException(ErrorCode.INVALID_REGION_PHONE);
         }
     }
 

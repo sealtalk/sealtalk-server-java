@@ -57,7 +57,7 @@ public class JacksonUtil {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            return mapper.writeValueAsString(object);
+            return objectMapper.writeValueAsString(object);
         } catch (IOException e) {
             throw new ServiceException(ErrorCode.SERVER_ERROR,e.getMessage());
         }

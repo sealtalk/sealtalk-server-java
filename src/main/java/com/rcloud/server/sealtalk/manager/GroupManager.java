@@ -17,6 +17,7 @@ import io.rong.models.Result;
 import io.rong.models.message.GroupMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -1075,7 +1076,7 @@ public class GroupManager extends BaseManager {
                     groupReceiversService.deleteByMemberIds(groupId, memberIds);
                 } else {
                     log.error("invoke rongCloudClient removeWhiteList error,result.code={}", result.getCode());
-                    throw new ServiceException(result.getCode(), result.getErrorMessage());
+                    throw new ServiceException(result.getCode(), result.getErrorMessage(), HttpStatusCode.CODE_200.getCode());
                 }
             } catch (Exception e) {
                 log.error("Error: remove group whitelist failed on IM server, error: {}" + e.getMessage(), e);
@@ -1132,7 +1133,7 @@ public class GroupManager extends BaseManager {
                 return;
             } else {
                 log.error("invoke rongCloudClient addWhitelist error,result.code={}", result.getCode());
-                throw new ServiceException(result.getCode(), result.getErrorMessage());
+                throw new ServiceException(result.getCode(), result.getErrorMessage(),HttpStatusCode.CODE_200.getCode());
             }
         } catch (Exception e) {
             log.error("Error: add group whitelist failed on IM server, error: {}" + e.getMessage(), e);

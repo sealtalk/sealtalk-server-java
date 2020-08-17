@@ -36,7 +36,6 @@ sealtalk:
 
 sealtalk-config:
   auth_cookie_name: rong_auth_cookie
-  #auth_cookie_key: wesddfsdfssdsdssd
   auth_cookie_key: zsyy
   nickname_cookie_name:
   auth_cookie_max_age: 2592000000

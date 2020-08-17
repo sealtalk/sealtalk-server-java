@@ -5,7 +5,6 @@ import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import com.rcloud.server.sealtalk.manager.SmsManager;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.response.APIResult;
@@ -44,16 +43,13 @@ public class UserController extends BaseController {
     @Resource
     private UserManager userManager;
 
-    @Resource
-    private SmsManager smsManager;//TODO
-
 
     @ApiOperation(value = "向手机发送验证码(RongCloud)")
     @RequestMapping(value = "/send_code", method = RequestMethod.POST)
     public APIResult<Object> sendCode(
             @ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
             @RequestParam String region,
-            @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
+            @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
             @RequestParam String phone
     ) throws ServiceException {
 
@@ -68,7 +64,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/send_code_yp", method = RequestMethod.POST)
     public APIResult<Object> sendCodeYp(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                         @RequestParam String region,
-                                        @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
+                                        @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
                                         @RequestParam String phone,
                                         HttpSession httpSession) throws ServiceException {
 
@@ -99,7 +95,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/verify_code", method = RequestMethod.POST)
     public APIResult<Object> verifyCode(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                         @RequestParam String region,
-                                        @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
+                                        @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
                                         @RequestParam String phone,
                                         @ApiParam(name = "code", value = "验证码", required = true, type = "String", example = "xxxxxx")
                                         @RequestParam String code) throws ServiceException {
@@ -130,7 +126,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/verify_code_yp", method = RequestMethod.POST)
     public APIResult<Object> verifyCodeYP(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                           @RequestParam String region,
-                                          @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
+                                          @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
                                           @RequestParam String phone,
                                           @ApiParam(name = "code", value = "验证码", required = true, type = "String", example = "xxxxxx")
                                           @RequestParam String code) throws ServiceException {
@@ -148,9 +144,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "获取所有区域信息")
     @RequestMapping(value = "/regionlist", method = RequestMethod.GET)
     public APIResult<Object> regionlist() throws ServiceException {
-
-        //TODO
-        JsonNode jsonNode = smsManager.getRegionList();
+        JsonNode jsonNode = userManager.getRegionList();
         return APIResultWrap.ok(jsonNode);
     }
 
@@ -159,7 +153,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/check_phone_available", method = RequestMethod.POST)
     public APIResult<Boolean> checkPhoneAvailable(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                                   @RequestParam String region,
-                                                  @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
+                                                  @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
                                                   @RequestParam String phone) throws ServiceException {
 
         ValidateUtils.checkRegion(region);
@@ -221,7 +215,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public APIResult<Object> login(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                    @RequestParam String region,
-                                   @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "18811111111")
+                                   @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
                                    @RequestParam String phone,
                                    @ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
                                    @RequestParam String password,

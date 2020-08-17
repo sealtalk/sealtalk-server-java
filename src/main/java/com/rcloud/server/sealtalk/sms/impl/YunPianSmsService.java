@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.constant.HttpStatusCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.sms.SmsService;
@@ -201,7 +202,7 @@ public class YunPianSmsService implements SmsService {
             errorCode = 100 - errorCode;
         }
         errorCode = 3100 + errorCode;
-        throw new ServiceException(errorCode, result.getMsg());
+        throw new ServiceException(errorCode, result.getMsg(),HttpStatusCode.CODE_200.getCode());
     }
 
 

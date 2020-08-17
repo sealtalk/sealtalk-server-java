@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.service;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.rcloud.server.sealtalk.dao.UsersMapper;
 import com.rcloud.server.sealtalk.domain.Users;
+import com.rcloud.server.sealtalk.domain.VerificationCodes;
 import com.rcloud.server.sealtalk.util.CacheUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -10,7 +11,9 @@ import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @Author: xiuwei.nie
@@ -48,4 +51,7 @@ public class UsersService extends AbstractBaseService<Users, Integer> {
         return this.getByExample(example);
 
     }
+
+
+
 }

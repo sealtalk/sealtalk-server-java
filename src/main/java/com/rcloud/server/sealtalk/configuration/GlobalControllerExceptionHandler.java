@@ -1,11 +1,11 @@
 package com.rcloud.server.sealtalk.configuration;
 
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.constant.HttpStatusCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import com.rcloud.server.sealtalk.util.JacksonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * @Author: xiuwei.nie
@@ -27,13 +31,24 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Slf4j
 public class GlobalControllerExceptionHandler {
 
-    @ExceptionHandler(value = ServiceException.class)
-    public APIResult serviceAPIExceptionHandler(HttpServletRequest request,
-                                                ServiceException e) {
-        String url = request.getRequestURI();
+    private static final String CHARSET = "UTF-8";
 
+    @ExceptionHandler(value = ServiceException.class)
+    public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response,
+                                           ServiceException e) throws Exception {
+        String url = request.getRequestURI();
         log.error("Error found: url:[{}]", url, e);
-        return APIResultWrap.error(e);
+        String contentType = "application/json;charset=" + CHARSET;
+        response.addHeader("Content-Type", contentType);
+
+        if (!HttpStatusCode.CODE_200.getCode().equals(e.getHttpStatusCode())) {
+            response.setStatus(e.getHttpStatusCode());
+            response.getWriter().write(e.getErrorMessage());
+
+        } else {
+            response.setStatus(HttpStatusCode.CODE_200.getCode());
+            response.getWriter().write(JacksonUtil.toJson(APIResultWrap.error(e)));
+        }
     }
 
     /**
@@ -66,7 +81,7 @@ public class GlobalControllerExceptionHandler {
      */
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     public APIResult missingServletRequestParameterExceptionHandler(
-        HttpServletRequest request, MissingServletRequestParameterException e) {
+            HttpServletRequest request, MissingServletRequestParameterException e) {
         log.error("Error found:", e);
         String parameter = e.getParameterName();
         String errorMsg = String.format("The parameter %s is required.", parameter);
