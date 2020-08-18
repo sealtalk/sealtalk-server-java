@@ -27,8 +27,8 @@ public enum ErrorCode {
 
     //verify_code error
     UNKOWN_PHONE_NUMBER(404, "Unknown phone number.",404),
-    VERIFY_CODE_EXPIRED(2000, "Verification code expired.",2000),
-    INVALID_VERIFY_CODE(1000, "Invalid verification code.",1000),
+    VERIFY_CODE_EXPIRED(2000, "Verification code expired.",200),
+    INVALID_VERIFY_CODE(1000, "Invalid verification code.",200),
 
     //register error
     INVALID_PASSWORD(400, "Password must have no space.",400),
@@ -36,12 +36,12 @@ public enum ErrorCode {
     INVALID_PASSWORD_LENGHT(400, "Length of password invalid.",400),
     INVALID_VERIFICATION_TOKEN(400, "Invalid verification_token.",400),
     UNKNOWN_VERIFICATION_TOKEN(404, "Unknown verification_token.",404),
-    PHONE_ALREADY_REGIESTED(404, "Phone number has already existed.",404),
+    PHONE_ALREADY_REGIESTED(400, "Phone number has already existed.",400),
 
     //login error
-    USER_NOT_EXIST(1000, "Phone number not found.",1000),
-    USER_PASSWORD_WRONG(1001, "Wrong password.",1001),
-    USER_PASSWORD_WRONG_2(1000, "Wrong password.",1000),
+    USER_NOT_EXIST(1000, "Phone number not found.",200),
+    USER_PASSWORD_WRONG(1001, "Wrong password.",200),
+    USER_PASSWORD_WRONG_2(1000, "Wrong old password.",200),
 
     //user error
     INVALID_PORTRAITURI_FORMAT(400,"Invalid portraitUri format.",400),

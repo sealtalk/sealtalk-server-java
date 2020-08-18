@@ -26,6 +26,10 @@ public class APIResultWrap {
         return new APIResult<>(SUCCESS_CODE, StringUtils.EMPTY, data);
     }
 
+    public static <T> APIResult<T> ok(T data,String message) {
+        return new APIResult<>(SUCCESS_CODE, message, data);
+    }
+
     public static <T> APIResult<List<T>> ok(List<T> data) {
         Map<String, List<T>> items = ImmutableMap.of(DATA_RESULT, data);
         return new APIResult(SUCCESS_CODE, StringUtils.EMPTY, items);

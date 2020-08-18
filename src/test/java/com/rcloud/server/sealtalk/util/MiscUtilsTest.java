@@ -3,8 +3,10 @@ package com.rcloud.server.sealtalk.util;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.sun.media.jfxmediaimpl.HostUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ public class MiscUtilsTest {
     @Test
     public void testMerge(){
 
-        String content = "【于建路】您的验证码是#code#。如非本人操作，请忽略本短信，test，test";
+        String content = "【TEST】您的验证码是#code#。如非本人操作，请忽略本短信，test，test";
         String key = "#code#";
         String code = "123456";
         String text = MiscUtils.merge(content,key,code);
@@ -38,5 +40,19 @@ public class MiscUtilsTest {
         log.error("test {},{},{},{}",3,key,map,u);
     }
 
+    @Test
+    public void testDate(){
+        Date now = new Date();
+        DateTime dateTime = new DateTime(new Date());
+        dateTime = dateTime.minusHours(1);
+        Date limitDate = dateTime.toDate();
+        System.out.println(limitDate);
+        System.out.println(now);
+        System.out.println(limitDate.before(now));
+    }
 
+    @Test
+    public void name() {
+        System.out.println(Integer.MAX_VALUE);
+    }
 }

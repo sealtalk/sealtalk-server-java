@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
 public abstract class BaseController {
 
     @Resource
-    private SealtalkConfig sealtalkConfig;
+    protected SealtalkConfig sealtalkConfig;
 
     protected Integer getCurrentUserId(HttpServletRequest request) {
         Integer userId =null;
@@ -29,6 +29,7 @@ public abstract class BaseController {
             for(Cookie cookie:cookies){
                 if(cookie.getName().equals(sealtalkConfig.getAuthCookieName())){
                     userId = Integer.valueOf(AES256.decrypt(cookie.getValue().getBytes(),sealtalkConfig.getAuthCookieKey()));
+                    return userId;
                 }
             }
         }
@@ -44,8 +45,5 @@ public abstract class BaseController {
         Assert.notNull(object, "serverApiParams error");
         return (ServerApiParams) object;
     }
-
-
-
 
 }

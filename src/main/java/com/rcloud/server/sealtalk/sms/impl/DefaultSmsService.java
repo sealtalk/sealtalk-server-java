@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @Author: Jianlu.Yu
  * @Date: 2020/8/4
- * @Description: 融云Sms服务
+ * @Description: 融云sms获取短信验证码
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
 @Service
@@ -60,7 +60,7 @@ public class DefaultSmsService implements SmsService {
                 throw new ServiceException(ErrorCode.SERVER_ERROR);
             }
         } else {
-            log.error("RongcloudSmsRegisterTemplateId is null");
+            log.error("Rongcloud Sms Register TemplateId is null");
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
     }

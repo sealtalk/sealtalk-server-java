@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.spi.verifycode.impl;
 
+import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.VerificationCodes;
@@ -24,7 +25,13 @@ public class YunPianVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
     }
 
     @Override
-    protected void serviceValidate(VerificationCodes verificationCodes, String code) throws ServiceException{
+    protected void serviceValidate(VerificationCodes verificationCodes, String code,String env) throws ServiceException{
+        //如果是开发环境，且验证码是9999-》验证通过
+        if (Constants.ENV_DEV.equals(env) && Constants.DEFAULT_VERIFY_CODE.equals(code)) {
+            return;
+        }
+
+        //判断验证码是否正确
         if(verificationCodes.getSessionId().equals(code)){
             return ;
         }else {

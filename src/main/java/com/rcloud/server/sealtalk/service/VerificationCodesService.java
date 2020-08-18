@@ -55,4 +55,20 @@ public class VerificationCodesService extends AbstractBaseService<VerificationCo
             this.updateByPrimaryKeySelective(newVerificationCodes);
         }
     }
+
+    public VerificationCodes getByRegionAndPhone(String region, String phone) {
+
+        Example example = new Example(VerificationCodes.class);
+        example.createCriteria().andEqualTo("region",region)
+                .andEqualTo("phone",phone);
+        return this.getOneByExample(example);
+    }
+
+    public VerificationCodes getByToken(String verificationToken) {
+
+        VerificationCodes v = new VerificationCodes();
+        v.setToken(verificationToken);
+        return this.getOne(v);
+
+    }
 }

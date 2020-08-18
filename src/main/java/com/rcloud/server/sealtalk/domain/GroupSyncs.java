@@ -8,6 +8,7 @@ public class GroupSyncs implements Serializable {
     @Id
     private Integer groupId;
 
+    //TODO
     private Boolean syncInfo;
 
     private Boolean syncMember;

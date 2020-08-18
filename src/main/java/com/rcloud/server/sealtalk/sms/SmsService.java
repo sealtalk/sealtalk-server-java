@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.sms;
 
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.model.ServerApiParams;
 
 /**
  * @Author: Jianlu.Yu

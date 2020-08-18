@@ -23,6 +23,7 @@ public class GroupMembers implements Serializable {
 
     private Integer role;
 
+    //TODO
     @Column(name = "isDeleted")
     private Boolean isDeleted;
 

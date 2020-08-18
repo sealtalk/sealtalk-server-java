@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.Users;
@@ -9,6 +10,7 @@ import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
+import com.rcloud.server.sealtalk.util.AES256;
 import com.rcloud.server.sealtalk.util.MiscUtils;
 import com.rcloud.server.sealtalk.util.N3d;
 import com.rcloud.server.sealtalk.util.ValidateUtils;
@@ -105,7 +107,7 @@ public class UserController extends BaseController {
 
         String token = userManager.verifyCode(region, phone, code, SmsServiceType.RONGCLOUD);
         Map<String, String> result = new HashMap<>();
-        result.put("verification_token", token);
+        result.put(Constants.VERIFICATION_TOKEN_KEY, token);
         return APIResultWrap.ok(token);
     }
 
@@ -136,8 +138,8 @@ public class UserController extends BaseController {
         region = MiscUtils.removeRegionPrefix(region);
         String token = userManager.verifyCode(region, phone, code, SmsServiceType.YUNPIAN);
         Map<String, String> result = new HashMap<>();
-        result.put("verification_token", token);
-        return APIResultWrap.ok(token);
+        result.put(Constants.VERIFICATION_TOKEN_KEY, token);
+        return APIResultWrap.ok(result);
     }
 
 
@@ -160,7 +162,7 @@ public class UserController extends BaseController {
         ValidateUtils.checkCompletePhone(phone);
 
         if (userManager.isExistUser(region, phone)) {
-            return APIResultWrap.ok(false);
+            return APIResultWrap.ok(false, "Phone number has already existed.");
         } else {
             return APIResultWrap.ok(true);
         }
@@ -177,7 +179,7 @@ public class UserController extends BaseController {
      * 6、检查该手机号(Region+phone)是否已经注册过，已经注册过，返回400
      * 7、如果没有注册过，hash生成密码，插入user表
      * 8、然后插入DataVersion表，然后设置cookie，缓存nickname，
-     * 9、然后上报管理后台 TODO
+     * 9、然后上报管理后台
      * 10、返回注册成功，200，用户主键Id编码
      */
     @ApiOperation(value = "注册新用户")
@@ -187,12 +189,17 @@ public class UserController extends BaseController {
                                       @ApiParam(name = "password", value = "密码", required = true, type = "String", example = "xxx")
                                       @RequestParam String password,
                                       @ApiParam(name = "verification_token", value = "校验Token", required = true, type = "String", example = "xxx")
-                                      @RequestParam String verificationToken,
+                                      @RequestParam String verification_token,
                                       HttpServletResponse response) throws ServiceException {
 
-        checkRegisterParam(nickname, password, verificationToken);
-        long id = userManager.register(nickname, password, verificationToken, response);
-        return APIResultWrap.ok(N3d.encode(id));
+        checkRegisterParam(nickname, password, verification_token);
+        Integer id = userManager.register(nickname, password, verification_token);
+        //设置cookie
+        setCookie(response, id);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("id", N3d.encode(id));
+
+        return APIResultWrap.ok(resultMap);
     }
 
     private void checkRegisterParam(String nickname, String password, String verificationToken) throws ServiceException {
@@ -206,10 +213,10 @@ public class UserController extends BaseController {
      * 1、 判断phone、regionName合法性，不合法返回400
      * 2、 根据phone、region查询用户，查询不到返回1000，提示phone不存在
      * 3、 对明文密码加盐hash，验证密码是否正确，密码错误返回1001，提示错误的密码
-     * 4、 埋cookie，缓存userid=nickname
+     * 4、 埋cookie，缓存userid-》nickname
      * 5、 查询该用户所属的所有组
-     * 6、 将登录用户的userid，与groupIdName信息同步到融云
-     * 7、 如果融云token为空，从融云获取token，如果融云token不为空，将userid、融云token返回给前段
+     * 6、 将登录用户的userid、groupIdName信息同步到融云
+     * 7、 如果融云token为空，从融云获取token，如果融云token不为空，将userid、融云token返回给前端
      */
     @ApiOperation(value = "用户登录")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -224,9 +231,13 @@ public class UserController extends BaseController {
         ValidateUtils.checkRegionName(MiscUtils.getRegionName(region));
         ValidateUtils.checkCompletePhone(phone);
 
-        Pair<String, String> pairResult = userManager.login(region, phone, password, response);
+        Pair<Integer, String> pairResult = userManager.login(region, phone, password);
 
-        Map<String, String> resultMap = new HashMap<>();
+        //设置cookie  userId加密存入cookie
+        //登录成功后的其他请求，当前登录用户useId获取从cookie中获取
+        setCookie(response, pairResult.getLeft());
+
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("id", pairResult.getLeft());
         resultMap.put("token", pairResult.getRight());
         //对result编码
@@ -580,6 +591,26 @@ public class UserController extends BaseController {
         Map<String, Object> result = new HashMap<>();
         result.put("pokeStatus", users.getPokeStatus());
         return APIResultWrap.ok(MiscUtils.encodeResults(result));
+    }
+
+
+    /**
+     * 设置AuthCookie
+     *
+     * @param response
+     * @param userId
+     */
+    private void setCookie(HttpServletResponse response, int userId) {
+
+        byte[] value = AES256.encrypt(String.valueOf(userId), sealtalkConfig.getAuthCookieKey());
+
+        Cookie cookie = new Cookie(sealtalkConfig.getAuthCookieName(), new String(value));
+        cookie.setHttpOnly(true);
+        cookie.setDomain(sealtalkConfig.getAuthCookieDomain());
+        cookie.setMaxAge(Integer.valueOf(sealtalkConfig.getAuthCookieMaxAge()));
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
     }
 
 

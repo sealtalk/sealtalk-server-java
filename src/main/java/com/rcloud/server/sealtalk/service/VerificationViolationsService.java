@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * @Author: xiuwei.nie
@@ -24,12 +25,9 @@ public class VerificationViolationsService extends AbstractBaseService<Verificat
         return mapper;
     }
 
-    public VerificationViolations queryOne(String ip) {
-//        VerificationViolationsExample example = new VerificationViolationsExample()
-//            .createCriteria()
-//            .andIpEqualTo(ip)
-//            .example();
-//        return mapper.selectOneByExample(example);
-        return null;
+
+    public void saveOrUpdate(String ip, int count, Date date) {
+
+
     }
 }

@@ -35,11 +35,17 @@ public class DefaultVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
      * @param code
      */
     @Override
-    protected void serviceValidate(VerificationCodes verificationCodes,String code) {
+    protected void serviceValidate(VerificationCodes verificationCodes,String code,String env) {
 
+        //如果是开发环境，且验证码是9999-》验证通过
+        if (Constants.ENV_DEV.equals(env) && Constants.DEFAULT_VERIFY_CODE.equals(code)) {
+            return;
+        }
+        //如果是开发环境，且短信模版没有配置-》验证通过
         if(StringUtils.isEmpty(sealtalkConfig.getRongcloudSmsRegisterTemplateId())&& Constants.DEFAULT_VERIFY_CODE.equals(code)){
             return;
         }
+
         //TODO，调用融云验证码校验接口
         return;
     }

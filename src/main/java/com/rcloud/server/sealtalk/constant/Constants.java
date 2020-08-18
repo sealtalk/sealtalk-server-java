@@ -21,6 +21,7 @@ public class Constants {
 
     public static final String SERVER_API_PARAMS = "serverApiParams";
     public static final String ENV_DEV = "dev";
+    public static final String VERIFICATION_TOKEN_KEY = "verification_token";
 
     public static final int HTTP_SUCCESS_CODE = 200;
 

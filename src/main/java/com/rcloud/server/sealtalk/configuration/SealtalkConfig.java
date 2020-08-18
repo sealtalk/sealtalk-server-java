@@ -38,13 +38,13 @@ public class SealtalkConfig {
     private String qiniuBucketDomain;
     @Value("${sealtalk-config.yunpian_api_key}")
     private String yunpianApiKey;
-    @Value("${sealtalk-config.yunpian_sms_host}")
-    private String yunpianSmsHost;
-    @Value("${sealtalk-config.yunpian_internal_sms_host}")
-    private String yunpianInternalSmsHost;
-    @Value("${sealtalk-config.yunpian_send_sms_uri}")
-    private String yunpianSendSmsUri;
-    @Value("${sealtalk-config.yunpian_get_tpl_uri}")
+//    @Value("${sealtalk-config.yunpian_sms_host}")
+//    private String yunpianSmsHost;
+//    @Value("${sealtalk-config.yunpian_internal_sms_host}")
+//    private String yunpianInternalSmsHost;
+//    @Value("${sealtalk-config.yunpian_send_sms_uri}")
+//    private String yunpianSendSmsUri;
+//    @Value("${sealtalk-config.yunpian_get_tpl_uri}")
     private String yunpianGetTplUri;
     @Value("${sealtalk-config.n3d_key}")
     private String n3dKey;

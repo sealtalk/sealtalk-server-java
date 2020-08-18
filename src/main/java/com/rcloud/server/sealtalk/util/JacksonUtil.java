@@ -17,7 +17,8 @@ import java.io.IOException;
  */
 public class JacksonUtil {
 
-    private static ObjectMapper mapper;
+    private static ObjectMapper mapper = new ObjectMapper();
+    ;
 
     public JacksonUtil(JsonInclude.Include include) {
         mapper = new ObjectMapper();
@@ -56,8 +57,7 @@ public class JacksonUtil {
     public static String toJson(Object object) throws ServiceException {
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(object);
+            return mapper.writeValueAsString(object);
         } catch (IOException e) {
             throw new ServiceException(ErrorCode.SERVER_ERROR,e.getMessage());
         }

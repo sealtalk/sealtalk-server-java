@@ -23,16 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -80,6 +81,9 @@ public class UserManager extends BaseManager {
     @Value("classpath:region.json")
     private org.springframework.core.io.Resource regionResource;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     /**
      * 向手机发送验证码
      */
@@ -92,18 +96,55 @@ public class UserManager extends BaseManager {
         region = MiscUtils.removeRegionPrefix(region);
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
-        VerificationCodes v = new VerificationCodes();
-        v.setRegion(region);
-        v.setPhone(phone);
-        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+
+        VerificationCodes verificationCodes = verificationCodesService.getByRegionAndPhone(region, phone);
         if (verificationCodes != null) {
             checkLimitTime(verificationCodes);
         }
         if (SmsServiceType.YUNPIAN.equals(smsServiceType)) {
-            check(serverApiParams);
+            //云片服务获取验证码，检查请求频率限制
+            checkRequestFrequency(serverApiParams);
         }
 
+        //保存或更新verificationCodes、 发送验证码
         upsertAndSendToSms(region, phone, smsServiceType);
+
+        //云片服务获取验证码 刷新请求频率限制指标数据
+        if (SmsServiceType.YUNPIAN.equals(smsServiceType)) {
+            refreshRequestFrequency(serverApiParams, verificationCodes);
+        }
+    }
+
+    /**
+     * 刷新ip请求频率
+     *
+     * @param serverApiParams
+     * @param verificationCodes
+     */
+    private void refreshRequestFrequency(ServerApiParams serverApiParams, VerificationCodes verificationCodes) {
+        //更新verification_violations ip地址访问时间次和数
+        if (serverApiParams != null && serverApiParams.getRequestUriInfo() != null && !StringUtils.isEmpty(serverApiParams.getRequestUriInfo().getIp())) {
+            VerificationViolations verificationViolations = verificationViolationsService.getByPrimaryKey(serverApiParams.getRequestUriInfo().getIp());
+            if (verificationViolations == null) {
+                verificationViolations = new VerificationViolations();
+                verificationViolations.setIp(serverApiParams.getRequestUriInfo().getIp());
+                verificationViolations.setCount(1);
+                verificationViolations.setTime(new Date());
+                verificationViolationsService.saveSelective(verificationViolations);
+            } else {
+                DateTime dateTime = new DateTime(new Date());
+                dateTime = dateTime.minusHours(sealtalkConfig.getYunpianLimitedTime());
+                Date limitDate = dateTime.toDate();
+                if (limitDate.after(verificationCodes.getUpdatedAt())) {
+                    //如果上次记录时间已经是1小时前，重置计数和开始时间
+                    verificationViolations.setCount(1);
+                    verificationViolations.setTime(new Date());
+                } else {
+                    verificationViolations.setCount(verificationViolations.getCount() + 1);
+                }
+                verificationViolationsService.updateByPrimaryKeySelective(verificationViolations);
+            }
+        }
     }
 
     /**
@@ -139,25 +180,35 @@ public class UserManager extends BaseManager {
         }
         Date limitDate = dateTime.toDate();
 
-        if(limitDate.before(verificationCodes.getUpdatedAt())){
+        if (limitDate.before(verificationCodes.getUpdatedAt())) {
             throw new ServiceException(ErrorCode.LIMIT_ERROR);
         }
     }
 
-    private void check(ServerApiParams serverApiParams) throws ServiceException {
+    /**
+     * IP请求频率限制检查
+     *
+     * @param serverApiParams
+     * @throws ServiceException
+     */
+    private void checkRequestFrequency(ServerApiParams serverApiParams) throws ServiceException {
         String ip = serverApiParams.getRequestUriInfo().getIp();
-        VerificationViolations verificationViolations = verificationViolationsService.queryOne(ip);
+
+        VerificationViolations verificationViolations = verificationViolationsService.getByPrimaryKey(ip);
         if (verificationViolations == null) {
-            verificationViolations = new VerificationViolations();
-            verificationViolations.setTime(new Date());
-            verificationViolations.setCount(0);
+            return;
         }
+
         Integer yunpianLimitedTime = sealtalkConfig.getYunpianLimitedTime();
         Integer yunpianLimitedCount = sealtalkConfig.getYunpianLimitedCount();
+
         DateTime dateTime = new DateTime(new Date());
         Date sendDate = dateTime.minusHours(yunpianLimitedTime).toDate();
+
         boolean beyondLimit = verificationViolations.getCount() >= yunpianLimitedCount;
-        if (sendDate.getTime() < verificationViolations.getTime().getTime() && beyondLimit) {
+
+        //如果上次请求发送验证码的时间在1小时内，并且次数达到阈值，返回异常"Too many times sent"
+        if (sendDate.before(verificationViolations.getTime()) && beyondLimit) {
             throw new ServiceException(ErrorCode.YUN_PIAN_SMS_ERROR);
         }
     }
@@ -168,7 +219,7 @@ public class UserManager extends BaseManager {
      *
      * @param region
      * @param phone
-     * @return
+     * @return true 存在，false 不存在
      * @throws ServiceException
      */
     public boolean isExistUser(String region, String phone) throws ServiceException {
@@ -176,7 +227,7 @@ public class UserManager extends BaseManager {
         param.setRegion(region);
         param.setPhone(phone);
         Users users = usersService.getOne(param);
-        return !(users == null);
+        return users != null;
     }
 
 
@@ -192,21 +243,15 @@ public class UserManager extends BaseManager {
      */
     public String verifyCode(String region, String phone, String code, SmsServiceType smsServiceType) throws ServiceException {
 
-        VerificationCodes v = new VerificationCodes();
-        v.setRegion(region);
-        v.setPhone(phone);
-        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+        VerificationCodes verificationCodes = verificationCodesService.getByRegionAndPhone(region, phone);
         VerifyCodeAuthentication verifyCodeAuthentication = VerifyCodeAuthenticationFactory.getVerifyCodeAuthentication(smsServiceType);
         verifyCodeAuthentication.validate(verificationCodes, code, profileConfig.getEnv());
         return verificationCodes.getToken();
     }
 
-    @Transactional(rollbackFor = {Exception.class})
-    public long register(String nickname, String password, String verificationToken, HttpServletResponse response) throws ServiceException {
+    public Integer register(String nickname, String password, String verificationToken) throws ServiceException {
 
-        VerificationCodes v = new VerificationCodes();
-        v.setToken(verificationToken);
-        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+        VerificationCodes verificationCodes = verificationCodesService.getByToken(verificationToken);
 
         if (verificationCodes == null) {
             throw new ServiceException(ErrorCode.UNKNOWN_VERIFICATION_TOKEN);
@@ -224,30 +269,49 @@ public class UserManager extends BaseManager {
         int salt = RandomUtil.randomBetween(1000, 9999);
         String hashStr = MiscUtils.hash(password, salt);
 
-        //插入user表
-        Users u = new Users();
-        u.setNickname(nickname);
-        u.setRegion(verificationCodes.getRegion());
-        u.setPhone(verificationCodes.getPhone());
-        u.setPasswordHash(hashStr);
-        u.setPasswordSalt(String.valueOf(salt));
-        u.setCreatedAt(new Date());
-        u.setUpdatedAt(u.getCreatedAt());
-        usersService.saveSelective(u);
+        Users u = register0(nickname, verificationCodes.getRegion(), verificationCodes.getPhone(), salt, hashStr);
 
-        int id = u.getId();
-
-        //插入DataVersion表
-        DataVersions dataVersions = new DataVersions();
-        dataVersions.setUserId(u.getId());
-        dataVersionsService.saveSelective(dataVersions);
-        //设置cookie
-        setCookie(response, id);
         //缓存nickname
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
 
-        //上报管理后台TODO
-        return id;
+        return u.getId();
+    }
+
+    /**
+     * 注册插入user 表、dataversion表
+     * 同一事务
+     *
+     * @param nickname
+     * @param region
+     * @param phone
+     * @param salt
+     * @param hashStr
+     * @return
+     */
+    private Users register0(String nickname, String region, String phone, int salt, String hashStr) {
+        return transactionTemplate.execute(new TransactionCallback<Users>() {
+            @Override
+            public Users doInTransaction(TransactionStatus transactionStatus) {
+                //插入user表
+                Users u = new Users();
+                u.setNickname(nickname);
+                u.setRegion(region);
+                u.setPhone(phone);
+                u.setPasswordHash(hashStr);
+                u.setPasswordSalt(String.valueOf(salt));
+                u.setCreatedAt(new Date());
+                u.setUpdatedAt(u.getCreatedAt());
+                usersService.saveSelective(u);
+
+                //插入DataVersion表
+                DataVersions dataVersions = new DataVersions();
+                dataVersions.setUserId(u.getId());
+                dataVersionsService.saveSelective(dataVersions);
+
+                return u;
+            }
+        });
+
     }
 
     /**
@@ -256,9 +320,10 @@ public class UserManager extends BaseManager {
      * @param region
      * @param phone
      * @param password
+     * @return Pair<L, R> L=用户ID，R=融云token
+     * @throws ServiceException
      */
-    public Pair<String, String> login(String region, String phone, String password, HttpServletResponse response) throws ServiceException {
-
+    public Pair<Integer, String> login(String region, String phone, String password) throws ServiceException {
 
         Users param = new Users();
         param.setRegion(region);
@@ -275,8 +340,6 @@ public class UserManager extends BaseManager {
             throw new ServiceException(ErrorCode.USER_PASSWORD_WRONG);
         }
 
-        //设置cookie
-        setCookie(response, u.getId());
         //缓存nickname
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
 
@@ -294,8 +357,7 @@ public class UserManager extends BaseManager {
 
         //同步前记录日志
         log.info("'Sync groups: {}", groupIdNameMap);
-        //调用融云sdk 将登录用户的userid，与groupIdName信息同步到融云 TODO
-
+        //调用融云sdk 将登录用户的userid，与groupIdName信息同步到融云 TODO TODO
 
         String token = u.getRongCloudToken();
         if (StringUtils.isEmpty(token)) {
@@ -308,28 +370,24 @@ public class UserManager extends BaseManager {
             Users users = new Users();
             users.setId(u.getId());
             users.setRongCloudToken(token);
-            users.setTimestamp(System.currentTimeMillis());
             users.setUpdatedAt(new Date());
             usersService.updateByPrimaryKeySelective(users);
         }
 
         //返回userid、token
-        return Pair.of(String.valueOf(u.getId()), token);
+        return Pair.of(u.getId(), token);
     }
 
-    private void setCookie(HttpServletResponse response, int userId) {
-        byte[] value = AES256.encrypt(String.valueOf(userId), sealtalkConfig.getAuthCookieKey());
-        Cookie cookie = new Cookie(sealtalkConfig.getAuthCookieName(), new String(value));
-        cookie.setHttpOnly(true);
-        cookie.setDomain(sealtalkConfig.getAuthCookieDomain());
-        cookie.setMaxAge(Integer.valueOf(sealtalkConfig.getAuthCookieMaxAge()));
-        response.addCookie(cookie);
-    }
-
+    /**
+     * 重置密码
+     *
+     * @param password
+     * @param verificationToken
+     * @throws ServiceException
+     */
     public void resetPassword(String password, String verificationToken) throws ServiceException {
-        VerificationCodes v = new VerificationCodes();
-        v.setToken(verificationToken);
-        VerificationCodes verificationCodes = verificationCodesService.getOne(v);
+
+        VerificationCodes verificationCodes = verificationCodesService.getByToken(verificationToken);
 
         if (verificationCodes == null) {
             throw new ServiceException(ErrorCode.UNKNOWN_VERIFICATION_TOKEN);
@@ -342,6 +400,14 @@ public class UserManager extends BaseManager {
         updatePassword(verificationCodes.getRegion(), verificationCodes.getPhone(), salt, hashStr);
     }
 
+    /**
+     * 修改密码
+     *
+     * @param newPassword
+     * @param oldPassword
+     * @param currentUserId
+     * @throws ServiceException
+     */
     public void changePassword(String newPassword, String oldPassword, Integer currentUserId) throws ServiceException {
 
         Users u = usersService.getByPrimaryKey(currentUserId);
@@ -621,7 +687,6 @@ public class UserManager extends BaseManager {
      * -》Cache.del("friendship_all_" + currentUserId);
      * -》Cache.del("friendship_all_" + friendId);
      */
-    @Transactional(rollbackFor = Exception.class)
     public void addBlackList(Integer currentUserId, Integer friendId, String encodedFriendId) throws ServiceException {
 
         Users user = usersService.getByPrimaryKey(currentUserId);

@@ -15,12 +15,14 @@ import com.yunpian.sdk.model.Result;
 import com.yunpian.sdk.model.SmsSingleSend;
 import com.yunpian.sdk.model.Template;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -40,7 +42,6 @@ public class YunPianSmsService implements SmsService {
 
     private static ConcurrentHashMap<String, String> regionTemplateMap = new ConcurrentHashMap<>();
 
-    private static ConcurrentHashMap<String, Object> smsTempCache = new ConcurrentHashMap<>();
 
     private static final int VERIFICATION_CODE_MIN = 100000;
     private static final int VERIFICATION_CODE_MAX = 999999;
@@ -52,6 +53,9 @@ public class YunPianSmsService implements SmsService {
     private String apiKey;
     private YunpianClient yunpianClient;
 
+    @Value("classpath:yunpian.properties")
+    private org.springframework.core.io.Resource yunpianResource;
+
     //短信模版缓存
     Cache<String, List<Template>> templateCache = CacheBuilder.newBuilder()
             .expireAfterWrite(60, TimeUnit.MINUTES)
@@ -59,23 +63,30 @@ public class YunPianSmsService implements SmsService {
 
 
     static {
-        regionTemplateMap.put("86", "zh_cn");
-        regionTemplateMap.put("852", "zh_tw");
-        regionTemplateMap.put("853", "zh_tw");
-        regionTemplateMap.put("886", "zh_tw");
-        regionTemplateMap.put("81", "ja");
-        regionTemplateMap.put("82", "ko");
-        regionTemplateMap.put("other", "en");
+        //地区，对应短信模版id
+        regionTemplateMap.put("86", "zh-cn");
+        regionTemplateMap.put("852", "3910922");
+        regionTemplateMap.put("853", "3910922");
+        regionTemplateMap.put("886", "3910922");
+        regionTemplateMap.put("81", "3910922");
+        regionTemplateMap.put("82", "3910922");
+        regionTemplateMap.put("other", "3910922");
     }
 
 
     @PostConstruct
-    public void postConstruct() throws ServiceException {
+    public void postConstruct() {
         if (StringUtils.isEmpty(sealtalkConfig.getYunpianApiKey())) {
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
+            log.error("yunpian apikey is null");
+            throw new RuntimeException("yunpian api key is null");
         }
         this.apiKey = sealtalkConfig.getYunpianApiKey();
-        yunpianClient = new YunpianClient(apiKey).init();
+        try {
+            yunpianClient = new YunpianClient(apiKey, yunpianResource.getInputStream()).init();
+        } catch (IOException e) {
+            log.error("yunpian client init error:" + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -98,6 +109,7 @@ public class YunPianSmsService implements SmsService {
         if (StringUtils.isEmpty(tplContent)) {
             throw new ServiceException(ErrorCode.YP_TEMPLATE_EMPTY);
         }
+
         int code = RandomUtil.randomBetween(VERIFICATION_CODE_MIN, VERIFICATION_CODE_MAX);
         tplContent = tplContent.replaceAll(TEMPLATE_VAL_KEY, String.valueOf(code));
         //发送短信
@@ -124,18 +136,18 @@ public class YunPianSmsService implements SmsService {
 
     /**
      * 根据地区和模板列表 匹配模板内容, 获取模板 内容
+     *
+     * @param region  86
+     * @return
+     * @throws ServiceException
      */
-    private String getTplIdByList(String region) throws ServiceException {
-        String tplLang = regionTemplateMap.get(region);
-        if (tplLang == null) {
-            tplLang = regionTemplateMap.get("other");
-        }
-        tplLang = tplLang.toLowerCase();
+    public String getTplIdByList(String region) throws ServiceException {
+        Long tplId = Long.valueOf(regionTemplateMap.get(region));
 
         List<Template> templates = getSmsTplList();
         if (templates != null) {
             for (Template template : templates) {
-                if (template.getLang() != null && tplLang.equalsIgnoreCase(template.getLang())) {
+                if (template.getTpl_id() != null && tplId.equals(template.getTpl_id())) {
                     return template.getTpl_content();
                 }
             }
@@ -164,11 +176,17 @@ public class YunPianSmsService implements SmsService {
         }
     }
 
-    private List<Template> getRemoteSmSTplList() throws ServiceException {
+    /**
+     * 调用云片接口获取短信模版
+     *
+     * @return
+     * @throws ServiceException
+     */
+    public List<Template> getRemoteSmSTplList() throws ServiceException {
 
         List<Template> list = null;
         Map<String, String> param = yunpianClient.newParam(1);
-        param.put("apikey", sealtalkConfig.getYunpianApiKey());
+        param.put(YunpianClient.APIKEY, sealtalkConfig.getYunpianApiKey());
 
         try {
             Result<List<Template>> result = yunpianClient.tpl().get(param);
@@ -202,7 +220,7 @@ public class YunPianSmsService implements SmsService {
             errorCode = 100 - errorCode;
         }
         errorCode = 3100 + errorCode;
-        throw new ServiceException(errorCode, result.getMsg(),HttpStatusCode.CODE_200.getCode());
+        throw new ServiceException(errorCode, result.getMsg(), HttpStatusCode.CODE_200.getCode());
     }
 
 
