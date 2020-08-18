@@ -8,6 +8,12 @@ import javax.persistence.*;
 
 @Table(name = "group_members")
 public class GroupMembers implements Serializable {
+
+    //已删除
+    public static final Integer IS_DELETED_YES = 1;
+    //未删除
+    public static final Integer IS_DELETED_NO = 0;
+
     @Id
     @GeneratedValue(generator = "JDBC")
     private Integer id;
@@ -23,9 +29,9 @@ public class GroupMembers implements Serializable {
 
     private Integer role;
 
-    //TODO
+    //isDelete  1 已删除，0 未删除
     @Column(name = "isDeleted")
-    private Boolean isDeleted;
+    private Integer isDeleted;
 
     @Column(name = "groupNickname")
     private String groupNickname;
@@ -100,12 +106,12 @@ public class GroupMembers implements Serializable {
         this.role = role;
     }
 
-    public Boolean getDeleted() {
+    public Integer getIsDeleted() {
         return isDeleted;
     }
 
-    public void setDeleted(Boolean deleted) {
-        isDeleted = deleted;
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
     public String getGroupNickname() {

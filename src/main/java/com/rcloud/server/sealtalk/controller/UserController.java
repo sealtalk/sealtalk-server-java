@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
+import com.rcloud.server.sealtalk.domain.BlackLists;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
-import com.rcloud.server.sealtalk.util.AES256;
-import com.rcloud.server.sealtalk.util.MiscUtils;
-import com.rcloud.server.sealtalk.util.N3d;
-import com.rcloud.server.sealtalk.util.ValidateUtils;
+import com.rcloud.server.sealtalk.util.*;
 import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -192,6 +191,7 @@ public class UserController extends BaseController {
                                       @RequestParam String verification_token,
                                       HttpServletResponse response) throws ServiceException {
 
+        nickname = MiscUtils.xss(nickname, ValidateUtils.NICKNAME_MAX_LENGTH);
         checkRegisterParam(nickname, password, verification_token);
         Integer id = userManager.register(nickname, password, verification_token);
         //设置cookie
@@ -312,6 +312,7 @@ public class UserController extends BaseController {
     public APIResult<Object> setNickName(@ApiParam(name = "nickname", value = "昵称", required = true, type = "String", example = "xxx")
                                          @RequestParam String nickname,
                                          HttpServletRequest request) throws ServiceException {
+        nickname = MiscUtils.xss(nickname, ValidateUtils.NICKNAME_MAX_LENGTH);
         ValidateUtils.checkNickName(nickname);
 
         Integer currentUserId = getCurrentUserId(request);
@@ -325,6 +326,7 @@ public class UserController extends BaseController {
                                             @RequestParam String portraitUri,
                                             HttpServletRequest request) throws ServiceException {
 
+        portraitUri = MiscUtils.xss(portraitUri, ValidateUtils.PORTRAIT_URI_MAX_LENGTH);
 
         ValidateUtils.checkURLFormat(portraitUri);
         ValidateUtils.checkPortraitUri(portraitUri);
@@ -335,17 +337,17 @@ public class UserController extends BaseController {
     }
 
 
-    @ApiOperation(value = "获取token")
-    @RequestMapping(value = "/get_token", method = RequestMethod.GET)
+    @ApiOperation(value = "获取融云token")
+    @RequestMapping(value = "/get_token", method = RequestMethod.POST)
     public APIResult<Object> getToken(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
-        Pair<String, String> pairResult = userManager.getToken(currentUserId);
+        Pair<Integer, String> pairResult = userManager.getToken(currentUserId);
 
-        Map<String, String> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("id", pairResult.getLeft());
         resultMap.put("token", pairResult.getRight());
-        //对result编码
+
         return APIResultWrap.ok(MiscUtils.encodeResults(resultMap));
     }
 
@@ -355,8 +357,14 @@ public class UserController extends BaseController {
     public APIResult<Object> blacklist(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
-        String result = userManager.getBlackList(currentUserId);
-        return APIResultWrap.ok(result);
+
+        List<BlackLists> resultList = userManager.getBlackList(currentUserId);
+
+        //TODO
+        Object object = MiscUtils.encodeResults(resultList, "userId", "friendId", "users.id");
+        String result = MiscUtils.addUpdateTimeToList(JacksonUtil.toJson(object));
+
+        return APIResultWrap.ok(object);
     }
 
 
@@ -369,9 +377,8 @@ public class UserController extends BaseController {
             @RequestParam String encodedFriendId,
             HttpServletRequest request) throws ServiceException {
 
-
         Integer currentUserId = getCurrentUserId(request);
-        userManager.addBlackList(currentUserId, N3d.decode(friendId), encodedFriendId);
+        userManager.addBlackList(currentUserId, Integer.valueOf(friendId), encodedFriendId);
         return APIResultWrap.ok("");
     }
 
@@ -387,7 +394,7 @@ public class UserController extends BaseController {
 
 
         Integer currentUserId = getCurrentUserId(request);
-        userManager.removeBlackList(currentUserId, N3d.decode(friendId), encodedFriendId);
+        userManager.removeBlackList(currentUserId, Integer.valueOf(friendId), encodedFriendId);
         return APIResultWrap.ok("");
     }
 
@@ -437,7 +444,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "根据手机号查找用户信息")
     @RequestMapping(value = "/find/{region}/{phone}", method = RequestMethod.POST)
     public APIResult<Object> getUserByPhone(@ApiParam(name = "region", value = "region", required = true, type = "String", example = "xxx")
-                                            @PathVariable("id") String region,
+                                            @PathVariable("region") String region,
                                             @ApiParam(name = "phone", value = "phone", required = true, type = "String", example = "xxx")
                                             @PathVariable("phone") String phone,
                                             HttpServletRequest request) throws ServiceException {

@@ -8,19 +8,28 @@ import javax.persistence.*;
 
 @Table(name = "blacklists")
 public class BlackLists implements Serializable {
+
+    public static final Integer STATUS_VALID = 1;
+    public static final Integer STATUS_INVALID = 0;
+
     @Id
     private Integer id;
 
+    @Column(name="userId")
     private Integer userId;
 
+    @Column(name="friendId")
     private Integer friendId;
 
-    private Boolean status;
+    //黑名单状态 1 有效，0无效
+    private Integer status;
 
     private Long timestamp;
 
+    @Column(name="createdAt")
     private Date createdAt;
 
+    @Column(name="updatedAt")
     private Date updatedAt;
 
     @Transient
@@ -52,11 +61,11 @@ public class BlackLists implements Serializable {
         this.friendId = friendId;
     }
 
-    public Boolean getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

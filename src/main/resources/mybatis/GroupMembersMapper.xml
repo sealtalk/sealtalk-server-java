@@ -10,7 +10,7 @@
     <result column="memberId" jdbcType="INTEGER" property="memberId" />
     <result column="displayName" jdbcType="VARCHAR" property="displayName" />
     <result column="role" jdbcType="INTEGER" property="role" />
-    <result column="isDeleted" jdbcType="BIT" property="isDeleted" />
+    <result column="isDeleted" jdbcType="INTEGER" property="isDeleted" />
     <result column="groupNickname" jdbcType="VARCHAR" property="groupNickname" />
     <result column="region" jdbcType="VARCHAR" property="region" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />

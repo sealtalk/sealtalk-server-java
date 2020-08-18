@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.manager;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
 import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
@@ -16,6 +17,7 @@ import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthentication;
 import com.rcloud.server.sealtalk.spi.verifycode.VerifyCodeAuthenticationFactory;
 import com.rcloud.server.sealtalk.util.*;
 import io.micrometer.core.instrument.util.IOUtils;
+import io.rong.models.Result;
 import io.rong.models.response.BlackListResult;
 import io.rong.models.response.TokenResult;
 import io.rong.models.user.UserModel;
@@ -427,7 +429,6 @@ public class UserManager extends BaseManager {
         int salt = RandomUtil.randomBetween(1000, 9999);
         String hashStr = MiscUtils.hash(newPassword, salt);
 
-
         updatePassword(u.getRegion(), u.getPhone(), salt, hashStr);
     }
 
@@ -444,42 +445,75 @@ public class UserManager extends BaseManager {
         usersService.updateByExampleSelective(user, example);
     }
 
+    /**
+     * 设置当前用户的昵称
+     *
+     * @param nickname
+     * @param currentUserId
+     * @throws ServiceException
+     */
     public void setNickName(String nickname, Integer currentUserId) throws ServiceException {
+        long timestamp = System.currentTimeMillis();
         //修改昵称
         Users users = new Users();
         users.setId(currentUserId);
         users.setNickname(nickname);
-        users.setTimestamp(System.currentTimeMillis());
+        users.setTimestamp(timestamp);
         users.setUpdatedAt(new Date());
         usersService.updateByPrimaryKeySelective(users);
 
         //调用融云刷新用户信息
-        rongCloudClient.updateUser(N3d.encode(currentUserId), nickname, null);
-
+        try {
+            Result result = rongCloudClient.updateUser(N3d.encode(currentUserId), nickname, null);
+            if (!result.getCode().equals(200)) {
+                log.error("RongCloud Server API Error code: {},errorMessage: {}", result.getCode(), result.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error("invoke rongCloudClient updateUser exception: " + e.getMessage(), e);
+        }
         //缓存用户昵称
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + currentUserId, nickname);
 
         //清空缓存、更新版本
-        clearCacheAndUpdateVersion(currentUserId);
+        clearCacheAndUpdateVersion(currentUserId, timestamp);
 
         return;
     }
 
+    /**
+     * 设置当前用户头像
+     *
+     * @param portraitUri
+     * @param currentUserId
+     * @throws ServiceException
+     */
     public void setPortraitUri(String portraitUri, Integer currentUserId) throws ServiceException {
 
+        long timestamp = System.currentTimeMillis();
+        Users u = usersService.getByPrimaryKey(currentUserId);
+        if (u == null) {
+            throw new ServiceException(ErrorCode.REQUEST_ERROR);
+        }
         //修改头像
         Users users = new Users();
         users.setId(currentUserId);
         users.setPortraitUri(portraitUri);
-        users.setTimestamp(System.currentTimeMillis());
+        users.setTimestamp(timestamp);
         users.setUpdatedAt(new Date());
         usersService.updateByPrimaryKeySelective(users);
 
         //调用融云刷新用户信息
-        rongCloudClient.updateUser(N3d.encode(currentUserId), null, portraitUri);
+        try {
+            Result result = rongCloudClient.updateUser(N3d.encode(currentUserId), u.getNickname(), portraitUri);
+            if (!result.getCode().equals(200)) {
+                log.error("RongCloud Server API Error code: {},errorMessage: {}", result.getCode(), result.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error("invoke rongCloudClient updateUser exception: " + e.getMessage(), e);
+        }
 
         //清空缓存、更新版本
-        clearCacheAndUpdateVersion(currentUserId);
+        clearCacheAndUpdateVersion(currentUserId, timestamp);
         return;
     }
 
@@ -488,16 +522,15 @@ public class UserManager extends BaseManager {
      *
      * @param currentUserId
      */
-    private void clearCacheAndUpdateVersion(Integer currentUserId) {
+    private void clearCacheAndUpdateVersion(Integer currentUserId, long timestamp) {
         //修改DataVersion表中 UserVersion
-        long now = System.currentTimeMillis();
         DataVersions dataVersions = new DataVersions();
         dataVersions.setUserId(currentUserId);
-        dataVersions.setUserVersion(now);
+        dataVersions.setUserVersion(timestamp);
         dataVersionsService.updateByPrimaryKeySelective(dataVersions);
 
         //修改DataVersion表中 AllFriendshipVersion
-        dataVersionsService.updateAllFriendshipVersion(currentUserId);
+        dataVersionsService.updateAllFriendshipVersion(currentUserId, timestamp);
 
         //清除缓存"user_" + currentUserId
         //清除缓存"friendship_profile_user_" + currentUserId
@@ -518,7 +551,7 @@ public class UserManager extends BaseManager {
         Example example = new Example(GroupMembers.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("memberId", currentUserId);
-        criteria.andEqualTo("isDeleted", "0");
+        criteria.andEqualTo("isDeleted", GroupMembers.IS_DELETED_NO);
 
         List<GroupMembers> groupMembersList = groupMembersService.getByExample(example);
         if (!CollectionUtils.isEmpty(groupMembersList)) {
@@ -535,7 +568,7 @@ public class UserManager extends BaseManager {
      * 3、根据userId更新本地数据users表中rongCloudToken
      * 4、把userid，token返回给前端
      */
-    public Pair<String, String> getToken(Integer currentUserId) throws ServiceException {
+    public Pair<Integer, String> getToken(Integer currentUserId) throws ServiceException {
 
         Users user = usersService.getByPrimaryKey(currentUserId);
 
@@ -547,11 +580,10 @@ public class UserManager extends BaseManager {
         Users param = new Users();
         param.setId(user.getId());
         param.setRongCloudToken(token);
-        param.setTimestamp(System.currentTimeMillis());
         param.setUpdatedAt(new Date());
         usersService.updateByPrimaryKeySelective(param);
 
-        return Pair.of(String.valueOf(user.getId()), token);
+        return Pair.of(user.getId(), token);
     }
 
     /**
@@ -561,21 +593,21 @@ public class UserManager extends BaseManager {
      * 3、如果缓存不存在，查询数据库黑名单表，调用融云服务远程获取黑名单列表
      * 4、以融云服务黑名单列表为准，merge更新到数据库
      * 5、缓存到cache、返回最新的黑名单列表
+     *
+     * @param currentUserId
+     * @return
+     * @throws ServiceException
      */
-    public String getBlackList(Integer currentUserId) throws ServiceException {
+    public List<BlackLists> getBlackList(Integer currentUserId) throws ServiceException {
+
+        long timestamp = System.currentTimeMillis();
         //从缓存中获取blacklist，存在直接返回
-        String blackList = CacheUtil.get(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
-        if (!StringUtils.isEmpty(blackList)) {
-            return blackList;
+        String blackListStr = CacheUtil.get(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
+        if (!StringUtils.isEmpty(blackListStr)) {
+//            return JacksonUtil.jsonToBean(blackListStr,BlackLists.class);
         }
         //查询数据库blacklist表
-        Example example = new Example(BlackLists.class);
-        example.createCriteria()
-                .andEqualTo("userId", currentUserId)
-                .andNotEqualTo("friendId", "0")
-                .andEqualTo("status", 1);
-
-        List<BlackLists> dbBlackLists = blackListsService.getByExample(example);
+        List<BlackLists> dbBlackLists = blackListsService.getBlackListsWithFriendUsers(currentUserId);
 
         //调用融云服务接口获取黑名单
         BlackListResult blackListResult = rongCloudClient.queryUserBlackList(N3d.encode(currentUserId));
@@ -610,25 +642,14 @@ public class UserManager extends BaseManager {
 
         //比对远程接口获取到的黑名单列表和数据库本地表数据
         //如果远程存在，本地不存在，插入本地数据表
-        if (ArrayUtils.isNotEmpty(serverBlackList)) {
-            for (UserModel userModel : serverBlackList) {
-                int userId = N3d.decode(userModel.getId());
-                if (!dbBlacklistUserIds.contains(userModel.getId())) {
-                    BlackLists blackLists = new BlackLists();
-                    blackLists.setUserId(currentUserId);
-                    blackLists.setFriendId(userId);
-                    blackLists.setStatus(true);
-                    blackLists.setTimestamp(System.currentTimeMillis());
-                    blackLists.setCreatedAt(new Date());
-                    blackLists.setUpdatedAt(blackLists.getCreatedAt());
-                    blackListsService.save(blackLists);
-                    log.info("Sync: fix user blacklist, add {} -> {} from db.", currentUserId, userId);
-                    //需要每天数据都更新一次数据库吗？TODO
-                    long now = System.currentTimeMillis();
-                    DataVersions dataVersions = new DataVersions();
-                    dataVersions.setUserId(currentUserId);
-                    dataVersions.setBlacklistVersion(now);
-                    dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+        if (!CollectionUtils.isEmpty(serverBlackListIds)) {
+            for (Long serverId : serverBlackListIds) {
+                //需要每条数据都更新数据库吗？TODO
+                if (!dbBlacklistUserIds.contains(serverId)) {
+                    blackListsService.saveOrUpdate(currentUserId, serverId.intValue(), BlackLists.STATUS_VALID, timestamp);
+                    log.info("Sync: fix user blacklist, add {} -> {} from db.", currentUserId, serverId);
+                    //刷新黑名单版本
+                    dataVersionsService.updateBlacklistVersion(currentUserId, timestamp);
                 }
             }
         }
@@ -637,40 +658,20 @@ public class UserManager extends BaseManager {
         if (!CollectionUtils.isEmpty(dbBlacklistUserIds)) {
             for (Long userId : dbBlacklistUserIds) {
                 if (!serverBlackListIds.contains(userId)) {
-                    BlackLists blackLists = new BlackLists();
-                    blackLists.setUpdatedAt(new Date());
-                    blackLists.setStatus(false);
-                    blackLists.setTimestamp(System.currentTimeMillis());
-                    Example example1 = new Example(BlackLists.class);
-                    example1.createCriteria().andEqualTo("userId", currentUserId)
-                            .andEqualTo("friendId", userId.intValue());
 
-                    blackListsService.updateByExample(blackLists, example1);
-
+                    blackListsService.updateStatus(currentUserId, userId.intValue(), BlackLists.STATUS_INVALID, timestamp);
                     log.info("Sync: fix user blacklist, remove {} -> {} from db.", currentUserId, userId);
-                    //需要每天数据都更新一次数据库吗？TODO
-                    long now = System.currentTimeMillis();
-                    DataVersions dataVersions = new DataVersions();
-                    dataVersions.setUserId(currentUserId);
-                    dataVersions.setBlacklistVersion(now);
-                    dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+
+                    //刷新黑名单版本
+                    dataVersionsService.updateBlacklistVersion(currentUserId, timestamp);
                 }
             }
         }
 
-        //TODO
-        try {
-            String results = JacksonUtil.toJson(MiscUtils.encodeResults(dbBlackLists));
-            results = MiscUtils.addUpdateTimeToList(results);
-            //缓存用户黑名单列表
-            CacheUtil.set(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId, results);
+        //缓存结果
+        CacheUtil.set(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId, JacksonUtil.toJson(dbBlackLists));
 
-            return results;
-
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
-        }
+        return dbBlackLists;
     }
 
 
@@ -680,7 +681,7 @@ public class UserManager extends BaseManager {
      * 2、存在则调用融云服务接口新增黑名单
      * 3、将黑名单信息插入或更新本地数据库，然后更新黑名单版本
      * 4、然后清除缓存"user_blacklist_" + currentUserId
-     * 5、更新Friendship 表状态信息为 FRIENDSHIP_BLACK = 31
+     * 5、更新Friendship 表状态信息为黑名单状态 FRIENDSHIP_BLACK = 31
      * 6、然后清除friendship相关缓存
      * -》Cache.del("friendship_profile_displayName_" + currentUserId + "_" + friendId);
      * -》Cache.del("friendship_profile_user_" + currentUserId + "_" + friendId);
@@ -689,7 +690,9 @@ public class UserManager extends BaseManager {
      */
     public void addBlackList(Integer currentUserId, Integer friendId, String encodedFriendId) throws ServiceException {
 
-        Users user = usersService.getByPrimaryKey(currentUserId);
+        long timestamp = System.currentTimeMillis();
+        //判断friendId 用户是否存在
+        Users user = usersService.getByPrimaryKey(friendId);
         if (user == null) {
             throw new ServiceException(ErrorCode.FRIEND_USER_NOT_EXIST);
         }
@@ -699,29 +702,16 @@ public class UserManager extends BaseManager {
         rongCloudClient.addUserBlackList(N3d.encode(currentUserId), blackFriendIds);
 
         //将黑名单信息插入或更新本地数据库
-        blackListsService.saveOrUpdate(currentUserId, friendId, true, System.currentTimeMillis());
+        blackListsService.saveOrUpdate(currentUserId, friendId, BlackLists.STATUS_VALID, timestamp);
 
-        //更新黑名单版本
-        long now = System.currentTimeMillis();
-        DataVersions dataVersions = new DataVersions();
-        dataVersions.setUserId(currentUserId);
-        dataVersions.setBlacklistVersion(now);
-        dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+        //更新黑名单数据版本
+        dataVersionsService.updateBlacklistVersion(currentUserId, timestamp);
 
         //清除user_blacklist_缓存
         CacheUtil.delete(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
 
-        //更新Friendship 表状态信息为 FRIENDSHIP_BLACK = 31
-        Friendships friendships = new Friendships();
-        friendships.setDisplayName("");
-        friendships.setMessage("");
-        friendships.setTimestamp(System.currentTimeMillis());
-        friendships.setStatus(Friendships.FRIENDSHIP_PULLEDBLACK);
-
-        Example example = new Example(Friendships.class);
-        example.createCriteria().andEqualTo("friendId", friendId)
-                .andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
-        friendshipsService.updateByExampleSelective(friendships, example);
+        //更新好友关系状态为黑名单状态
+        friendshipsService.updateFriendShipBlacklistsStatus(currentUserId, friendId);
 
         //清除friendship相关缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
@@ -744,48 +734,33 @@ public class UserManager extends BaseManager {
      * -》Cache.del("friendship_profile_user_" + currentUserId + "_" + friendId);
      * -》Cache.del("friendship_all_" + currentUserId);
      * -》 Cache.del("friendship_all_" + friendId);
+     *
+     * @param currentUserId
+     * @param friendId
+     * @param encodedFriendId
+     * @throws ServiceException
      */
-    public void removeBlackList(Integer currentUserId, int friendId, String encodedFriendId) throws ServiceException {
+    public void removeBlackList(Integer currentUserId, Integer friendId, String encodedFriendId) throws ServiceException {
+
+        long timestamp = System.currentTimeMillis();
 
         String[] blackFriendIds = {encodedFriendId};
         //调用融云服务接口移除黑名单
         rongCloudClient.removeUserBlackList(N3d.encode(currentUserId), blackFriendIds);
 
         //更新本地Blacklist 表，设置记录状态status为false
-        BlackLists blackLists = new BlackLists();
-        blackLists.setStatus(false);
-        blackLists.setTimestamp(System.currentTimeMillis());
-        blackLists.setUpdatedAt(new Date());
+        blackListsService.updateStatus(currentUserId, friendId, BlackLists.STATUS_INVALID, timestamp);
 
-        Example example = new Example(BlackLists.class);
-        example.createCriteria().andEqualTo("userId", currentUserId)
-                .andEqualTo("friendId", friendId);
-
-        blackListsService.updateByExampleSelective(blackLists, example);
-
-        //更新黑名单版本
-        long now = System.currentTimeMillis();
-        DataVersions dataVersions = new DataVersions();
-        dataVersions.setUserId(currentUserId);
-        dataVersions.setBlacklistVersion(now);
-        dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+        //刷新黑名单数据版本
+        dataVersionsService.updateBlacklistVersion(currentUserId, timestamp);
 
         //清除缓存user_blacklist_
         CacheUtil.delete(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
 
         //更新Friendship 表状态信息为 FRIENDSHIP_AGREED = 20
-        Friendships friendships = new Friendships();
-        friendships.setDisplayName("");
-        friendships.setMessage("");
-        friendships.setTimestamp(System.currentTimeMillis());
-        friendships.setStatus(Friendships.FRIENDSHIP_AGREED);
-
-        Example example1 = new Example(Friendships.class);
-        example.createCriteria().andEqualTo("friendId", friendId)
-                .andEqualTo("status", Friendships.FRIENDSHIP_PULLEDBLACK);
-        friendshipsService.updateByExampleSelective(friendships, example);
-
+        friendshipsService.updateAgreeStatus(currentUserId, friendId, timestamp, ImmutableList.of(Friendships.FRIENDSHIP_PULLEDBLACK));
         log.info("result--remove db black currentUserId={},friendId={}", currentUserId, friendId);
+
         //清除friendship相关缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId);

@@ -60,6 +60,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
         chatroom = rongCloud.message.chatroom;
         discussion = rongCloud.message.discussion;
         history = rongCloud.message.history;
+
     }
 
 
@@ -102,8 +103,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
             @Override
             public UserResult doInvoker() throws Exception {
                 UserModel user = new UserModel()
-                        .setId(encodeId); //n3d编码id
-
+                        .setId(encodeId);
                 return User.get(user);
             }
         });
@@ -135,11 +135,8 @@ public class DefaultRongCloudClient implements RongCloudClient {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<BlackListResult>() {
             @Override
             public BlackListResult doInvoker() throws Exception {
-
                 UserModel user = new UserModel().setId(encodeId);
-
                 return BlackList.getList(user);
-
             }
         });
     }

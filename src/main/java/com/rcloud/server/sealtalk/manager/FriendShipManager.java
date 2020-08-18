@@ -154,7 +154,7 @@ public class FriendShipManager extends BaseManager {
                 message = friendshipsFC.getMessage();
                 timestamp = friendshipsFC.getTimestamp();
 
-            } else if (judgeCondition(friendshipsCF, friendshipsFC, now_1, now_3, cfUpdateAtCal)) {
+            } else if (judgeComplexCondition(friendshipsCF, friendshipsFC, now_1, now_3, cfUpdateAtCal)) {
                 cfStatus = Friendships.FRIENDSHIP_REQUESTING;
                 fcStatus = Friendships.FRIENDSHIP_REQUESTED;
                 action = "Sent";
@@ -302,7 +302,7 @@ public class FriendShipManager extends BaseManager {
         BlackLists bl = new BlackLists();
         bl.setFriendId(friendId);
         bl.setUserId(currentUserId);
-        bl.setStatus(false);
+        bl.setStatus(BlackLists.STATUS_INVALID);
         Example example = new Example(BlackLists.class);
         example.createCriteria().andEqualTo("userId", currentUserId)
                 .andEqualTo("friendId", friendId);
@@ -322,7 +322,7 @@ public class FriendShipManager extends BaseManager {
     }
 
     /**
-     * 复杂条件判断
+     * 复合条件判断
      *
      * @param friendshipsCF
      * @param friendshipsFC
@@ -331,7 +331,7 @@ public class FriendShipManager extends BaseManager {
      * @param cfUpdateAtCal
      * @return
      */
-    private boolean judgeCondition(Friendships friendshipsCF, Friendships friendshipsFC, Calendar now_1, Calendar now_3, Calendar cfUpdateAtCal) {
+    private boolean judgeComplexCondition(Friendships friendshipsCF, Friendships friendshipsFC, Calendar now_1, Calendar now_3, Calendar cfUpdateAtCal) {
         return (
                 //条件1 如果双方的好友记录都是已删除
                 //可以继续发送请求
@@ -368,7 +368,7 @@ public class FriendShipManager extends BaseManager {
             log.info("blackLists is empty.");
             return false;
         }
-        if (!blackLists.getStatus()) {
+        if (BlackLists.STATUS_INVALID.equals(blackLists.getStatus())) {
             log.info("blackLists status is rm.");
             return false;
         }
@@ -501,7 +501,7 @@ public class FriendShipManager extends BaseManager {
             //调用融云黑名单接口新增,删除好友（请求），相当于告诉融云服务端把删除的好友加入黑名单不在接收他发的消息
             rongCloudClient.addUserBlackList(N3d.encode(currentUserId), new String[]{N3d.encode(friendId)});
             //同时插入或更新本地黑名单表
-            blackListsService.saveOrUpdate(currentUserId, friendId, true, timestamp);
+            blackListsService.saveOrUpdate(currentUserId, friendId, BlackLists.STATUS_VALID, timestamp);
             //刷新黑名单版本
             DataVersions dataVersions = new DataVersions();
             dataVersions.setUserVersion(new Long(currentUserId));

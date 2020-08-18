@@ -23,10 +23,13 @@ public class Friendships implements Serializable {
     @Id
     private Integer id;
 
+    @Column(name = "userId")
     private Integer userId;
 
+    @Column(name = "friendId")
     private Integer friendId;
 
+    @Column(name = "displayName")
     private String displayName;
 
     private String message;
@@ -39,12 +42,15 @@ public class Friendships implements Serializable {
 
     private String description;
 
+    @Column(name = "imageUri")
     private String imageUri;
 
     private Long timestamp;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
 
     @Transient

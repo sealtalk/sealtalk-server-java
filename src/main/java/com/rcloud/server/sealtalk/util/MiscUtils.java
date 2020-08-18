@@ -155,7 +155,7 @@ public class MiscUtils {
 
     public static String addUpdateTimeToList(String result) {
         //TODO
-        return "";
+        return result;
     }
 
     private static void processResult(JsonNode jsonNode, String propertyExpression) throws ServiceException {

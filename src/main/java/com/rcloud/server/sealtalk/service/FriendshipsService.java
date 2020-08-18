@@ -62,4 +62,25 @@ public class FriendshipsService extends AbstractBaseService<Friendships, Integer
     public Friendships getFriendShipWithUsers(Integer currentUserId, int friendId,int status) {
         return null;
     }
+
+    /**
+     * 更新好友关系状态为黑名单状态
+     * @param currentUserId
+     * @param friendId
+     */
+    public void updateFriendShipBlacklistsStatus(Integer currentUserId, Integer friendId) {
+
+        //更新Friendship 表状态信息为 FRIENDSHIP_BLACK = 31
+        Friendships friendships = new Friendships();
+        friendships.setDisplayName("");
+        friendships.setMessage("");
+        friendships.setTimestamp(System.currentTimeMillis());
+        friendships.setStatus(Friendships.FRIENDSHIP_PULLEDBLACK);
+
+        Example example = new Example(Friendships.class);
+        example.createCriteria().andEqualTo("friendId", friendId)
+                .andEqualTo("userId",currentUserId)
+                .andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
+        this.updateByExampleSelective(friendships, example);
+    }
 }

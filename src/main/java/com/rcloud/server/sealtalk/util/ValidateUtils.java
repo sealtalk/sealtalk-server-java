@@ -20,6 +20,10 @@ import java.util.regex.Pattern;
 public class ValidateUtils {
 
 
+    public static final int NICKNAME_MIN_LENGTH = 1;
+
+    public static final int NICKNAME_MAX_LENGTH = 32;
+
     public static final int FRIEND_REQUEST_MESSAGE_MIN_LENGTH = 0;
 
     public static final int FRIEND_REQUEST_MESSAGE_MAX_LENGTH = 64;

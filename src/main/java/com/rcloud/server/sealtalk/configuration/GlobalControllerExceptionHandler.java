@@ -37,14 +37,15 @@ public class GlobalControllerExceptionHandler {
     public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response,
                                            ServiceException e) throws Exception {
         String url = request.getRequestURI();
+
         log.error("Error found: url:[{}]", url, e);
+
         String contentType = "application/json;charset=" + CHARSET;
         response.addHeader("Content-Type", contentType);
 
         if (!HttpStatusCode.CODE_200.getCode().equals(e.getHttpStatusCode())) {
             response.setStatus(e.getHttpStatusCode());
             response.getWriter().write(e.getErrorMessage());
-
         } else {
             response.setStatus(HttpStatusCode.CODE_200.getCode());
             response.getWriter().write(JacksonUtil.toJson(APIResultWrap.error(e)));

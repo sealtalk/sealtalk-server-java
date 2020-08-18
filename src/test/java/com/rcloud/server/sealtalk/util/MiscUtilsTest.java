@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.util;
 
 import com.rcloud.server.sealtalk.domain.Users;
+import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.sun.media.jfxmediaimpl.HostUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -52,7 +53,9 @@ public class MiscUtilsTest {
     }
 
     @Test
-    public void name() {
-        System.out.println(Integer.MAX_VALUE);
+    public void name() throws ServiceException {
+
+        // id=101->U6BnNu73w
+        System.out.println(N3d.encode(101));
     }
 }

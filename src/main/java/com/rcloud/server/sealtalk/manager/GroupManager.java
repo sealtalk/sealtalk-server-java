@@ -516,7 +516,7 @@ public class GroupManager extends BaseManager {
         GroupMembers groupMembers = groupMembersService.getGroupMember(Integer.valueOf(groupId), Integer.valueOf(memberId));
 
         //TODO getDeleted
-        if (groupMembers != null || groupMembers.getDeleted()) {
+        if (groupMembers == null || GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted())) {
             throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER);
         }
 
@@ -539,7 +539,7 @@ public class GroupManager extends BaseManager {
 
         GroupMembers groupMembers = groupMembersService.getGroupMember(Integer.valueOf(groupId), Integer.valueOf(memberId));
 
-        if (groupMembers != null || groupMembers.getDeleted()) {
+        if (groupMembers == null || GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted())) {
             throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER);
         }
 
@@ -1340,7 +1340,7 @@ public class GroupManager extends BaseManager {
 
         GroupMembers groupMembers = new GroupMembers();
         groupMembers.setTimestamp(timestamp);
-        groupMembers.setDeleted(true);
+        groupMembers.setIsDeleted(GroupMembers.IS_DELETED_YES);
         Example example1 = new Example(GroupMembers.class);
         example1.createCriteria().andEqualTo("groupId", groupId);
         groupMembersService.updateByExampleSelective(groupMembers, example);
@@ -1631,7 +1631,7 @@ public class GroupManager extends BaseManager {
         example1.createCriteria().andEqualTo("groupId", groupId)
                 .andIn("memberId", memberIdIntList);
         GroupMembers groupMembers = new GroupMembers();
-        groupMembers.setDeleted(true);
+        groupMembers.setIsDeleted(GroupMembers.IS_DELETED_YES);
         groupMembers.setTimestamp(timestamp);
         groupMembersService.updateByExampleSelective(groupMembers, example1);
     }

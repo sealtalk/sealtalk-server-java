@@ -26,7 +26,7 @@ public class RongCloudInvokeTemplate {
                     return (T) result;
                 } else {
                     log.error("invoke rongcloud server exception,resultCode={},errorMessage={}", result.getCode(), result.getErrorMessage());
-                    throw new ServiceException(result.getCode(), "RongCloud Server API Error Code: " + result.getCode(), HttpStatusCode.CODE_200.getCode());
+                    throw new ServiceException(result.getCode(), result.getErrorMessage(), HttpStatusCode.CODE_200.getCode());
                 }
             } else {
                 log.error("invoke rongcloud server failed");
@@ -34,8 +34,13 @@ public class RongCloudInvokeTemplate {
             }
 
         } catch (Exception e) {
-            log.error("invoke rongcloud server error：" + e.getMessage(), e);
-            throw new ServiceException(ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorCode(), ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorMessage() + e.getMessage(),HttpStatusCode.CODE_200.getCode());
+            if (e instanceof ServiceException) {
+                throw (ServiceException) e;
+            } else {
+                log.error("invoke rongcloud server error：" + e.getMessage(), e);
+                throw new ServiceException(ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorCode(), ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR.getErrorMessage() + e.getMessage(), HttpStatusCode.CODE_200.getCode());
+            }
+
         }
     }
 }

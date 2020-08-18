@@ -98,7 +98,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
             for (Integer memerId : updateGroupMemberIds) {
                 GroupMembers groupMembers = new GroupMembers();
                 groupMembers.setRole(GroupRole.MEMBER.getCode());
-                groupMembers.setDeleted(false);
+                groupMembers.setIsDeleted(GroupMembers.IS_DELETED_NO);
                 groupMembers.setTimestamp(timestamp);
                 Example example1 = new Example(GroupMembers.class);
                 example1.createCriteria().andEqualTo("groupId", groupId)
