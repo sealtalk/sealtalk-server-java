@@ -51,7 +51,14 @@
        g.updatedAt g_updatedAt
     FROM group_favs gm join `groups` g
     on gm.groupId = g.id
-    where gm.userId=#{userId}  limit #{limit} offset #{offset}
+    where gm.userId=#{userId}
+    <if test=" limit!=null ">
+        limit #{limit}
+    </if>
+    <if test=" offset!=null ">
+        offset #{offset}
+    </if>
+
   </select>
 
 

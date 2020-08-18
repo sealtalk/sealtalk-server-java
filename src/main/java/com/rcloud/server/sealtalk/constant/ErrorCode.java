@@ -12,10 +12,11 @@ public enum ErrorCode {
     REQUEST_ERROR(400, "错误的请求",400),
     ILLEGAL_PARAMETER(400,"Illegal parameter .",400),
     EMPTY_PARAMETER(400,"Parameter is empty.",400),
+    PARAMETER_ERROR(400,"Parameter error.",400),
 
     EMPTY_STACCOUNT_LENGHT_ERROR(400,"Incorrect parameter length.",400),
     EMPTY_STACCOUNT_ERROR(400,"Not letter beginning or invalid symbol.",400),
-    EMPTY_STACCOUNT_EXIST(1000,"st account exist",1000),
+    EMPTY_STACCOUNT_EXIST(1000,"SealTalk 号已存在",200),
 
     //send_code
     LIMIT_ERROR(5000, "Throttle limit exceeded.",200),

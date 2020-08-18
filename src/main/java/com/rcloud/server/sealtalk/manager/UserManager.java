@@ -807,11 +807,11 @@ public class UserManager extends BaseManager {
     /**
      * 根据id查询用户信息
      *
-     * @param currentUserId
+     * @param userId
      * @return
      */
-    public Users getUser(Integer currentUserId) {
-        return usersService.getByPrimaryKey(currentUserId);
+    public Users getUser(Integer userId) {
+        return usersService.getByPrimaryKey(userId);
     }
 
     /**
@@ -849,7 +849,6 @@ public class UserManager extends BaseManager {
         u.setStAccount(stAccount);
 
         Users users = usersService.getOne(u);
-
         if (users != null) {
             throw new ServiceException(ErrorCode.EMPTY_STACCOUNT_EXIST);
         }
@@ -859,43 +858,27 @@ public class UserManager extends BaseManager {
 
     }
 
-    public String getFavGroups(Integer userId, Integer limit, Integer offset) throws ServiceException {
-        List<String> groupsList = new ArrayList<>();
+    /**
+     * 获取通讯录群组列表
+     * @param userId
+     * @param limit
+     * @param offset
+     * @return
+     * @throws ServiceException
+     */
+    public List<Groups> getFavGroups(Integer userId, Integer limit, Integer offset) throws ServiceException {
+        List<Groups> groupsList = new ArrayList<>();
         List<GroupFavs> groupFavsList = groupFavsService.queryGroupFavsWithGroupByUserId(userId, limit, offset);
 
         if (!CollectionUtils.isEmpty(groupFavsList)) {
             for (GroupFavs groupFavs : groupFavsList) {
                 if (groupFavs.getGroups() != null) {
-                    //TODO
-                    try {
-                        groupsList.add(JacksonUtil.toJson(MiscUtils.encodeResults(groupFavs.getGroups())));
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        throw new ServiceException(ErrorCode.SERVER_ERROR);
-                    }
+                    groupsList.add(groupFavs.getGroups());
                 }
             }
         }
 
-        Map<String, Object> result = new HashMap<>();
-        //TODO
-        result.put("list", addUpdateTimeToList(groupsList));
-        result.put("total", groupsList.size());
-        result.put("limit", limit);
-        result.put("offset", offset);
-
-        //TODO
-        try {
-            return JacksonUtil.toJson(result);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
-        }
-    }
-
-    //TODO
-    private Object addUpdateTimeToList(List<String> groupsList) {
-        return null;
+        return groupsList;
     }
 
     /**

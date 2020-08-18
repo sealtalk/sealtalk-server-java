@@ -5,10 +5,12 @@ import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.BlackLists;
+import com.rcloud.server.sealtalk.domain.Groups;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
+import com.rcloud.server.sealtalk.model.dto.FavGroupsDTO;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import com.rcloud.server.sealtalk.util.*;
@@ -466,10 +468,11 @@ public class UserController extends BaseController {
     @ApiOperation(value = "获取用户信息")
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     public APIResult<Object> getUserInfo(@ApiParam(name = "id", value = "用户ID", required = true, type = "Integer", example = "xxx")
-                                         @PathVariable("id") Integer id,
+                                         @PathVariable("id") String id,
                                          HttpServletRequest request) throws ServiceException {
 
-        Users users = userManager.getUser(id);
+        Integer userId = N3d.decode(id);
+        Users users = userManager.getUser(userId);
         if (users != null) {
             Users t_user = new Users();
             t_user.setId(users.getId());
@@ -488,14 +491,23 @@ public class UserController extends BaseController {
     @ApiOperation(value = "获取通讯录群组")
     @RequestMapping(value = "/favgroups", method = RequestMethod.GET)
     public APIResult<Object> getFavGroups(@ApiParam(name = "limit", value = "limit", required = false, type = "Integer", example = "xxx")
-                                          @RequestParam("limit") Integer limit,
+                                          @RequestParam(value = "limit",required = false) Integer limit,
                                           @ApiParam(name = "offset", value = "offset", required = false, type = "Integer", example = "xxx")
-                                          @RequestParam("offset") Integer offset,
+                                          @RequestParam(value = "offset",required = false) Integer offset,
                                           HttpServletRequest request) throws ServiceException {
 
+        if((limit==null && offset!=null) || (limit!=null && offset==null)){
+            throw new ServiceException(ErrorCode.REQUEST_ERROR);
+        }
         Integer currentUserId = getCurrentUserId(request);
-        String result = userManager.getFavGroups(currentUserId, limit, offset);
-        return APIResultWrap.ok(result);
+        List<Groups> groupsList = userManager.getFavGroups(currentUserId, limit, offset);
+
+        FavGroupsDTO favGroupsDTO = new FavGroupsDTO();
+        favGroupsDTO.setLimit(limit);
+        favGroupsDTO.setOffset(offset);
+        favGroupsDTO.setTotal(groupsList.size());
+        favGroupsDTO.setGroupsList(groupsList);
+        return APIResultWrap.ok(favGroupsDTO);
     }
 
 
@@ -532,13 +544,13 @@ public class UserController extends BaseController {
     @ApiOperation(value = "设置个人隐私设置")
     @RequestMapping(value = "/set_privacy", method = RequestMethod.POST)
     public APIResult<Object> setPrivacy(@ApiParam(name = "phoneVerify", value = "是否允许通过手机号搜索到我", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam("phoneVerify") Integer phoneVerify,
+                                        @RequestParam(value = "phoneVerify",required = false) Integer phoneVerify,
                                         @ApiParam(name = "stSearchVerify", value = "是否允许 SealTalk 号搜索到我", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam("stSearchVerify") Integer stSearchVerify,
+                                        @RequestParam(value = "stSearchVerify",required = false) Integer stSearchVerify,
                                         @ApiParam(name = "friVerify", value = "是否加好友验证", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam("friVerify") Integer friVerify,
+                                        @RequestParam(value = "friVerify",required = false) Integer friVerify,
                                         @ApiParam(name = "groupVerify", value = "是否允许直接添加至群聊", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam("groupVerify") Integer groupVerify,
+                                        @RequestParam(value = "groupVerify",required = false) Integer groupVerify,
                                         HttpServletRequest request) throws ServiceException {
 
         ValidateUtils.checkPrivacy(phoneVerify, stSearchVerify, friVerify, groupVerify);
@@ -549,10 +561,9 @@ public class UserController extends BaseController {
         Users u = new Users();
         u.setId(users.getId());
         u.setPhoneVerify(phoneVerify);
-        u.setPhoneVerify(stSearchVerify);
-        u.setPhoneVerify(friVerify);
-        u.setPhoneVerify(groupVerify);
-
+        u.setStSearchVerify(stSearchVerify);
+        u.setFriVerify(friVerify);
+        u.setGroupVerify(groupVerify);
         userManager.updateUserById(u);
         return APIResultWrap.ok("");
     }

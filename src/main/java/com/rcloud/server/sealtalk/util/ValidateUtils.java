@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -62,7 +61,7 @@ public class ValidateUtils {
     }
 
     public static void notEmpty(String[] str) throws ServiceException {
-        if (str==null || str.length==0) {
+        if (str == null || str.length == 0) {
             throw new ServiceException(ErrorCode.PARAM_ERROR);
         }
     }
@@ -146,7 +145,19 @@ public class ValidateUtils {
             throw new ServiceException(ErrorCode.EMPTY_PARAMETER);
         }
         ImmutableList<Integer> list = ImmutableList.of(0, 1);
-        if (!list.contains(phoneVerify) || !list.contains(stSearchVerify) || !list.contains(friVerify) || !list.contains(groupVerify)) {
+
+        if (phoneVerify != null && !list.contains(phoneVerify)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+
+        if (stSearchVerify != null && !list.contains(stSearchVerify)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+
+        if (friVerify != null && !list.contains(friVerify)) {
+            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+        }
+        if (groupVerify != null && !list.contains(groupVerify)) {
             throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
         }
 
@@ -154,10 +165,8 @@ public class ValidateUtils {
 
     public static void checkGender(String gender) throws ServiceException {
         if (!"male".equals(gender) && !"female".equals(gender)) {
-            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+            throw new ServiceException(ErrorCode.PARAMETER_ERROR);
         }
-
-
     }
 
     public static void checkStAccount(String stAccount) throws ServiceException {
@@ -246,11 +255,12 @@ public class ValidateUtils {
 
     /**
      * 群公告校验
+     *
      * @param bulletin
      */
     public static void checkGroupBulletion(String bulletin) throws ServiceException {
 
-        if(bulletin==null || bulletin.length()>GROUP_BULLETIN_MAX_LENGTH ){
+        if (bulletin == null || bulletin.length() > GROUP_BULLETIN_MAX_LENGTH) {
             throw new ServiceException(ErrorCode.INVALID_GROUP_BULLETIN);
         }
     }
