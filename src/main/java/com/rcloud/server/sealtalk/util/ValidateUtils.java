@@ -264,4 +264,11 @@ public class ValidateUtils {
             throw new ServiceException(ErrorCode.INVALID_GROUP_BULLETIN);
         }
     }
+
+    public static void checkTimeStamp(String timeStamp) throws ServiceException {
+
+        if(!RegexUtils.checkDigit(timeStamp)){
+            throw new ServiceException(ErrorCode.INVALID_TIMESTAMP_VERSION);
+        }
+    }
 }

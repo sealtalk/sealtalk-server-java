@@ -62,7 +62,7 @@ public class SingleDataSourceConfiguration {
     public ObjectMapper jacksonObjectMapper() {
         return new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            .setSerializationInclusion(JsonInclude.Include.ALWAYS);
     }
 
     protected SqlSessionFactory buildSqlSessionFactory(DataSource dataSource) throws Exception {

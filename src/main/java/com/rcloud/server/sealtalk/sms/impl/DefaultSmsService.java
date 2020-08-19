@@ -56,7 +56,7 @@ public class DefaultSmsService implements SmsService {
                 }
                 return sessionId;
             } catch (Exception e) {
-                log.error("Send sms result to json error.", e);
+                log.error("Send sms result to json error,message:"+e.getMessage(), e);
                 throw new ServiceException(ErrorCode.SERVER_ERROR);
             }
         } else {

@@ -50,6 +50,7 @@ public enum ErrorCode {
     FRIEND_USER_NOT_EXIST(400,"friendId is not an available userId.",400),
     UNKNOW_USER(404,"Unknown user.",404),
     INVALID_REGION_LIST(1000,"Invalid region list.",1000),
+    INVALID_TIMESTAMP_VERSION(400,"Version parameter is not integer.",400),
 
     //misc error
     UNSUPPORTED_CONVERSATION_TYPE(403,"Unsupported conversation type.",403),

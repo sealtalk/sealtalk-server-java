@@ -34,8 +34,6 @@ public class DefaultRongCloudClientTest {
         String portrait="http://test.com/user/abc123.jpg";
         TokenResult tokenResult = defaultRongCloudClient.register(encodeId,name,portrait);
 
-        //V0gbT4Wc1TV4B+PQ+MuoY7TDlCFMWZczpZw5vWpr/R0=@5fhy.cn.rongnav.com;5fhy.cn.rongcfg.com
-        //V0gbT4Wc1TV4B+PQ+MuoY7TDlCFMWZczoN5bTGv+kxA=@5fhy.cn.rongnav.com;5fhy.cn.rongcfg.com
         System.out.println(tokenResult);
     }
 }

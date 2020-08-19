@@ -83,4 +83,8 @@ public class FriendshipsService extends AbstractBaseService<Friendships, Integer
                 .andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
         this.updateByExampleSelective(friendships, example);
     }
+
+    public List<Friendships> getFriendShipListWithUsers(Integer currentUserId, Long version) {
+        return null;//TODO
+    }
 }

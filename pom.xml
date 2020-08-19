@@ -160,6 +160,13 @@
       <artifactId>mapper</artifactId>
       <version>${tk.mapper.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.qiniu</groupId>
+      <artifactId>qiniu-java-sdk</artifactId>
+      <version>7.2.29</version>
+    </dependency>
+
   </dependencies>
 
   <build>

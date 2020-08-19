@@ -1,137 +1,77 @@
 package com.rcloud.server.sealtalk.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: xiuwei.nie
+ * @Author: Jianlu.Yu
  * @Date: 2020/7/7
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
+@Slf4j
 public class JacksonUtil {
 
-    private static ObjectMapper mapper = new ObjectMapper();
-    ;
+    private final static ObjectMapper objectMapper = new ObjectMapper();
 
-    public JacksonUtil(JsonInclude.Include include) {
-        mapper = new ObjectMapper();
-        // 设置输出时包含属性的风格
-        if (include != null) {
-            mapper.setSerializationInclusion(include);
-        }
-        // 设置输入时忽略在JSON字符串中存在但Java对象实际没有的属性
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    public static ObjectMapper getInstance() {
+        return objectMapper;
     }
 
     /**
-     * 获取ObjectMapper实例
-     *
-     * @param createNew 方式：true，新实例；false,存在的mapper实例
-     */
-    public static  ObjectMapper getMapperInstance(boolean createNew) {
-        if (createNew) {
-            return new ObjectMapper();
-        } else if (mapper == null) {
-            mapper = new ObjectMapper();
-        }
-        return mapper;
-    }
-
-    /**
-     * 只输出非空属性
-     */
-    public static String toJsonNotNull(Object o) throws Exception {
-        return nonNullMapper().toJson(o);
-    }
-
-    /**
-     * Object可以是POJO，也可以是Collection或数组。 如果对象为Null, 返回"null". 如果集合为空集合, 返回"[]".
+     * bean、array、List、Map --> json
      */
     public static String toJson(Object object) throws ServiceException {
-
         try {
-            return mapper.writeValueAsString(object);
-        } catch (IOException e) {
-            throw new ServiceException(ErrorCode.SERVER_ERROR,e.getMessage());
+            return getInstance().writeValueAsString(object);
+        } catch (Exception e) {
+            throw new ServiceException("toJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
 
     /**
-     * 创建只输出非Null的属性到Json字符串的Mapper
-     */
-    public static JacksonUtil nonNullMapper() {
-        return new JacksonUtil(JsonInclude.Include.NON_NULL);
-    }
-
-    /**
-     * 将java对象转换成json字符串
+     * string --> bean、Map、List(array)
      *
-     * @param obj 准备转换的对象
-     * @return json字符串
+     * @param jsonStr
+     * @param clazz
+     * @return obj
+     * @throws Exception
      */
-    public static String beanToJson(Object obj) throws Exception {
+    public static <T> T fromJson(String jsonStr, Class<T> clazz) throws ServiceException {
+
         try {
-            ObjectMapper objectMapper = getMapperInstance(false);
-            String json = objectMapper.writeValueAsString(obj);
-            return json;
+            return getInstance().readValue(jsonStr, clazz);
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new ServiceException("fromJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
 
     /**
-     * 将java对象转换成json字符串
+     * string --> List<Bean>
      *
-     * @param obj 准备转换的对象
-     * @param createNew ObjectMapper实例方式:true，新实例;false,存在的mapper实例
-     * @return json字符串
+     * @param jsonStr
+     * @param parametrized
+     * @param parameterClasses
+     * @param <T>
+     * @return
      */
-    public static String beanToJson(Object obj, Boolean createNew) throws Exception {
-        try {
-            ObjectMapper objectMapper = getMapperInstance(createNew);
-            String json = objectMapper.writeValueAsString(obj);
-            return json;
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-    }
+    public static <T> T fromJson(String jsonStr, Class<?> parametrized, Class<?>... parameterClasses) throws ServiceException {
 
-    /**
-     * 将json字符串转换成java对象
-     *
-     * @param json 准备转换的json字符串
-     * @param cls 准备转换的类
-     */
-    public static <T> T jsonToBean(String json, Class<T> cls) throws Exception {
         try {
-            ObjectMapper objectMapper = getMapperInstance(true);
-            return objectMapper.readValue(json, cls);
+            JavaType javaType = getInstance().getTypeFactory().constructParametricType(parametrized, parameterClasses);
+            return getInstance().readValue(jsonStr, javaType);
         } catch (Exception e) {
-            throw new Exception(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 将json字符串转换成java对象
-     *
-     * @param json 准备转换的json字符串
-     * @param cls 准备转换的类
-     * @param createNew ObjectMapper实例方式:true，新实例;false,存在的mapper实例
-     */
-    public static Object jsonToBean(String json, Class<?> cls, Boolean createNew) throws Exception {
-        try {
-            ObjectMapper objectMapper = getMapperInstance(createNew);
-            Object vo = objectMapper.readValue(json, cls);
-            return vo;
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new ServiceException("fromJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
 
@@ -139,18 +79,43 @@ public class JacksonUtil {
      * 将json串转成 JsonNode
      */
     public static JsonNode getJsonNode(String json) throws ServiceException {
+
         try {
             json = json.replaceAll("\r|\n|\t", "");
-            ObjectMapper objectMapper = getMapperInstance(false);
-            return objectMapper.reader().readTree(json);
-        } catch (IOException e) {
-            throw new ServiceException(ErrorCode.SERVER_ERROR,e.getMessage());
+            return getInstance().reader().readTree(json);
+        } catch (Exception e) {
+            throw new ServiceException("getJsonNode exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
 
-    public static <T> T convertValue(Object fromValue, Class<T> toValueType) {
-        ObjectMapper objectMapper = getMapperInstance(false);
-        return objectMapper.convertValue(fromValue, toValueType);
+    public static void main(String[] args) {
+        try {
+            // bean
+            Users u = new Users();
+            u.setId(123);
+            u.setNickname("张三");
+            u.setCreatedAt(new Date());
+            String jsonStr = toJson(u);
+            System.out.println(jsonStr);
+
+            System.out.println(fromJson(jsonStr.substring(20), Users.class));
+
+            // list
+            List<Users> list = new ArrayList<Users>();
+            for (int i = 0; i < 2; i++) {
+                u = new Users();
+                u.setId(10 + i);
+                u.setNickname("tom" + i);
+                list.add(u);
+            }
+            String result = JacksonUtil.toJson(list);
+            System.out.println(result);
+
+            List<Users> list2 = fromJson(result, List.class, Users.class);
+            System.out.println(list2);
+        } catch (ServiceException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
- }
+}

@@ -11,6 +11,7 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.dto.FavGroupsDTO;
+import com.rcloud.server.sealtalk.model.dto.SyncInfoDTO;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import com.rcloud.server.sealtalk.util.*;
@@ -68,13 +69,12 @@ public class UserController extends BaseController {
     public APIResult<Object> sendCodeYp(@ApiParam(name = "region", value = "区号", required = true, type = "String", example = "86")
                                         @RequestParam String region,
                                         @ApiParam(name = "phone", value = "电话号", required = true, type = "String", example = "188xxxxxxxx")
-                                        @RequestParam String phone,
-                                        HttpSession httpSession) throws ServiceException {
+                                        @RequestParam String phone) throws ServiceException {
 
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
 
-        ServerApiParams serverApiParams = getServerApiParams(httpSession);
+        ServerApiParams serverApiParams = getServerApiParams();
         userManager.sendCode(region, phone, SmsServiceType.YUNPIAN, serverApiParams);
         return APIResultWrap.ok("");
     }
@@ -405,8 +405,13 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/get_image_token", method = RequestMethod.POST)
     public APIResult<Object> getImageToken() throws ServiceException {
 
-        //TODO
-        return APIResultWrap.ok("");
+        String token = userManager.getImageToken();
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("target", "qiniu");
+        map.put("domain", sealtalkConfig.getQiniuBucketDomain());
+        map.put("token", token);
+        return APIResultWrap.ok(map);
     }
 
 
@@ -414,8 +419,18 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/get_sms_img_code", method = RequestMethod.POST)
     public APIResult<Object> getSmsImgCode() throws ServiceException {
 
-        //TODO
-        return APIResultWrap.ok("");
+        String result = userManager.getSmsImgCode();
+
+        JsonNode jsonNode = JacksonUtil.getJsonNode(result);
+
+        if (jsonNode.get("code").toString().equals("200")) {
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("url", jsonNode.get("url"));
+            resultMap.put("verifyId", jsonNode.get("verifyId"));
+            return APIResultWrap.ok(resultMap);
+        } else {
+            throw new ServiceException(ErrorCode.SERVER_ERROR, "RongCloud Server API Error Code: " + jsonNode.get("code"));
+        }
     }
 
     @ApiOperation(value = "获取当前用户所属群组")
@@ -423,23 +438,23 @@ public class UserController extends BaseController {
     public APIResult<Object> getGroups(HttpServletRequest request) throws ServiceException {
 
         Integer currentUserId = getCurrentUserId(request);
-        String result = userManager.getGroups(currentUserId);
+        List<Groups> groupsList = userManager.getGroups(currentUserId);
 
-        return APIResultWrap.ok(result);
+        return APIResultWrap.ok(MiscUtils.encodeResults(groupsList, "id", "creatorId"));
     }
 
-    //TODO
     @ApiOperation(value = "同步用户的好友、黑名单、群组、群组成员数据")
     @RequestMapping(value = "/sync/{version}", method = RequestMethod.POST)
-    public APIResult<Object> getGroups(@ApiParam(name = "version", value = "请求的时间戳(版本号)", required = true, type = "Integer", example = "xxx")
-                                       @PathVariable("version") Integer timeStampVersion,
-                                       HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> syncInfo(@ApiParam(name = "version", value = "请求的版本号(时间戳)", required = true, type = "String", example = "xxx")
+                                      @PathVariable("version") String version,
+                                      HttpServletRequest request) throws ServiceException {
+
+        ValidateUtils.checkTimeStamp(version);
 
         Integer currentUserId = getCurrentUserId(request);
 
-        String result = userManager.getGroups(currentUserId);
-
-        return APIResultWrap.ok(result);
+        SyncInfoDTO syncInfoDTO = userManager.getSyncInfo(currentUserId, Long.valueOf(version));
+        return APIResultWrap.ok(syncInfoDTO);
     }
 
 
@@ -491,12 +506,12 @@ public class UserController extends BaseController {
     @ApiOperation(value = "获取通讯录群组")
     @RequestMapping(value = "/favgroups", method = RequestMethod.GET)
     public APIResult<Object> getFavGroups(@ApiParam(name = "limit", value = "limit", required = false, type = "Integer", example = "xxx")
-                                          @RequestParam(value = "limit",required = false) Integer limit,
+                                          @RequestParam(value = "limit", required = false) Integer limit,
                                           @ApiParam(name = "offset", value = "offset", required = false, type = "Integer", example = "xxx")
-                                          @RequestParam(value = "offset",required = false) Integer offset,
+                                          @RequestParam(value = "offset", required = false) Integer offset,
                                           HttpServletRequest request) throws ServiceException {
 
-        if((limit==null && offset!=null) || (limit!=null && offset==null)){
+        if ((limit == null && offset != null) || (limit != null && offset == null)) {
             throw new ServiceException(ErrorCode.REQUEST_ERROR);
         }
         Integer currentUserId = getCurrentUserId(request);
@@ -544,13 +559,13 @@ public class UserController extends BaseController {
     @ApiOperation(value = "设置个人隐私设置")
     @RequestMapping(value = "/set_privacy", method = RequestMethod.POST)
     public APIResult<Object> setPrivacy(@ApiParam(name = "phoneVerify", value = "是否允许通过手机号搜索到我", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam(value = "phoneVerify",required = false) Integer phoneVerify,
+                                        @RequestParam(value = "phoneVerify", required = false) Integer phoneVerify,
                                         @ApiParam(name = "stSearchVerify", value = "是否允许 SealTalk 号搜索到我", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam(value = "stSearchVerify",required = false) Integer stSearchVerify,
+                                        @RequestParam(value = "stSearchVerify", required = false) Integer stSearchVerify,
                                         @ApiParam(name = "friVerify", value = "是否加好友验证", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam(value = "friVerify",required = false) Integer friVerify,
+                                        @RequestParam(value = "friVerify", required = false) Integer friVerify,
                                         @ApiParam(name = "groupVerify", value = "是否允许直接添加至群聊", required = false, type = "Integer", example = "xxx")
-                                        @RequestParam(value = "groupVerify",required = false) Integer groupVerify,
+                                        @RequestParam(value = "groupVerify", required = false) Integer groupVerify,
                                         HttpServletRequest request) throws ServiceException {
 
         ValidateUtils.checkPrivacy(phoneVerify, stSearchVerify, friVerify, groupVerify);
@@ -620,7 +635,10 @@ public class UserController extends BaseController {
      */
     private void setCookie(HttpServletResponse response, int userId) {
 
-        byte[] value = AES256.encrypt(String.valueOf(userId), sealtalkConfig.getAuthCookieKey());
+        int salt = RandomUtil.randomBetween(1000, 9999);
+        String text = salt+Constants.SEPARATOR+userId+Constants.SEPARATOR+System.currentTimeMillis();
+
+        byte[] value = AES256.encrypt(text, sealtalkConfig.getAuthCookieKey());
 
         Cookie cookie = new Cookie(sealtalkConfig.getAuthCookieName(), new String(value));
         cookie.setHttpOnly(true);

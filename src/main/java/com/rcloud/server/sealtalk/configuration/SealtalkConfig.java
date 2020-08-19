@@ -56,4 +56,6 @@ public class SealtalkConfig {
     private Integer yunpianLimitedTime;
     @Value("${sealtalk-config.yunpian_limited_count:20}")//限制次数
     private Integer yunpianLimitedCount;
+    @Value("${sealtalk-config.exclude_url}")
+    private String excludeUrl;
 }

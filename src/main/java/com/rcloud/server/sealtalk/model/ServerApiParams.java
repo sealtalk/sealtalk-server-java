@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class ServerApiParams {
 
-    private ServerApiCookie serverApiCookie;
+    private Integer currentUserId;
+
     private RequestUriInfo requestUriInfo;
 }

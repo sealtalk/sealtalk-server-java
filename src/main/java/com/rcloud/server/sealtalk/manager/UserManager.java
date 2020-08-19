@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.manager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import com.qiniu.util.Auth;
 import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
@@ -9,6 +10,7 @@ import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.domain.*;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
+import com.rcloud.server.sealtalk.model.dto.SyncInfoDTO;
 import com.rcloud.server.sealtalk.rongcloud.RongCloudClient;
 import com.rcloud.server.sealtalk.service.*;
 import com.rcloud.server.sealtalk.sms.SmsService;
@@ -85,6 +87,9 @@ public class UserManager extends BaseManager {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private HttpClient httpClient;
 
     /**
      * 向手机发送验证码
@@ -778,30 +783,26 @@ public class UserManager extends BaseManager {
      * @param currentUserId
      * @return
      */
-    public String getGroups(Integer currentUserId) throws ServiceException {
+    public List<Groups> getGroups(Integer currentUserId) throws ServiceException {
 
-        String userGroups = CacheUtil.get(CacheUtil.USER_GROUP_CACHE_PREFIX);
-        if (!StringUtils.isEmpty(userGroups)) {
-            return userGroups;
+        List<Groups> groupsList = new ArrayList<>();
+
+        String groupsJson = CacheUtil.get(CacheUtil.USER_GROUP_CACHE_PREFIX + currentUserId);
+
+        if (!StringUtils.isEmpty(groupsJson)) {
+            return JacksonUtil.fromJson(groupsJson, List.class, Groups.class);
         }
 
         //缓存中为空，去查询db
         List<GroupMembers> groupMembersList = groupMembersService.queryGroupMembersWithGroupByMemberId(currentUserId);
 
-        //TODO
-        try {
-            userGroups = JacksonUtil.toJson(MiscUtils.encodeResults(groupMembersList));
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ServiceException(ErrorCode.SERVER_ERROR);
-        }
-
-        // 缓存结果
         if (!CollectionUtils.isEmpty(groupMembersList)) {
-            CacheUtil.set(CacheUtil.USER_GROUP_CACHE_PREFIX + currentUserId, userGroups);
+            for (GroupMembers groupMembers : groupMembersList) {
+                groupsList.add(groupMembers.getGroups());
+            }
         }
-
-        return userGroups;
+        CacheUtil.set(CacheUtil.USER_GROUP_CACHE_PREFIX + currentUserId, JacksonUtil.toJson(groupsList));
+        return groupsList;
     }
 
     /**
@@ -860,6 +861,7 @@ public class UserManager extends BaseManager {
 
     /**
      * 获取通讯录群组列表
+     *
      * @param userId
      * @param limit
      * @param offset
@@ -901,6 +903,132 @@ public class UserManager extends BaseManager {
             log.error("get Region resource error:" + e.getMessage(), e);
             throw new ServiceException(ErrorCode.INVALID_REGION_LIST);
         }
+
+    }
+
+    /**
+     * 获取云存储token
+     */
+    public String getImageToken() {
+
+        String accessKey = sealtalkConfig.getQiniuAccessKey();
+        String secretKey = sealtalkConfig.getQiniuSecretKey();
+        String bucket = sealtalkConfig.getQiniuBucketName();
+        Auth auth = Auth.create(accessKey, secretKey);
+        String upToken = auth.uploadToken(bucket);
+        return upToken;
+    }
+
+    /**
+     * 获取短信图形验证码
+     */
+    public String getSmsImgCode() {
+
+        //TODO
+        String result = httpClient.get(Constants.URL_GET_RONGCLOUD_IMG_CODE + sealtalkConfig.getRongcloudAppKey());
+        return result;
+    }
+
+
+    /**
+     * 同步用户的好友、黑名单、群组、群组成员数据
+     *
+     * @param currentUserId
+     * @param version
+     */
+    public SyncInfoDTO getSyncInfo(Integer currentUserId, Long version) {
+
+        SyncInfoDTO syncInfoDTO = new SyncInfoDTO();
+
+        //获取用户的各数据版本 userVersion、blacklistVersion、friendshipVersion、groupVersion、groupMemberVersion
+        DataVersions dataVersions = dataVersionsService.getByPrimaryKey(currentUserId);
+
+        Users users = null;
+        List<BlackLists> blackListsList = null;
+        List<Friendships> friendshipsList = null;
+        List<GroupMembers> groupsList = null;
+        List<GroupMembers> groupMembersList = null;
+
+        if (dataVersions.getUserId() > version) {
+            //获取用户信息
+            users = usersService.getByPrimaryKey(currentUserId);
+        }
+
+        if (dataVersions.getBlacklistVersion() > version) {
+            //获取用户黑名单信息
+            blackListsList = blackListsService.getBlackListsWithFriendUsers(currentUserId, version);
+        }
+
+        if (dataVersions.getFriendshipVersion() > version) {
+            friendshipsList = friendshipsService.getFriendShipListWithUsers(currentUserId, version);
+        }
+
+        List<Integer> groupIdList = new ArrayList<>();
+        if (dataVersions.getGroupVersion() > version) {
+            groupsList = groupMembersService.queryGroupMembersWithGroupByMemberId(currentUserId);
+            if (!CollectionUtils.isEmpty(groupMembersList)) {
+                for (GroupMembers groupMember : groupsList) {
+                    if (groupMember.getGroups() != null) {
+                        groupIdList.add(groupMember.getGroups().getId());
+                    }
+                }
+            }
+        }
+
+        if (dataVersions.getGroupVersion() > version) {
+            groupMembersList = groupMembersService.queryGroupMembersWithUsersByMGroupIds(groupIdList, version);
+        }
+
+        Long maxVersion = 0L;
+        if (users != null) {
+            maxVersion = users.getTimestamp();
+        }
+
+        if (blackListsList != null) {
+            for (BlackLists blackLists : blackListsList) {
+                if (blackLists.getTimestamp() > maxVersion) {
+                    maxVersion = blackLists.getTimestamp();
+                }
+            }
+        }
+
+        if (friendshipsList != null) {
+            for (Friendships friendships : friendshipsList) {
+                if (friendships.getTimestamp() > maxVersion) {
+                    maxVersion = friendships.getTimestamp();
+                }
+            }
+        }
+
+        if (groupsList != null) {
+            for (GroupMembers groupMembers : groupsList) {
+                if (groupMembers.getGroups() != null) {
+                    if (groupMembers.getGroups().getTimestamp() > maxVersion) {
+                        maxVersion = groupMembers.getGroups().getTimestamp();
+                    }
+                }
+
+            }
+        }
+
+        if (groupMembersList != null) {
+            for (GroupMembers groupMembers : groupMembersList) {
+                if (groupMembers.getTimestamp() > maxVersion) {
+                    maxVersion = groupMembers.getTimestamp();
+                }
+            }
+        }
+
+        log.info("sync info ,maxVersion={}", maxVersion);
+
+
+        syncInfoDTO.setVersion(version);
+        syncInfoDTO.setUser(users);
+        syncInfoDTO.setBlacklist(blackListsList != null ? blackListsList : new ArrayList<BlackLists>());
+        syncInfoDTO.setFriends(friendshipsList != null ? friendshipsList : new ArrayList<Friendships>());
+        syncInfoDTO.setGroups(groupsList != null ? groupsList : new ArrayList<GroupMembers>());
+        syncInfoDTO.setGroup_members(groupMembersList != null ? groupMembersList : new ArrayList<GroupMembers>());
+        return syncInfoDTO;
 
     }
 }

@@ -170,4 +170,9 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
 
     public void updateDeleteStatus(Integer groupId, boolean isDelete,long timestamp) {
     }
+
+    public List<GroupMembers> queryGroupMembersWithUsersByMGroupIds(List<Integer> groupIdList, Long version) {
+        //TODO
+        return null;
+    }
 }

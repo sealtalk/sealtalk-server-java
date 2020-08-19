@@ -94,4 +94,9 @@ public class BlackListsService extends AbstractBaseService<BlackLists, Integer> 
         this.updateByExampleSelective(blackLists, example);
 
     }
+
+    public List<BlackLists> getBlackListsWithFriendUsers(Integer currentUserId, Long timestamp) {
+
+        return null;//TODO
+    }
 }

@@ -38,7 +38,7 @@ public class MiscUtilsTest {
 
         Users u = new Users();
 
-        log.error("test {},{},{},{}",3,key,map,u);
+        log.info("test {},{},{},{}",3,key,map,u);
     }
 
     @Test
