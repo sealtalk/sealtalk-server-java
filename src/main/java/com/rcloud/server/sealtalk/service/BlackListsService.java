@@ -57,7 +57,7 @@ public class BlackListsService extends AbstractBaseService<BlackLists, Integer> 
             newBlackLists.setStatus(status);
             newBlackLists.setTimestamp(timestamp);
             newBlackLists.setUpdatedAt(new Date());
-            this.updateByPrimaryKey(newBlackLists);
+            this.updateByPrimaryKeySelective(newBlackLists);
         }
     }
 
