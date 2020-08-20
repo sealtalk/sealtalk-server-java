@@ -9,9 +9,9 @@ import com.rcloud.server.sealtalk.domain.ScreenStatuses;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.GroupManager;
 import com.rcloud.server.sealtalk.manager.MiscManager;
+import com.rcloud.server.sealtalk.model.dto.DemoSquareDTO;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
-import com.rcloud.server.sealtalk.model.dto.DemoSquareDTO;
 import com.rcloud.server.sealtalk.util.CacheUtil;
 import com.rcloud.server.sealtalk.util.JacksonUtil;
 import com.rcloud.server.sealtalk.util.MiscUtils;
@@ -126,8 +126,6 @@ public class MiscController extends BaseController {
     public void getClientVersion(HttpServletResponse response) throws ServiceException, IOException {
         try {
             response.setCharacterEncoding("utf8");
-
-
             String result = CacheUtil.get(CacheUtil.CLIENT_VERSION_INFO);
             if (StringUtils.isEmpty(result)) {
                 String jsonData = IOUtils
@@ -217,7 +215,7 @@ public class MiscController extends BaseController {
             }
             return APIResultWrap.ok(MiscUtils.encodeResults(demoSquareDTOList));
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             return APIResultWrap.error(ErrorCode.SERVER_ERROR);
         }
     }

@@ -30,10 +30,10 @@ public class APIResultWrap {
         return new APIResult<>(SUCCESS_CODE, message, data);
     }
 
-    public static <T> APIResult<List<T>> ok(List<T> data) {
-        Map<String, List<T>> items = ImmutableMap.of(DATA_RESULT, data);
-        return new APIResult(SUCCESS_CODE, StringUtils.EMPTY, items);
-    }
+//    public static <T> APIResult<List<T>> ok(List<T> data) {
+//        Map<String, List<T>> items = ImmutableMap.of(DATA_RESULT, data);
+//        return new APIResult(SUCCESS_CODE, StringUtils.EMPTY, items);
+//    }
 
     public static APIResult error(ServiceException ex) {
         int errorCode = ex.getErrorCode();

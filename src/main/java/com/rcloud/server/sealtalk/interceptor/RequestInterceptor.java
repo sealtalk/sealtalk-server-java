@@ -23,10 +23,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * @Author: xiuwei.nie
+ * @Author: Jianlu.Yu
  * @Date: 2020/7/6
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
@@ -46,7 +48,6 @@ public class RequestInterceptor implements HandlerInterceptor {
     @Resource
     private SealtalkConfig sealtalkConfig;
 
-
     @PostConstruct
     public void postConstruct() {
         String excludeUrls = sealtalkConfig.getExcludeUrl();
@@ -58,12 +59,12 @@ public class RequestInterceptor implements HandlerInterceptor {
         }
     }
 
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                              Object handler) throws Exception {
 
         ServerApiParams serverApiParams = new ServerApiParams();
+        serverApiParams.setTraceId(UUID.randomUUID().toString());
         String uri = request.getRequestURI();
 
         String userAgent = request.getHeader("User-Agent");
@@ -82,7 +83,7 @@ public class RequestInterceptor implements HandlerInterceptor {
             if (parameterMap.containsKey("password")) {
                 tempParameterMap.put("password", new String[]{"**********"});
             }
-            log.info("requtest info: userAgent={},method={},uri={},parameters={}", userAgent, method, uri, JacksonUtil.toJson(tempParameterMap));
+            log.info("requtest info: userAgent={},method={},uri={},parameters={},traceId={} ", userAgent, method, uri, JacksonUtil.toJson(tempParameterMap),serverApiParams.getTraceId());
         } else {
             Cookie authCookie = getAuthCookie(request);
             if (authCookie == null) {
@@ -104,7 +105,7 @@ public class RequestInterceptor implements HandlerInterceptor {
                 response.getWriter().write("Invalid cookie value");
                 return false;
             }
-            log.info("requtest info: userAgent={},{},{},method={},uri={},parameters={}", userAgent, N3d.encode(currentUserId), currentUserId, method, uri, JacksonUtil.toJson(tempParameterMap));
+            log.info("requtest info: userAgent={},method={},uri={},parameters={},traceId={},{} ", userAgent,  method, uri, JacksonUtil.toJson(tempParameterMap),serverApiParams.getTraceId(),N3d.encode(currentUserId));
 
         }
         ServerApiParamHolder.put(serverApiParams);
@@ -121,7 +122,7 @@ public class RequestInterceptor implements HandlerInterceptor {
         String cookieValue = authCookie.getValue();
         String decrypt = AES256.decrypt(cookieValue.getBytes(), sealtalkConfig.getAuthCookieKey());
         assert decrypt != null;
-        String[] split = decrypt.split(Constants.SEPARATOR);
+        String[] split = decrypt.split(Constants.SEPARATOR_ESCAPE);
         if (split.length != 3) {
             throw new ServiceException(ErrorCode.COOKIE_ERROR, "Invalid cookie value!");
         }

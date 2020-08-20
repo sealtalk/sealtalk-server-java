@@ -2,7 +2,9 @@ package com.rcloud.server.sealtalk.rongcloud;
 
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.util.JacksonUtil;
 import io.rong.RongCloud;
+import io.rong.messages.ContactNtfMessage;
 import io.rong.methods.message._private.Private;
 import io.rong.methods.message.chatroom.Chatroom;
 import io.rong.methods.message.discussion.Discussion;
@@ -14,6 +16,7 @@ import io.rong.methods.user.blacklist.Blacklist;
 import io.rong.models.Result;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
+import io.rong.models.message.SystemMessage;
 import io.rong.models.response.BlackListResult;
 import io.rong.models.response.ResponseResult;
 import io.rong.models.response.TokenResult;
@@ -23,7 +26,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: Jianlu.Yu
@@ -163,9 +168,27 @@ public class DefaultRongCloudClient implements RongCloudClient {
         });
     }
 
-    @Override
-    public void sendContactNotification(String encodeCurrentUserId, String currentUserNickName, String encodeFriendId, String contactOperationType, String message, long timestamp) {
-        //TODO
+
+    public void sendContactNotification(String senderId, String nickname, String[] targetIds,String toUserId, String operation, String messageContent, long timestamp) throws ServiceException {
+         RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+
+                Map<String,Object> extraInfoMap = new HashMap<>();
+                extraInfoMap.put("sourceUserNickname",nickname);
+                extraInfoMap.put("version",timestamp);
+                String extraInfo = JacksonUtil.toJson(extraInfoMap);
+                ContactNtfMessage contactNtfMessage = new ContactNtfMessage(operation,extraInfo,senderId,toUserId,messageContent);
+
+                SystemMessage systemMessage = new SystemMessage()
+                        .setSenderId(senderId)
+                        .setTargetId(targetIds)
+                        .setObjectName(contactNtfMessage.getType())
+                        .setContent(contactNtfMessage);
+                return rongCloud.message.system.send(systemMessage);
+            }
+        });
+
     }
 
 
@@ -193,6 +216,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
     @Override
     public Result createGroup(String encode, List<String> encodeMemberIds, String name) {
+
 
         return null;
     }

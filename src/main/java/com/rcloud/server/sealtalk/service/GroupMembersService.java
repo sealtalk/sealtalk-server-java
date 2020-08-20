@@ -44,9 +44,6 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
         return mapper.queryGroupMembersWithGroupByMemberId(example);
     }
 
-
-    //TODO
-
     /**
      * 批量保存或更新GroupMembers
      *
@@ -92,7 +89,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
             throw new ServiceException(ErrorCode.INVALID_PARAM_CREATOR);
         }
 
-        //TODO mybatis批量插入?
+        //TODO
         if (updateGroupMemberIds.size() > 0) {
 
             for (Integer memerId : updateGroupMemberIds) {
@@ -104,7 +101,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
                 example1.createCriteria().andEqualTo("groupId", groupId)
                         .andIn("memberId", updateGroupMemberIds);
 
-                this.updateByExampleSelective(groupMembers, example);
+                this.updateByExampleSelective(groupMembers, example1);
             }
         }
 

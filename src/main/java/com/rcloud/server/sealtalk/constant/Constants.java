@@ -40,7 +40,8 @@ public class Constants {
 
     public static final String URL_GET_RONGCLOUD_IMG_CODE = "http://api.sms.ronghub.com/getImgCode.json?appKey=";
 
-    public static final String SEPARATOR = "\\|";
+    public static final String SEPARATOR_ESCAPE = "\\|";
+    public static final String SEPARATOR_NO = "|";
 
 
 

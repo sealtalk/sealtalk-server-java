@@ -148,7 +148,7 @@ public class GroupManager extends BaseManager {
         //构建返回结果
         for (int id : megerUserIdList) {
             UserStatusDTO userStatusDTO = new UserStatusDTO();
-            userStatusDTO.setId(encode(id));
+            userStatusDTO.setId(N3d.encode(id));
             userStatusDTO.setStatus(UserAddStatus.GROUP_ADDED.getCode());
             userStatusDTOList.add(userStatusDTO);
         }

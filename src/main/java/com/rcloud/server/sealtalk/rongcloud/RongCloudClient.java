@@ -84,15 +84,16 @@ public interface RongCloudClient {
     /**
      * 发送通知
      *
-     * @param encodeCurrentUserId
-     * @param currentUserNickName
-     * @param encodeFriendId
-     * @param contactOperationType
-     * @param message
-     * @param timestamp
+     * @param senderId       发送人
+     * @param nickname       发送人昵称
+     * @param targetIds      这条消息的接收人
+     * @param toUserId       operatoion操作对应的人，比如添加好友动作的好友
+     * @param operation      操作
+     * @param messageContent 消息内容
+     * @param timestamp      版本
+     * @throws ServiceException
      */
-    void sendContactNotification(String encodeCurrentUserId, String currentUserNickName, String encodeFriendId, String contactOperationType, String message, long timestamp);
-
+    public void sendContactNotification(String senderId, String nickname, String[] targetIds, String toUserId, String operation, String messageContent, long timestamp) throws ServiceException;
 
     //TODO
     ResponseResult sendPrivateMessage(PrivateMessage privateMessage) throws ServiceException;
@@ -103,9 +104,9 @@ public interface RongCloudClient {
     /**
      * 创建群组 TODO
      *
-     * @param encodeGroupId
-     * @param encodeMemberIds
-     * @param name
+     * @param encodeGroupId 群组ID
+     * @param encodeMemberIds 成员ID
+     * @param name   群名称
      */
     Result createGroup(String encodeGroupId, List<String> encodeMemberIds, String name);
 

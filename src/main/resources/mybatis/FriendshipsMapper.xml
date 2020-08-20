@@ -1,22 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rcloud.server.sealtalk.dao.FriendshipsMapper">
-  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.Friendships">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="userId" jdbcType="INTEGER" property="userId" />
-    <result column="friendId" jdbcType="INTEGER" property="friendId" />
-    <result column="displayName" jdbcType="VARCHAR" property="displayName" />
-    <result column="message" jdbcType="VARCHAR" property="message" />
-    <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="region" jdbcType="VARCHAR" property="region" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="imageUri" jdbcType="VARCHAR" property="imageUri" />
-    <result column="timestamp" jdbcType="BIGINT" property="timestamp" />
-    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
-    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
-  </resultMap>
+    <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.Friendships">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="userId" jdbcType="INTEGER" property="userId"/>
+        <result column="friendId" jdbcType="INTEGER" property="friendId"/>
+        <result column="displayName" jdbcType="VARCHAR" property="displayName"/>
+        <result column="message" jdbcType="VARCHAR" property="message"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="region" jdbcType="VARCHAR" property="region"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="imageUri" jdbcType="VARCHAR" property="imageUri"/>
+        <result column="timestamp" jdbcType="BIGINT" property="timestamp"/>
+        <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt"/>
+        <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt"/>
+    </resultMap>
+
+    <resultMap id="withUserResultMap" extends="BaseResultMap" type="com.rcloud.server.sealtalk.domain.Friendships">
+        <association property="users" javaType="com.rcloud.server.sealtalk.domain.Users">
+            <id column="u_user_id" jdbcType="INTEGER" property="id"/>
+            <result column="u_user_nickname" jdbcType="VARCHAR" property="nickname"/>
+            <result column="u_user_portraitUri" jdbcType="VARCHAR" property="portraitUri"/>
+            <result column="u_user_gender" jdbcType="VARCHAR" property="gender"/>
+            <result column="u_user_stAccount" jdbcType="VARCHAR" property="stAccount"/>
+            <result column="u_user_phone" jdbcType="VARCHAR" property="phone"/>
+            <result column="u_user_updatedAt" jdbcType="TIMESTAMP" property="updatedAt"/>
+        </association>
+    </resultMap>
+
+
+    <select id="getFriendShipListWithUsers" resultMap="withUserResultMap">
+        select
+         f.*,
+         u.id as u_user_id,
+         u.nickname as u_user_nickname,
+         u.portraitUri as u_user_portraitUri,
+         u.gender as u_user_gender,
+         u.stAccount as u_user_stAccount,
+         u.phone as u_user_phone,
+         u.updatedAt as u_user_updatedAt
+         from
+        friendships f join users u on f.friendId = u.id
+        where f.userId=#{userId}
+
+  </select>
+
+    <select id="getFriendShipWithUsers" resultMap="withUserResultMap">
+        select
+         f.*,
+         u.id as u_user_id,
+         u.nickname as u_user_nickname,
+         u.portraitUri as u_user_portraitUri,
+         u.gender as u_user_gender,
+         u.stAccount as u_user_stAccount,
+         u.phone as u_user_phone,
+         u.updatedAt as u_user_updatedAt
+         from
+        friendships f join users u on f.friendId = u.id
+        where f.userId=#{userId}
+        and f.friendId = #{friendId}
+        and f.status = #{status}
+
+  </select>
+
+
+
+
 </mapper>

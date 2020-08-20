@@ -2,8 +2,8 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.FriendshipsMapper;
 import com.rcloud.server.sealtalk.domain.Friendships;
-import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
@@ -27,44 +27,46 @@ public class FriendshipsService extends AbstractBaseService<Friendships, Integer
         return mapper;
     }
 
-    //TODO
+
     public void saveOrUpdate(Friendships friendship, Integer userId, Integer friendId) {
 
         Example example = new Example(Friendships.class);
-        example.createCriteria().andEqualTo("userId",userId)
-                                .andEqualTo("friendId",friendId);
+        example.createCriteria().andEqualTo("userId", userId)
+                .andEqualTo("friendId", friendId);
         Friendships f = this.getOneByExample(example);
-        if(f==null){
+        if (f == null) {
             this.save(friendship);
-        }else {
-            this.updateByExample(friendship,example);
+        } else {
+            this.updateByExample(friendship, example);
         }
     }
 
     public int updateAgreeStatus(Integer userId, Integer friendId, long timestamp, List<Integer> statusList) {
 
         Example example = new Example(Friendships.class);
-        example.createCriteria().andEqualTo("userId",userId)
-                .andEqualTo("friendId",friendId)
-                .andIn("status",statusList);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("userId", userId)
+                .andEqualTo("friendId", friendId);
+        if (!CollectionUtils.isEmpty(statusList)) {
+            criteria.andIn("status", statusList);
+        }
         Friendships friendships = new Friendships();
         friendships.setStatus(Friendships.FRIENDSHIP_AGREED);
         friendships.setTimestamp(timestamp);
-        return this.updateByExampleSelective(friendships,example);
+        return this.updateByExampleSelective(friendships, example);
     }
 
     public List<Friendships> getFriendShipListWithUsers(Integer currentUserId) {
-        //TODO
-        return null;
+        return mapper.getFriendShipListWithUsers(currentUserId);
     }
 
-    //TODO
-    public Friendships getFriendShipWithUsers(Integer currentUserId, int friendId,int status) {
-        return null;
+    public Friendships getFriendShipWithUsers(Integer currentUserId, int friendId, int status) {
+        return mapper.getFriendShipWithUsers(currentUserId,friendId,status);
     }
 
     /**
      * 更新好友关系状态为黑名单状态
+     *
      * @param currentUserId
      * @param friendId
      */
@@ -79,12 +81,20 @@ public class FriendshipsService extends AbstractBaseService<Friendships, Integer
 
         Example example = new Example(Friendships.class);
         example.createCriteria().andEqualTo("friendId", friendId)
-                .andEqualTo("userId",currentUserId)
+                .andEqualTo("userId", currentUserId)
                 .andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
         this.updateByExampleSelective(friendships, example);
     }
 
     public List<Friendships> getFriendShipListWithUsers(Integer currentUserId, Long version) {
         return null;//TODO
+    }
+
+    public Friendships getOneByUserIdAndFriendId(Integer currentUserId, Integer friendId) {
+        Friendships f = new Friendships();
+        f.setUserId(currentUserId);
+        f.setFriendId(friendId);
+        return this.getOne(f);
+
     }
 }

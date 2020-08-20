@@ -63,12 +63,14 @@ public enum ErrorCode {
     INVALID_INVITE_MESSAGE_LENGTH(400,"Length of friend request message is out of limit.",400),
     UNKNOW_FRIEND_USER_OR_INVALID_STATUS(404,"Unknown friend user or invalid status.",404),
     NOT_FRIEND_USER(403,"Current user is not friend of user",403),
+    ALREADY_YOUR_FRIEND(400, "User + friendId  is already your friend.",400),
+
 
     //group error
     INVALID_GROUP_NAME_LENGTH(400,"Length of group name is out of limit.",400),
     INVALID_GROUP_MEMNBER_COUNT(400,"Group's member count should be greater than 1 at least.",400),
     INVALID_GROUP_MEMNBER_MAX_COUNT(400,"Group's member count is out of max group member count limit.",400),
-    INVALID_USER_GROUP_COUNT_LIMIT(1000,"Current user's group count is out of max user group count limit.",1000),
+    INVALID_USER_GROUP_COUNT_LIMIT(1000,"Current user's group count is out of max user group count limit.",200),
     INVALID_PARAM_CREATOR(400,"Creator is not in memeber list.",400),
     GROUP_LIMIT_ERROR(20002,"Creator is not in memeber list.",20002),
     GROUP_UNKNOWN_ERROR(404,"Unknown group.",404),

@@ -19,11 +19,16 @@ import com.rcloud.server.sealtalk.service.FriendshipsService;
 import com.rcloud.server.sealtalk.service.UsersService;
 import com.rcloud.server.sealtalk.util.CacheUtil;
 import com.rcloud.server.sealtalk.util.JacksonUtil;
+import com.rcloud.server.sealtalk.util.MiscUtils;
 import com.rcloud.server.sealtalk.util.N3d;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
@@ -63,6 +68,9 @@ public class FriendShipManager extends BaseManager {
     @Resource
     private DataVersionsService dataVersionsService;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     /**
      * 发起添加好友
      *
@@ -72,7 +80,6 @@ public class FriendShipManager extends BaseManager {
      * @return
      * @throws ServiceException
      */
-    @Transactional(rollbackFor = Exception.class)
     public InviteDTO invite(Integer currentUserId, Integer friendId, String message)
             throws ServiceException {
         log.info("invite user. currentUserId:[{}] friendId:[{}]", currentUserId, friendId);
@@ -96,33 +103,34 @@ public class FriendShipManager extends BaseManager {
             throws ServiceException {
         String action = NONE;
         String resultMessage = "";
-        Friendships f = new Friendships();
-        f.setUserId(currentUserId);
-        f.setFriendId(friendId);
-        Friendships friendshipsCF = friendshipsService.getOne(f);
-        f.setUserId(friendId);
-        f.setFriendId(currentUserId);
-        Friendships friendshipsFC = friendshipsService.getOne(f);
+
+        //当前用户好友关系记录
+        Friendships friendshipsCF = friendshipsService.getOneByUserIdAndFriendId(currentUserId, friendId);
+        //对方好友关系记录
+        Friendships friendshipsFC = friendshipsService.getOneByUserIdAndFriendId(friendId, currentUserId);
 
         BlackLists b = new BlackLists();
-        b.setUserId(currentUserId);
-        b.setFriendId(friendId);
+        b.setUserId(friendId);
+        b.setFriendId(currentUserId);
         BlackLists blackLists = blackListsService.getOne(b);
 
-        boolean isInBlackList = checkInBlackList(blackLists, friendshipsCF);
-        if (isInBlackList) {
-            //在对方黑名单中不能添加好友
-            log.info("Invite result. None: blacklisted by friend.");
+        if (blackLists != null && BlackLists.STATUS_VALID.equals(blackLists.getStatus()) && Friendships.FRIENDSHIP_PULLEDBLACK.equals(friendshipsCF.getStatus())) {
+            //在对方黑名单中不能添加好友，返回Do nothing.
             resultMessage = "Do nothing.";
             return new InviteDTO(action, resultMessage);
         }
+
         action = ADDED;
         resultMessage = "Friend added.";
         long timestamp = System.currentTimeMillis();
 
         if (friendshipsCF != null && friendshipsFC != null) {
-            //如果双方的好友关系表都有记录，检查记录状态是否已经是好友了
-            checkStatus(friendshipsCF.getStatus(), friendshipsFC.getStatus(), friendId);
+            if (Friendships.FRIENDSHIP_AGREED.equals(friendshipsCF.getStatus()) && Friendships.FRIENDSHIP_AGREED.equals(friendshipsFC.getStatus())) {
+                //如果双方的已经是好友了，返回异常提示
+                String errorMsg = "User " + friendId + " is already your friend.";
+                throw new ServiceException(ErrorCode.ALREADY_YOUR_FRIEND, errorMsg);
+            }
+
             Calendar now_1 = Calendar.getInstance();
             Calendar now_3 = Calendar.getInstance();
             if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
@@ -142,13 +150,13 @@ public class FriendShipManager extends BaseManager {
 
             if (Friendships.FRIENDSHIP_REQUESTING.equals(friendshipsFC.getStatus())) {
                 //如果此时对方的好友关系表记录状态 是请求好友中
-                //说明二人都有意加对方为好友
+                //说明二人都有意加对方为好友-》彼此状态都设置为同意
                 cfStatus = Friendships.FRIENDSHIP_AGREED;
                 fcStatus = Friendships.FRIENDSHIP_AGREED;
                 message = friendshipsFC.getMessage();
 
             } else if (Friendships.FRIENDSHIP_AGREED.equals(friendshipsFC.getStatus())) {
-                //如果此时对方的好友关系表记录状态 已经同意好友
+                //如果此时对方的好友关系表记录状态 已经同意好友-》彼此状态都设置为同意
                 cfStatus = Friendships.FRIENDSHIP_AGREED;
                 fcStatus = Friendships.FRIENDSHIP_AGREED;
                 message = friendshipsFC.getMessage();
@@ -164,15 +172,8 @@ public class FriendShipManager extends BaseManager {
                 resultMessage = "Do nothing.";
                 return new InviteDTO(action, resultMessage);
             }
-            //更新好友关系表
-            friendshipsCF.setTimestamp(timestamp);
-            friendshipsCF.setStatus(cfStatus);
-            friendshipsService.updateByPrimaryKey(friendshipsCF);
-
-            friendshipsFC.setTimestamp(timestamp);
-            friendshipsFC.setStatus(fcStatus);
-            friendshipsFC.setMessage(message);
-            friendshipsService.updateByPrimaryKey(friendshipsFC);
+            //更新好友关系
+            doAddFriend0(message, friendshipsCF, friendshipsFC, timestamp, cfStatus, fcStatus);
 
             //刷新当前用户dataversion表好友关系数据版本
             refreshFriendshipVersion(currentUserId, timestamp);
@@ -183,7 +184,12 @@ public class FriendShipManager extends BaseManager {
                 //获取当前用户昵称
                 String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
                 //调用融云发送通知接口
-                rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+                try {
+                    rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, new String[]{N3d.encode(friendId)}, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+                } catch (Exception e) {
+                    log.error("Error: send contact notification failed:" + e.getMessage(), e);
+                }
+
                 //清除缓存
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -197,13 +203,9 @@ public class FriendShipManager extends BaseManager {
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
                 //返回
                 return new InviteDTO(action, resultMessage);
-
             }
-
         } else {
-            //TODO
             //如果双方的好友关系表不是都有记录或都没有记录，说明双方还不是好友
-
             if (currentUserId.equals(friendId)) {
                 //如果是添加自己,新增一条好友关系记录
                 Friendships friendship = new Friendships();
@@ -218,34 +220,22 @@ public class FriendShipManager extends BaseManager {
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
                 //返回
                 return new InviteDTO(action, resultMessage);
-
             } else {
                 //如果不是添加自己
-                //添加当前用户好友关系，状态FRIENDSHIP_REQUESTING 请求中
-                Friendships friendship = new Friendships();
-                friendship.setUserId(currentUserId);
-                friendship.setFriendId(friendId);
-                friendship.setStatus(Friendships.FRIENDSHIP_REQUESTING);
-                friendship.setMessage("");
-                friendship.setTimestamp(timestamp);
-                friendshipsService.saveSelective(friendship);
-
-                //添加对方好友关系，状态FRIENDSHIP_REQUESTED 被请求
-                Friendships friendship2 = new Friendships();
-                friendship2.setUserId(currentUserId);
-                friendship2.setFriendId(friendId);
-                friendship2.setStatus(Friendships.FRIENDSHIP_REQUESTED);
-                friendship2.setMessage(message);
-                friendship2.setTimestamp(timestamp);
-                friendshipsService.saveSelective(friendship);
+                doAddFriend1(currentUserId, friendId, message, timestamp);
                 //刷新好友关系数据版本
                 refreshFriendshipVersion(currentUserId, timestamp);
                 refreshFriendshipVersion(friendId, timestamp);
-
                 //获取当前用户昵称
                 String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
-                //调用融云发送通知接口
-                rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+
+                try {
+                    //调用融云发送通知接口
+                    rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, new String[]{N3d.encode(friendId)}, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+                } catch (Exception e) {
+                    log.error("Error: send contact notification failed:" + e.getMessage(), e);
+                }
+
                 //清除缓存
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -257,6 +247,72 @@ public class FriendShipManager extends BaseManager {
         }
     }
 
+    /**
+     * 保存好友关系
+     *
+     * @param currentUserId
+     * @param friendId
+     * @param message
+     * @param timestamp
+     */
+    private void doAddFriend1(Integer currentUserId, Integer friendId, String message, long timestamp) {
+        transactionTemplate.execute(new TransactionCallback<Boolean>() {
+            @Override
+            public Boolean doInTransaction(TransactionStatus transactionStatus) {
+                //添加当前用户好友关系，状态FRIENDSHIP_REQUESTING 请求中
+                Friendships friendship = new Friendships();
+                friendship.setUserId(currentUserId);
+                friendship.setFriendId(friendId);
+                friendship.setStatus(Friendships.FRIENDSHIP_REQUESTING);
+                friendship.setMessage("");
+                friendship.setTimestamp(timestamp);
+                friendship.setCreatedAt(new Date());
+                friendship.setUpdatedAt(friendship.getCreatedAt());
+                friendshipsService.saveSelective(friendship);
+
+                //添加对方好友关系，状态FRIENDSHIP_REQUESTED 被请求
+                Friendships friendship2 = new Friendships();
+                friendship2.setUserId(friendId);
+                friendship2.setFriendId(currentUserId);
+                friendship2.setStatus(Friendships.FRIENDSHIP_REQUESTED);
+                friendship2.setMessage(message);
+                friendship2.setTimestamp(timestamp);
+                friendship2.setCreatedAt(new Date());
+                friendship2.setUpdatedAt(friendship2.getCreatedAt());
+                friendshipsService.saveSelective(friendship2);
+                return true;
+            }
+        });
+
+    }
+
+    /**
+     * 保存好友关系
+     *
+     * @param message
+     * @param friendshipsCF
+     * @param friendshipsFC
+     * @param timestamp
+     * @param cfStatus
+     * @param fcStatus
+     */
+    private void doAddFriend0(String message, Friendships friendshipsCF, Friendships friendshipsFC, long timestamp, int cfStatus, int fcStatus) {
+        transactionTemplate.execute(new TransactionCallback<Boolean>() {
+            @Override
+            public Boolean doInTransaction(TransactionStatus transactionStatus) {
+                friendshipsCF.setTimestamp(timestamp);
+                friendshipsCF.setStatus(cfStatus);
+                friendshipsService.updateByPrimaryKey(friendshipsCF);
+
+                friendshipsFC.setTimestamp(timestamp);
+                friendshipsFC.setStatus(fcStatus);
+                friendshipsFC.setMessage(message);
+                friendshipsService.updateByPrimaryKey(friendshipsFC);
+                return true;
+            }
+        });
+    }
+
     private InviteDTO addNoNeedVerifyFriend(Integer currentUserId, Integer friendId, String message) throws ServiceException {
         String action = NONE;
         String resultMessage = "";
@@ -265,29 +321,17 @@ public class FriendShipManager extends BaseManager {
         //移除黑名单
         removeBlackList(currentUserId, friendId);
 
-        //插入或更新当前用户好友关系表状态为FRIENDSHIP_AGREED
-        Friendships friendship = new Friendships();
-        friendship.setUserId(currentUserId);
-        friendship.setFriendId(friendId);
-        friendship.setMessage(message);
-        friendship.setStatus(Friendships.FRIENDSHIP_AGREED);
-        friendship.setTimestamp(timestamp);
-        //TODO
-        friendshipsService.saveOrUpdate(friendship, currentUserId, friendId);
-
-        //插入或更新对方用户好友关系表状态为FRIENDSHIP_AGREED
-        Friendships friendship2 = new Friendships();
-        friendship2.setUserId(friendId);
-        friendship2.setFriendId(currentUserId);
-        friendship2.setMessage(message);
-        friendship2.setStatus(Friendships.FRIENDSHIP_AGREED);
-        friendship2.setTimestamp(timestamp);
-        friendshipsService.saveOrUpdate(friendship2, friendId, currentUserId);
+        //保存好友关系
+        doAddFriend2(currentUserId, friendId, message, timestamp);
 
         //获取当前用户昵称
         String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
-        //调用融云发送通知接口
-        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+        try {
+            //调用融云发送通知接口
+            rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, new String[]{N3d.encode(friendId)}, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, message, timestamp);
+        } catch (Exception e) {
+            log.error("Error: send contact notification failed:" + e.getMessage(), e);
+        }
         //清除缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
@@ -298,6 +342,38 @@ public class FriendShipManager extends BaseManager {
 
     }
 
+    private void doAddFriend2(Integer currentUserId, Integer friendId, String message, long timestamp) {
+
+        transactionTemplate.execute(new TransactionCallback<Boolean>() {
+            @Override
+            public Boolean doInTransaction(TransactionStatus transactionStatus) {
+                //插入或更新当前用户好友关系表状态为FRIENDSHIP_AGREED
+                Friendships friendship = new Friendships();
+                friendship.setUserId(currentUserId);
+                friendship.setFriendId(friendId);
+                friendship.setMessage(message);
+                friendship.setStatus(Friendships.FRIENDSHIP_AGREED);
+                friendship.setTimestamp(timestamp);
+                friendship.setCreatedAt(new Date());
+                friendship.setUpdatedAt(friendship.getCreatedAt());
+
+                friendshipsService.saveOrUpdate(friendship, currentUserId, friendId);
+
+                //插入或更新对方用户好友关系表状态为FRIENDSHIP_AGREED
+                Friendships friendship2 = new Friendships();
+                friendship2.setUserId(friendId);
+                friendship2.setFriendId(currentUserId);
+                friendship2.setMessage(message);
+                friendship2.setStatus(Friendships.FRIENDSHIP_AGREED);
+                friendship2.setTimestamp(timestamp);
+                friendship2.setCreatedAt(new Date());
+                friendship2.setUpdatedAt(friendship2.getCreatedAt());
+                friendshipsService.saveOrUpdate(friendship2, friendId, currentUserId);
+                return true;
+            }
+        });
+    }
+
     private void updateBlackListStatus(Integer currentUserId, Integer friendId) {
         BlackLists bl = new BlackLists();
         bl.setFriendId(friendId);
@@ -306,7 +382,7 @@ public class FriendShipManager extends BaseManager {
         Example example = new Example(BlackLists.class);
         example.createCriteria().andEqualTo("userId", currentUserId)
                 .andEqualTo("friendId", friendId);
-        blackListsService.updateByExample(bl, example);
+        blackListsService.updateByExampleSelective(bl, example);
     }
 
     /**
@@ -316,7 +392,7 @@ public class FriendShipManager extends BaseManager {
      */
     private void refreshFriendshipVersion(Integer userId, long timestamp) {
         DataVersions dataVersions = new DataVersions();
-        dataVersions.setUserVersion(Long.valueOf(userId));
+        dataVersions.setUserId(userId);
         dataVersions.setFriendshipVersion(timestamp);
         dataVersionsService.updateByPrimaryKeySelective(dataVersions);
     }
@@ -355,29 +431,6 @@ public class FriendShipManager extends BaseManager {
         );
     }
 
-    private void checkStatus(Integer statusCF, Integer statusFC, Integer friendId)
-            throws ServiceException {
-        if (statusCF == Friendships.FRIENDSHIP_AGREED && statusFC == Friendships.FRIENDSHIP_AGREED) {
-            String errorMsg = "User " + friendId + " is already your friend.";
-            throw new ServiceException(ErrorCode.REQUEST_ERROR, errorMsg);
-        }
-    }
-
-    private boolean checkInBlackList(BlackLists blackLists, Friendships friendshipsCF) {
-        if (blackLists == null) {
-            log.info("blackLists is empty.");
-            return false;
-        }
-        if (BlackLists.STATUS_INVALID.equals(blackLists.getStatus())) {
-            log.info("blackLists status is rm.");
-            return false;
-        }
-        if (friendshipsCF.getStatus() == Friendships.FRIENDSHIP_PULLEDBLACK) {
-            log.info("blacklisted by friend.");
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 同意添加好友
@@ -386,22 +439,11 @@ public class FriendShipManager extends BaseManager {
      * @param friendId
      * @throws ServiceException
      */
-    @Transactional(rollbackFor = Exception.class)
     public void agree(Integer currentUserId, Integer friendId) throws ServiceException {
         long timestamp = System.currentTimeMillis();
         //删除黑名单
         removeBlackList(currentUserId, friendId);
-        //更新当前用户好友关系状态
-        int effectedCount = friendshipsService.updateAgreeStatus(currentUserId, friendId, timestamp, ImmutableList.of(Friendships.FRIENDSHIP_REQUESTED, Friendships.FRIENDSHIP_AGREED));
-        if (effectedCount == 0) {
-            throw new ServiceException(ErrorCode.UNKNOW_FRIEND_USER_OR_INVALID_STATUS, "Unknown friend user or invalid status.");
-        }
-        //更新对方Friendship好友关系表中的状态为FRIENDSHIP_AGREED
-        Friendships friendships = new Friendships();
-        friendships.setStatus(Friendships.FRIENDSHIP_AGREED);
-        friendships.setTimestamp(timestamp);
-        Example example = new Example(Friendships.class);
-        friendshipsService.updateByExample(friendships, example);
+        doAgree0(currentUserId, friendId, timestamp);
 
         //刷新好友关系数据版本
         refreshFriendshipVersion(currentUserId, timestamp);
@@ -410,11 +452,29 @@ public class FriendShipManager extends BaseManager {
         //获取当前用户昵称
         String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
         //调用融云发送通知接口
-        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, "", timestamp);
+        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, new String[]{N3d.encode(friendId)}, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, "", timestamp);
         //清除缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
         return;
+    }
+
+    private void doAgree0(Integer currentUserId, Integer friendId, long timestamp) {
+
+        transactionTemplate.execute(new TransactionCallback<Boolean>() {
+            @Override
+            public Boolean doInTransaction(TransactionStatus transactionStatus) {
+
+                //更新当前用户好友关系状态
+                int effectedCount = friendshipsService.updateAgreeStatus(currentUserId, friendId, timestamp, ImmutableList.of(Friendships.FRIENDSHIP_REQUESTED, Friendships.FRIENDSHIP_AGREED));
+                if (effectedCount == 0) {
+                    throw new RuntimeException("Unknown friend user or invalid status.");
+                }
+                //更新对方Friendship好友关系表中的状态为FRIENDSHIP_AGREED
+                friendshipsService.updateAgreeStatus(friendId, currentUserId, timestamp, null);
+                return true;
+            }
+        });
     }
 
     /**
@@ -442,11 +502,10 @@ public class FriendShipManager extends BaseManager {
      * @param friendId
      * @throws ServiceException
      */
-    @Transactional(rollbackFor = Exception.class)
     public void ignore(Integer currentUserId, int friendId) throws ServiceException {
 
         long timestamp = System.currentTimeMillis();
-        //更新对方Friendship好友关系表中的状态为FRIENDSHIP_AGREED
+        //更新对方Friendship好友关系表中的状态为FRIENDSHIP_IGNORED
         Friendships friendships = new Friendships();
         friendships.setStatus(Friendships.FRIENDSHIP_IGNORED);
         friendships.setTimestamp(timestamp);
@@ -455,7 +514,7 @@ public class FriendShipManager extends BaseManager {
                 .andEqualTo("userId", currentUserId)
                 .andEqualTo("friendId", friendId);
 
-        int effectedCount = friendshipsService.updateByExample(friendships, example);
+        int effectedCount = friendshipsService.updateByExampleSelective(friendships, example);
         if (effectedCount == 0) {
             throw new ServiceException(ErrorCode.UNKNOW_FRIEND_USER_OR_INVALID_STATUS, "Unknown friend user or invalid status.");
         }
@@ -472,8 +531,7 @@ public class FriendShipManager extends BaseManager {
      * @param currentUserId
      * @param friendId
      */
-    @Transactional(rollbackFor = Exception.class)
-    public void delete(Integer currentUserId, int friendId) throws ServiceException {
+    public void delete(Integer currentUserId, Integer friendId) throws ServiceException {
 
         long timestamp = System.currentTimeMillis();
 
@@ -484,10 +542,10 @@ public class FriendShipManager extends BaseManager {
         friendships.setTimestamp(timestamp);
 
         Example example = new Example(Friendships.class);
-        example.createCriteria().andEqualTo("userId", currentUserId);
-        example.createCriteria().andEqualTo("friendId", friendId);
-        example.createCriteria().andIn("status", ImmutableList.of(Friendships.FRIENDSHIP_AGREED, Friendships.FRIENDSHIP_PULLEDBLACK));
-        int effectedCount = friendshipsService.updateByExample(friendships, example);
+        example.createCriteria().andEqualTo("userId", currentUserId)
+                .andEqualTo("friendId", friendId)
+                .andIn("status", ImmutableList.of(Friendships.FRIENDSHIP_AGREED, Friendships.FRIENDSHIP_PULLEDBLACK));
+        int effectedCount = friendshipsService.updateByExampleSelective(friendships, example);
 
         if (effectedCount == 0) {
             throw new ServiceException(ErrorCode.UNKNOW_FRIEND_USER_OR_INVALID_STATUS, "Unknown friend user or invalid status.");
@@ -503,12 +561,11 @@ public class FriendShipManager extends BaseManager {
             //同时插入或更新本地黑名单表
             blackListsService.saveOrUpdate(currentUserId, friendId, BlackLists.STATUS_VALID, timestamp);
             //刷新黑名单版本
-            DataVersions dataVersions = new DataVersions();
-            dataVersions.setUserVersion(new Long(currentUserId));
-            dataVersionsService.updateByPrimaryKeySelective(dataVersions);
+            dataVersionsService.updateBlacklistVersion(currentUserId, timestamp);
 
             //清除黑名单缓存
             CacheUtil.delete(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
+
             //更新好友关系表状态FRIENDSHIP_DELETED
             Friendships friendships2 = new Friendships();
             friendships2.setStatus(Friendships.FRIENDSHIP_DELETED);
@@ -517,10 +574,10 @@ public class FriendShipManager extends BaseManager {
             friendships2.setTimestamp(timestamp);
 
             Example example2 = new Example(Friendships.class);
-            example2.createCriteria().andEqualTo("userId", currentUserId);
-            example2.createCriteria().andEqualTo("friendId", friendId);
-            example2.createCriteria().andIn("status", ImmutableList.of(Friendships.FRIENDSHIP_AGREED));
-            friendshipsService.updateByExample(friendships, example);
+            example2.createCriteria().andEqualTo("userId", currentUserId)
+                    .andEqualTo("friendId", friendId)
+                    .andIn("status", ImmutableList.of(Friendships.FRIENDSHIP_AGREED));
+            friendshipsService.updateByExampleSelective(friendships2, example2);
 
             //清除相关缓存
             CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId);
@@ -542,25 +599,28 @@ public class FriendShipManager extends BaseManager {
      * @param friendId
      * @param displayName
      */
-    public void setDisplayName(Integer currentUserId, int friendId, String displayName) throws ServiceException {
+    public void setDisplayName(Integer currentUserId, Integer friendId, String displayName) throws ServiceException {
         long timestamp = System.currentTimeMillis();
 
+        //更新好友备注
         Friendships friendships = new Friendships();
         friendships.setStatus(Friendships.FRIENDSHIP_DELETED);
         friendships.setDisplayName(displayName);
         friendships.setTimestamp(timestamp);
 
         Example example = new Example(Friendships.class);
-        example.createCriteria().andEqualTo("userId", currentUserId);
-        example.createCriteria().andEqualTo("friendId", friendId);
-        example.createCriteria().andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
-        int effectedCount = friendshipsService.updateByExample(friendships, example);
+        example.createCriteria().andEqualTo("userId", currentUserId)
+                .andEqualTo("friendId", friendId)
+                .andEqualTo("status", Friendships.FRIENDSHIP_AGREED);
+        int effectedCount = friendshipsService.updateByExampleSelective(friendships, example);
         if (effectedCount == 0) {
             throw new ServiceException(ErrorCode.UNKNOW_FRIEND_USER_OR_INVALID_STATUS, "Unknown friend user or invalid status.");
         }
 
+        //刷新好友数据版本
         refreshFriendshipVersion(currentUserId, timestamp);
 
+        //清除缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         return;
@@ -573,21 +633,18 @@ public class FriendShipManager extends BaseManager {
      * @param currentUserId
      * @return
      */
-    public String getFriendList(Integer currentUserId) throws ServiceException {
+    public List<Friendships> getFriendList(Integer currentUserId) throws ServiceException {
 
         String result = CacheUtil.get(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
 
         if (result != null) {
-            return result;
+            return JacksonUtil.fromJson(result, List.class, Friendships.class);
         } else {
             List<Friendships> friendships = friendshipsService.getFriendShipListWithUsers(currentUserId);
-            if (!CollectionUtils.isEmpty(friendships)) {
-                result = JacksonUtil.toJson(friendships);
-                CacheUtil.set(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId, result);
-            }
+            result = JacksonUtil.toJson(friendships);
+            CacheUtil.set(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId, result);
+            return friendships;
         }
-
-        return result;
     }
 
     /**
@@ -597,10 +654,15 @@ public class FriendShipManager extends BaseManager {
      * @param friendId
      * @return
      */
-    public String getFriendProfile(Integer currentUserId, int friendId) throws ServiceException {
+    public Friendships getFriendProfile(Integer currentUserId, Integer friendId) throws ServiceException {
 
 
         String result = CacheUtil.get(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + "_" + currentUserId + "_" + friendId);
+
+        if (!StringUtils.isEmpty(result)) {
+            return JacksonUtil.fromJson(result, Friendships.class);
+        }
+
         Friendships friendships = friendshipsService.getFriendShipWithUsers(currentUserId, friendId, Friendships.FRIENDSHIP_AGREED);
 
         if (friendships == null) {
@@ -611,9 +673,7 @@ public class FriendShipManager extends BaseManager {
 
             CacheUtil.set(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId, friendships.getDisplayName());
             CacheUtil.set(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId, JacksonUtil.toJson(friendships.getUsers()));
-
-            return result;
-
+            return friendships;
         }
     }
 
@@ -627,9 +687,12 @@ public class FriendShipManager extends BaseManager {
 
         List<ContractInfoDTO> contractInfoDTOList = new ArrayList<>();
 
+        //根据联系人手机号列表查询已经注册的的用户信息
         Example example = new Example(Users.class);
         example.createCriteria().andIn("phone", CollectionUtils.arrayToList(contacstList));
+        example.selectProperties("id", "phone", "nickname", "portraitUri", "stAccount");
         List<Users> usersList = usersService.getByExample(example);
+
         List<Integer> registerUserIdList = new ArrayList<>();
         Map<String, Users> registerUsers = new HashMap<>();
 
@@ -640,21 +703,23 @@ public class FriendShipManager extends BaseManager {
             }
         }
 
+        //根据已注册用户信息查询好友关系
         Example friendShipExample = new Example(Friendships.class);
         friendShipExample.createCriteria().andEqualTo("userId", currentUserId)
                 .andEqualTo("status", Friendships.FRIENDSHIP_AGREED)
-                .andIn("friendId", CollectionUtils.arrayToList(contacstList));
-
-        List<Friendships> friendshipsList = friendshipsService.getByExample(example);
+                .andIn("friendId", registerUserIdList);
+        friendShipExample.selectProperties("friendId");
+        List<Friendships> friendshipsList = friendshipsService.getByExample(friendShipExample);
 
         List<Integer> friendIdList = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(friendshipsList)) {
             for (Friendships friendships : friendshipsList) {
-                friendIdList.add(friendships.getId());
+                friendIdList.add(friendships.getFriendId());
             }
         }
 
+        //merge结果
         for (String phone : contacstList) {
             ContractInfoDTO contractInfoDTO = new ContractInfoDTO();
             Users users = registerUsers.get(phone);
@@ -685,7 +750,6 @@ public class FriendShipManager extends BaseManager {
         return contractInfoDTOList;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void batchDelete(Integer currentUserId, String[] friendIds) throws ServiceException {
 
         long timestamp = System.currentTimeMillis();
@@ -700,16 +764,14 @@ public class FriendShipManager extends BaseManager {
                 .andEqualTo("userId", currentUserId)
                 .andIn("friendId", CollectionUtils.arrayToList(friendIds));
 
-        friendshipsService.updateByExample(friendships, example);
+        friendshipsService.updateByExampleSelective(friendships, example);
 
         //更新成功后添加到 IM 黑名单
-        String[] encodeFriendIds = new String[friendIds.length];
-        int i = 0;
-        for (String fId : friendIds) {
-            encodeFriendIds[i++] = N3d.encode(Integer.valueOf(fId));
-        }
+        String[] encodeFriendIds = MiscUtils.encodeIds(friendIds);
 
         rongCloudClient.addUserBlackList(N3d.encode(currentUserId), encodeFriendIds);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
+        return;
     }
 
     /**
@@ -750,7 +812,7 @@ public class FriendShipManager extends BaseManager {
                 newFriendships.setImageUri(imageUri);
             }
 
-            friendshipsService.updateByExample(newFriendships, example);
+            friendshipsService.updateByExampleSelective(newFriendships, example);
             CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
 
             return;

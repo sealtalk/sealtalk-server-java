@@ -63,8 +63,8 @@ public class YunPianSmsService implements SmsService {
 
 
     static {
-        //地区，对应短信模版id
-        regionTemplateMap.put("86", "zh-cn");
+        //地区，对应短信模版id TODO
+        regionTemplateMap.put("86", "3910922");
         regionTemplateMap.put("852", "3910922");
         regionTemplateMap.put("853", "3910922");
         regionTemplateMap.put("886", "3910922");

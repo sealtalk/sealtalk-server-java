@@ -25,7 +25,9 @@ public class ModifyParamFilter implements Filter {
         ModifyParamRequestWrapper requestWrapper = new ModifyParamRequestWrapper((HttpServletRequest) request);
 
         Map<String, String[]> parameterMap = new HashMap<>(requestWrapper.getParameterMap());
-        Set<Map.Entry<String, String[]>> entrySet = parameterMap.entrySet();
+        Map<String, String[]> iteratorMap = new HashMap<>(parameterMap);
+
+        Set<Map.Entry<String, String[]>> entrySet = iteratorMap.entrySet();
         for (Map.Entry<String, String[]> entry : entrySet) {
             String key = entry.getKey();
             String[] val = entry.getValue();

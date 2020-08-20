@@ -636,7 +636,7 @@ public class UserController extends BaseController {
     private void setCookie(HttpServletResponse response, int userId) {
 
         int salt = RandomUtil.randomBetween(1000, 9999);
-        String text = salt+Constants.SEPARATOR+userId+Constants.SEPARATOR+System.currentTimeMillis();
+        String text = salt+Constants.SEPARATOR_NO+userId+Constants.SEPARATOR_NO+System.currentTimeMillis();
 
         byte[] value = AES256.encrypt(text, sealtalkConfig.getAuthCookieKey());
 
