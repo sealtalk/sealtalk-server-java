@@ -32,7 +32,7 @@ public class GroupExitedListsService extends AbstractBaseService<GroupExitedList
      * @param groupId
      * @param quitUserIds
      */
-    public void deleteGroupExitedListItems(String groupId, List<Integer> quitUserIds) {
+    public void deleteGroupExitedListItems(Integer groupId, List<Integer> quitUserIds) {
 
         Example example = new Example(GroupExitedLists.class);
         example.createCriteria().andEqualTo("groupId", groupId)

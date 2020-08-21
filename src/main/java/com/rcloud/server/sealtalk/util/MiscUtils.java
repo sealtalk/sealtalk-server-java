@@ -294,7 +294,9 @@ public class MiscUtils {
         return null;
     }
 
-    public static Integer[] covertString2Int(String[] memberIds) {
+
+
+    public static Integer[] toInteger(String[] memberIds) {
 
         if(memberIds!=null){
             Integer[] v = new Integer[memberIds.length];

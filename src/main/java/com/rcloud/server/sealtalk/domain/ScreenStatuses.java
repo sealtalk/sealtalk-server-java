@@ -9,14 +9,18 @@ public class ScreenStatuses implements Serializable {
     @Id
     private Integer id;
 
+    @Column(name = "operateId")
     private String operateId;
 
+    @Column(name = "conversationType")
     private Integer conversationType;
 
     private Integer status;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
 
     private static final long serialVersionUID = 1L;

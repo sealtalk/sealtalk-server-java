@@ -1,32 +1,44 @@
 package com.rcloud.server.sealtalk.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
 @Table(name = "group_exited_lists")
 public class GroupExitedLists implements Serializable {
     @Id
     private Integer id;
 
+    @Column(name = "groupId")
     private Integer groupId;
 
+    @Column(name = "quitUserId")
     private Integer quitUserId;
 
+    @Column(name = "quitNickname")
     private String quitNickname;
 
+    @Column(name = "quitPortraitUri")
     private String quitPortraitUri;
 
+    @Column(name = "quitReason")
     private Integer quitReason;
 
+    @Column(name = "quitTime")
     private Long quitTime;
 
+    @Column(name = "operatorId")
     private Integer operatorId;
 
+    @Column(name = "operatorName")
     private String operatorName;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
 
     private static final long serialVersionUID = 1L;

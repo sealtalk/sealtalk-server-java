@@ -9,22 +9,28 @@ public class LoginLogs implements Serializable {
     @Id
     private Integer id;
 
+    @Column(name = "userId")
     private Integer userId;
 
+    @Column(name = "ipAddress")
     private Integer ipAddress;
 
     private String os;
 
+    @Column(name = "osVersion")
     private String osVersion;
 
     private String carrier;
 
     private String device;
 
+    @Column(name = "manufacturer")
     private String manufacturer;
 
+    @Column(name = "userAgent")
     private String userAgent;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
     private static final long serialVersionUID = 1L;

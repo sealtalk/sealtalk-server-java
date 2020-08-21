@@ -1,20 +1,27 @@
 package com.rcloud.server.sealtalk.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
 @Table(name = "group_favs")
 public class GroupFavs implements Serializable {
     @Id
     private Integer id;
 
+    @Column(name = "userId")
     private Integer userId;
 
+    @Column(name = "groupId")
     private Integer groupId;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
 
     @Transient

@@ -211,7 +211,7 @@ public class ValidateUtils {
     }
 
     public static void checkMemberIds(String[] memberIds) throws ServiceException {
-        if (memberIds == null || memberIds.length <= 1) {
+        if (memberIds == null || memberIds.length < 2) {
             throw new ServiceException(ErrorCode.INVALID_GROUP_MEMNBER_COUNT);
         }
 

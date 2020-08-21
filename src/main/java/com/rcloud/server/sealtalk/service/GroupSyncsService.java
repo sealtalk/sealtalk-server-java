@@ -31,27 +31,27 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
      * @param syncInfo
      * @param syncMember
      */
-    public void saveOrUpdate(Integer id, Boolean syncInfo, Boolean syncMember) {
+    public void saveOrUpdate(Integer id, Integer syncInfo, Integer syncMember) {
 
         GroupSyncs groupSyncs = this.getByPrimaryKey(id);
         if (groupSyncs == null) {
             groupSyncs = new GroupSyncs();
             groupSyncs.setGroupId(id);
-            if(syncInfo!=null){
+            if (syncInfo != null) {
                 groupSyncs.setSyncInfo(syncInfo);
             }
-            if(syncMember!=null){
+            if (syncMember != null) {
                 groupSyncs.setSyncMember(syncMember);
             }
             this.saveSelective(groupSyncs);
         } else {
-            if(syncInfo!=null){
+            if (syncInfo != null) {
                 groupSyncs.setSyncInfo(syncInfo);
             }
-            if(syncMember!=null){
+            if (syncMember != null) {
                 groupSyncs.setSyncMember(syncMember);
             }
-            this.updateByPrimaryKey(groupSyncs);
+            this.updateByPrimaryKeySelective(groupSyncs);
         }
     }
 }

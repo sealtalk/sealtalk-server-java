@@ -67,6 +67,7 @@ public class Users implements Serializable {
     @Column(name="deletedAt")
     private Date deletedAt;
 
+    @Transient
     private Groups groups;
 
     public Groups getGroups() {

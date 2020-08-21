@@ -53,11 +53,13 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
      * @param creatorId
      * @throws ServiceException
      */
+    //TODO 事务
     public void batchSaveOrUpdate(Integer groupId, List<Integer> memberIdList, long timestamp, Integer creatorId) throws ServiceException {
         Example example = new Example(GroupMembers.class);
         example.createCriteria().andEqualTo("groupId", groupId);
 
         List<GroupMembers> groupMembersList = this.getByExample(example);
+
         List<Integer> updateGroupMemberIds = new ArrayList<>();
         List<Integer> insertGroupMemberIds = new ArrayList<>();
 
@@ -85,32 +87,30 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
             }
         }
 
-        if (!creatorInMemebers) {
+        if (!creatorInMemebers && creatorId !=null) {
             throw new ServiceException(ErrorCode.INVALID_PARAM_CREATOR);
         }
 
-        //TODO
+
+        //更新已经存在的groupmember
         if (updateGroupMemberIds.size() > 0) {
-
-            for (Integer memerId : updateGroupMemberIds) {
-                GroupMembers groupMembers = new GroupMembers();
-                groupMembers.setRole(GroupRole.MEMBER.getCode());
-                groupMembers.setIsDeleted(GroupMembers.IS_DELETED_NO);
-                groupMembers.setTimestamp(timestamp);
-                Example example1 = new Example(GroupMembers.class);
-                example1.createCriteria().andEqualTo("groupId", groupId)
-                        .andIn("memberId", updateGroupMemberIds);
-
-                this.updateByExampleSelective(groupMembers, example1);
-            }
+            GroupMembers groupMembers = new GroupMembers();
+            groupMembers.setRole(GroupRole.MEMBER.getCode());
+            groupMembers.setIsDeleted(GroupMembers.IS_DELETED_NO);
+            groupMembers.setTimestamp(timestamp);
+            Example example1 = new Example(GroupMembers.class);
+            example1.createCriteria().andEqualTo("groupId", groupId)
+                    .andIn("memberId", updateGroupMemberIds);
+            this.updateByExampleSelective(groupMembers, example1);
         }
 
-        //TODO
+
+        //保存新增的groupmember
         if (insertGroupMemberIds.size() > 0) {
             for (Integer memberId : insertGroupMemberIds) {
                 GroupMembers groupMembers = new GroupMembers();
                 groupMembers.setGroupId(groupId);
-                groupMembers.setRole(memberId.equals(creatorId) ? GroupRole.CREATOR.getCode() : GroupRole.MANAGER.getCode());
+                groupMembers.setRole(memberId.equals(creatorId) ? GroupRole.CREATOR.getCode() : GroupRole.MEMBER.getCode());
                 groupMembers.setTimestamp(timestamp);
                 this.saveSelective(groupMembers);
             }

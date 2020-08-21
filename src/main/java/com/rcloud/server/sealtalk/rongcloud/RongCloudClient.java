@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.rongcloud;
 
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.rongcloud.message.GrpApplyMessage;
 import io.rong.models.Result;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
@@ -10,6 +11,7 @@ import io.rong.models.response.TokenResult;
 import io.rong.models.response.UserResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: Jianlu.Yu
@@ -102,13 +104,13 @@ public interface RongCloudClient {
     ResponseResult sendGroupMessage(GroupMessage groupMessage) throws ServiceException;
 
     /**
-     * 创建群组 TODO
+     * 创建群组
      *
-     * @param encodeGroupId 群组ID
+     * @param encodeGroupId   群组ID
      * @param encodeMemberIds 成员ID
-     * @param name   群名称
+     * @param name            群名称
      */
-    Result createGroup(String encodeGroupId, List<String> encodeMemberIds, String name);
+    Result createGroup(String encodeGroupId,String[] encodeMemberIds, String name) throws ServiceException;
 
 
     /**
@@ -181,4 +183,29 @@ public interface RongCloudClient {
      * @return
      */
     Result setMuteStatus(String encode);
+
+    /**
+     * 发送组通知消息
+     *
+     * @param encodeOperatorUserId
+     * @param encodeGroupId
+     * @param operationType
+     * @param messageData
+     * @param message
+     * @param extra
+     * @return
+     */
+    Result sendGroupNotificationMessage(String encodeOperatorUserId, String encodeGroupId, String operationType, Map<String, Object> messageData, String message, String extra) throws ServiceException;
+
+
+    /**
+     * 发送群组申请加入消息
+     *
+     * @param senderId
+     * @param targetId
+     * @param grpApplyMessage
+     * @return
+     * @throws ServiceException
+     */
+    Result sendGroupApplyMessage(String senderId, String[] targetId, GrpApplyMessage grpApplyMessage) throws ServiceException;
 }

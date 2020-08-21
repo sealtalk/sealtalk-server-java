@@ -5,15 +5,22 @@ import javax.persistence.*;
 
 @Table(name = "group_syncs")
 public class GroupSyncs implements Serializable {
+
+    public static final Integer VALID = 1;
+    public static final Integer INVALID = 0;
+
+
     @Id
+    @Column(name = "groupId")
     private Integer groupId;
 
-    //TODO
-    private Boolean syncInfo;
+    @Column(name = "syncInfo")
+    private Integer syncInfo;
 
-    private Boolean syncMember;
+    @Column(name = "syncMember")
+    private Integer syncMember;
 
-    private Boolean dismiss;
+    private Integer dismiss;
 
     private static final long serialVersionUID = 1L;
 
@@ -31,45 +38,27 @@ public class GroupSyncs implements Serializable {
         this.groupId = groupId;
     }
 
-    /**
-     * @return syncInfo
-     */
-    public Boolean getSyncInfo() {
+    public Integer getSyncInfo() {
         return syncInfo;
     }
 
-    /**
-     * @param syncInfo
-     */
-    public void setSyncInfo(Boolean syncInfo) {
+    public void setSyncInfo(Integer syncInfo) {
         this.syncInfo = syncInfo;
     }
 
-    /**
-     * @return syncMember
-     */
-    public Boolean getSyncMember() {
+    public Integer getSyncMember() {
         return syncMember;
     }
 
-    /**
-     * @param syncMember
-     */
-    public void setSyncMember(Boolean syncMember) {
+    public void setSyncMember(Integer syncMember) {
         this.syncMember = syncMember;
     }
 
-    /**
-     * @return dismiss
-     */
-    public Boolean getDismiss() {
+    public Integer getDismiss() {
         return dismiss;
     }
 
-    /**
-     * @param dismiss
-     */
-    public void setDismiss(Boolean dismiss) {
+    public void setDismiss(Integer dismiss) {
         this.dismiss = dismiss;
     }
 }

@@ -1,10 +1,13 @@
 package com.rcloud.server.sealtalk.rongcloud;
 
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
+import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.rongcloud.message.GrpApplyMessage;
 import com.rcloud.server.sealtalk.util.JacksonUtil;
 import io.rong.RongCloud;
 import io.rong.messages.ContactNtfMessage;
+import io.rong.messages.GroupNotificationMessage;
 import io.rong.methods.message._private.Private;
 import io.rong.methods.message.chatroom.Chatroom;
 import io.rong.methods.message.discussion.Discussion;
@@ -14,6 +17,8 @@ import io.rong.methods.message.system.MsgSystem;
 import io.rong.methods.user.User;
 import io.rong.methods.user.blacklist.Blacklist;
 import io.rong.models.Result;
+import io.rong.models.group.GroupMember;
+import io.rong.models.group.GroupModel;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
 import io.rong.models.message.SystemMessage;
@@ -49,10 +54,6 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
     private Private Private;
     private MsgSystem system;
-    private Group group;
-    private Chatroom chatroom;
-    private Discussion discussion;
-    private History history;
 
     @PostConstruct
     public void postConstruct() {
@@ -61,11 +62,6 @@ public class DefaultRongCloudClient implements RongCloudClient {
         BlackList = rongCloud.user.blackList;
         Private = rongCloud.message.msgPrivate;
         system = rongCloud.message.system;
-        group = rongCloud.message.group;
-        chatroom = rongCloud.message.chatroom;
-        discussion = rongCloud.message.discussion;
-        history = rongCloud.message.history;
-
     }
 
 
@@ -185,7 +181,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
                         .setTargetId(targetIds)
                         .setObjectName(contactNtfMessage.getType())
                         .setContent(contactNtfMessage);
-                return rongCloud.message.system.send(systemMessage);
+                return system.send(systemMessage);
             }
         });
 
@@ -215,10 +211,64 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public Result createGroup(String encode, List<String> encodeMemberIds, String name) {
+    public Result createGroup(String encodeGroupId, String[] encodeMemberIds, String name) throws ServiceException {
+
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+                GroupMember[] members = new GroupMember[encodeMemberIds.length];
+                for(int i=0;i<encodeMemberIds.length;i++){
+                    GroupMember groupMember = new GroupMember();
+                    groupMember.setId(encodeMemberIds[i]);
+                    members[i] = groupMember;
+                }
+                GroupModel group = new GroupModel()
+                        .setId(encodeGroupId)
+                        .setMembers(members)
+                        .setName(name);
+                Result result = (Result) rongCloud.group.create(group);
+                return result;
+            }
+        });
+    }
 
 
-        return null;
+    @Override
+    public Result sendGroupNotificationMessage(String encodeOperatorUserId, String encodeGroupId, String operationType, Map<String, Object> messageData,String message, String extra) throws ServiceException {
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+
+                GroupNotificationMessage groupNotificationMessage = new GroupNotificationMessage(encodeOperatorUserId,operationType,messageData,message,extra);
+
+                GroupMessage groupMessage = new GroupMessage();
+                groupMessage.setTargetId(new String[]{encodeGroupId});
+                groupMessage.setSenderId(encodeOperatorUserId);
+                groupMessage.setObjectName(groupNotificationMessage.getType());
+                groupMessage.setContent(groupNotificationMessage);
+                return rongCloud.message.group.send(groupMessage);
+            }
+        });
+    }
+
+    @Override
+    public Result sendGroupApplyMessage(String senderId, String[] targetId, GrpApplyMessage grpApplyMessage) throws ServiceException {
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+
+                //构建消息内容
+                PrivateMessage privateMessage = new PrivateMessage();
+                GrpApplyMessage grpApplyMessage = new GrpApplyMessage();
+
+                privateMessage.setSenderId(Constants.GrpApplyMessage_fromUserId);
+                privateMessage.setTargetId(targetId);
+                privateMessage.setObjectName(grpApplyMessage.getType());
+                privateMessage.setContent(grpApplyMessage);
+                //发送单聊消息
+                return Private.send(privateMessage);
+            }
+        });
     }
 
     @Override
@@ -260,4 +310,6 @@ public class DefaultRongCloudClient implements RongCloudClient {
     public Result setMuteStatus(String encode) {
         return null;
     }
+
+
 }

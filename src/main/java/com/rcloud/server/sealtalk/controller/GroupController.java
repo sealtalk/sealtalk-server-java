@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: xiuwei.nie
@@ -65,8 +62,8 @@ public class GroupController extends BaseController {
         ValidateUtils.checkMemberIds(memberIds);
 
         Integer currentUserId = getCurrentUserId(request);
+        GroupAddStatusDTO groupAddStatusDTO = groupManager.createGroup(currentUserId, name, MiscUtils.toInteger(memberIds), portraitUri);
 
-        GroupAddStatusDTO groupAddStatusDTO = groupManager.createGroup(currentUserId, name, memberIds, portraitUri);
         return APIResultWrap.ok(MiscUtils.encodeResults(groupAddStatusDTO));
     }
 
@@ -87,7 +84,7 @@ public class GroupController extends BaseController {
         }
 
         Integer currentUserId = getCurrentUserId(request);
-        List<UserStatusDTO> userStatusDTOList = groupManager.addMember(currentUserId, groupId, memberIds);
+        List<UserStatusDTO> userStatusDTOList = groupManager.addMember(currentUserId, Integer.valueOf(groupId), MiscUtils.toInteger(memberIds));
 
         return APIResultWrap.ok(MiscUtils.encodeResults(userStatusDTOList));
     }
@@ -208,7 +205,7 @@ public class GroupController extends BaseController {
         ValidateUtils.notEmpty(memberIds);
 
         Integer currentUserId = getCurrentUserId(request);
-        Integer[] memberIdsInt = MiscUtils.covertString2Int(memberIds);
+        Integer[] memberIdsInt = MiscUtils.toInteger(memberIds);
         String[] encodedMemberIds = MiscUtils.encodeIds(memberIds);
         groupManager.batchSetManager(currentUserId, Integer.valueOf(groupId), memberIdsInt, encodedMemberIds);
         return APIResultWrap.ok("");
@@ -227,7 +224,7 @@ public class GroupController extends BaseController {
         ValidateUtils.notEmpty(memberIds);
 
         Integer currentUserId = getCurrentUserId(request);
-        Integer[] memberIdsInt = MiscUtils.covertString2Int(memberIds);
+        Integer[] memberIdsInt = MiscUtils.toInteger(memberIds);
         String[] encodedMemberIds = MiscUtils.encodeIds(memberIds);
         groupManager.batchRemoveManager(currentUserId, Integer.valueOf(groupId), memberIdsInt, encodedMemberIds);
         return APIResultWrap.ok("");

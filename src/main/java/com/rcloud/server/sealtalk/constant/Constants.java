@@ -44,5 +44,11 @@ public class Constants {
     public static final String SEPARATOR_NO = "|";
 
 
+    //GrpApplyMessage默认fromUserId标示
+    public static final String GrpApplyMessage_fromUserId = "__group_apply__";
+
+    public static final Integer CODE_OK = 200;
+
+
 
 }

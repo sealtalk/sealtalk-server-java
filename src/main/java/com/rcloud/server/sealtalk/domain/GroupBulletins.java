@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -13,12 +14,15 @@ public class GroupBulletins implements Serializable {
     @Id
     private Integer id;
 
+    @Column(name = "groupId")
     private Integer groupId;
 
     private Long timestamp;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
     //公告内容
     private String content;

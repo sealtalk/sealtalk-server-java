@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -7,50 +8,59 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 组信息接收者
- * （群主，管理员）？
+ * 入群前待审核表
  */
 @Table(name = "group_receivers")
 public class GroupReceivers implements Serializable {
 
-    public static final Integer GROUP_RECEIVE_STATUS_IGNORE = 0;  //忽略
-    public static final Integer GROUP_RECEIVE_STATUS_AGREED = 1;  //同意
-    public static final Integer GROUP_RECEIVE_STATUS_WAIT = 2;  //等待
-    public static final Integer GROUP_RECEIVE_STATUS_EXPIRED = 3; //过期
+    public static final Integer GROUP_RECEIVE_STATUS_IGNORE = 0;    //忽略
+    public static final Integer GROUP_RECEIVE_STATUS_AGREED = 1;    //同意
+    public static final Integer GROUP_RECEIVE_STATUS_WAIT = 2;      //等待
+    public static final Integer GROUP_RECEIVE_STATUS_EXPIRED = 3;   //过期
 
-
-    public static final Integer GROUP_RECEIVE_TYPE_MEMBER = 1;
-    public static final Integer GROUP_RECEIVE_TYPE_MANAGER = 2;
+    public static final Integer GROUP_RECEIVE_TYPE_MEMBER = 1;      //群普通成员
+    public static final Integer GROUP_RECEIVE_TYPE_MANAGER = 2;     //群管理者
 
     @Id
     private Integer id;
 
+    @Column(name = "userId")
     private Integer userId;
 
+    @Column(name = "groupId")
     private Integer groupId;
 
+    @Column(name = "groupName")
     private String groupName;
 
+    @Column(name = "groupPortraitUri")
     private String groupPortraitUri;
 
+    @Column(name = "requesterId")
     private Integer requesterId;
 
+    @Column(name = "receiverId")
     private Integer receiverId;
 
     private Integer type;
 
     private Integer status;
 
+    @Column(name = "deletedUsers")
     private String deletedUsers;
 
+    @Column(name = "isRead")
     private Integer isRead;
 
+    @Column(name = "joinInfo")
     private String joinInfo;
 
     private Long timestamp;
 
+    @Column(name = "createdAt")
     private Date createdAt;
 
+    @Column(name = "updatedAt")
     private Date updatedAt;
 
     @Transient

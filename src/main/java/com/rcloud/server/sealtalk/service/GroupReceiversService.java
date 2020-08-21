@@ -2,11 +2,13 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.GroupReceiversMapper;
 import com.rcloud.server.sealtalk.domain.GroupReceivers;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author: xiuwei.nie
@@ -57,4 +59,21 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
         this.deleteByExample(example);
 
     }
+
+    public List<GroupReceivers> getReceiversWithList(Integer groupId,Integer requesterId,List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType){
+
+        return mapper.selectReceiversWithList(groupId,requesterId,receiverIdList,operatorList,groupReceiveType);
+    }
+
+
+    public int updateReceiversWithList(Integer requesterIdForUpdate,Long timestamp,Integer status,Integer groupId,Integer requesterId,List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType){
+
+        return mapper.updateReceiversWithList(requesterIdForUpdate,timestamp,status,groupId,requesterId,receiverIdList,operatorList,groupReceiveType);
+    }
+
+
+
+
+
+
 }

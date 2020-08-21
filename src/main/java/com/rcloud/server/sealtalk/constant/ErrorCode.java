@@ -22,7 +22,7 @@ public enum ErrorCode {
     LIMIT_ERROR(5000, "Throttle limit exceeded.",200),
     INVALID_REGION_PHONE(400, "Invalid region and phone number.",400),
 
-    //invoke rongcloud server error  TODO
+    //invoke rongcloud server error
     INVOKE_RONG_CLOUD_SERVER_ERROR(2000,"RongCloud Server API Error: ",2000),
 
 
