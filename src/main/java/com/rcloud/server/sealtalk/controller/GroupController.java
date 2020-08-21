@@ -130,14 +130,12 @@ public class GroupController extends BaseController {
         ValidateUtils.notEmpty(encodeMemberIds);
 
         Integer currentUserId = getCurrentUserId(request);
+        groupManager.kickMember(currentUserId, Integer.valueOf(groupId), encodeGroupId,MiscUtils.toInteger(memberIds),encodeMemberIds);
 
-        groupManager.kickMember(currentUserId, Integer.valueOf(groupId), encodeGroupId,memberIds,encodeMemberIds);
         return APIResultWrap.ok("");
-
-
     }
 
-    @ApiOperation(value = "解散群组")
+    @ApiOperation(value = "退出群组")
     @RequestMapping(value = "/quit", method = RequestMethod.POST)
     public APIResult<?> quitGroup(
             @ApiParam(name = "groupId", value = "群组ID", required = true, type = "String", example = "86")

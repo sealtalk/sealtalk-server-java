@@ -48,6 +48,10 @@ public class Constants {
     public static final String GrpApplyMessage_fromUserId = "__group_apply__";
 
     public static final Integer CODE_OK = 200;
+    public static final Integer KICK_STATUS_SELF = 0;
+    public static final Integer KICK_STATUS_MANAGER = 1;
+
+
 
 
 

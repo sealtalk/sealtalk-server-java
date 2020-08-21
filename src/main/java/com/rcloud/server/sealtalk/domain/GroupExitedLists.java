@@ -8,6 +8,7 @@ import java.util.Date;
 
 @Table(name = "group_exited_lists")
 public class GroupExitedLists implements Serializable {
+
     @Id
     private Integer id;
 

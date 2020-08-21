@@ -1658,10 +1658,8 @@ public class GroupManager extends BaseManager {
                 .andEqualTo("userId", currentUserId);
         groupFavsService.deleteByExample(example1);
 
-        //保存或更新群组退出列表 TODO
-        groupExitedListsService.saveOrUpdate(groupId, currentUserId, currentUserId, 0);
-
-
+        //保存或更新群组退出列表
+        processGroupExitedList(groupId, currentUserId, currentUserId, Constants.KICK_STATUS_SELF);
         return resultMessage;
     }
 
@@ -1715,7 +1713,7 @@ public class GroupManager extends BaseManager {
      * @param memberIds
      * @param encodeMemberIds
      */
-    public void kickMember(Integer currentUserId, Integer groupId, String encodeGroupId, String[] memberIds, String[] encodeMemberIds) throws ServiceException {
+    public void kickMember(Integer currentUserId, Integer groupId, String encodeGroupId, Integer[] memberIds, String[] encodeMemberIds) throws ServiceException {
 
         long timestamp = System.currentTimeMillis();
         if (ArrayUtils.contains(memberIds, currentUserId)) {
@@ -1744,7 +1742,6 @@ public class GroupManager extends BaseManager {
                     role = groupMembers.getRole();
                 }
             }
-
             if (!GroupRole.MANAGER.getCode().equals(role) && !GroupRole.CREATOR.getCode().equals(role)) {
                 throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER_3);
             }
@@ -1757,32 +1754,31 @@ public class GroupManager extends BaseManager {
             dbMemberIdList.add(groupMembers.getMemberId());
         }
 
-        List<Integer> memberIdInts = new ArrayList<>();
-        for (String memberId : memberIds) {
-            if (StringUtils.isEmpty(memberId)) {
+        List<Integer> memberIdList = new ArrayList<>();
+        for (Integer memberId : memberIds) {
+            if (memberId == null) {
                 throw new ServiceException(ErrorCode.EMPTY_MEMBERID);
             }
-            if (!dbMemberIdList.contains(Integer.valueOf(memberId))) {
+            if (!dbMemberIdList.contains(memberId)) {
                 throw new ServiceException(ErrorCode.CANT_NOT_KICK_NONE_MEMBER);
             }
-            memberIdInts.add(Integer.valueOf(memberId));
+            memberIdList.add(memberId);
         }
 
+        //执行踢出
         kickMember0(groupId, memberIds, timestamp, groups);
-
         //刷新GroupMemberVersion数据版本
         dataVersionsService.updateGroupMemberVersion(groupId, timestamp);
 
         String nickname = usersService.getCurrentUserNickNameWithCache(currentUserId);
-
-        List<Users> usersList = usersService.getUsers(memberIdInts);
+        List<Users> usersList = usersService.getUsers(memberIdList);
 
         List<String> nicknameList = new ArrayList<>();
         for (Users u : usersList) {
             nicknameList.add(u.getNickname());
         }
 
-        //发送组通知消息  TODO
+        //发送组通知消息
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("operatorNickname", nickname);
         messageData.put("targetUserIds", encodeMemberIds);
@@ -1790,25 +1786,18 @@ public class GroupManager extends BaseManager {
         messageData.put("timestamp", timestamp);
         sendGroupNotificationMessage(currentUserId, groupId, messageData, GroupOperationType.GROUP_OPERATION_KICKED);
 
-        //调用融云退出接口
-        rongCloudClient.quitGroup(encodeMemberIds, encodeGroupId);
-
         //调用融云退群接口
-        Result result = null;
         try {
-            result = rongCloudClient.quitGroup(encodeMemberIds, encodeGroupId);
+            Result result = rongCloudClient.quitGroup(encodeMemberIds, encodeGroupId);
+            if (!Constants.CODE_OK.equals(result.getCode())) {
+                throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
+            }
         } catch (Exception e) {
-            log.error("rongCloudClient quitGroup error: " + e.getMessage(), e);
-            throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
-        }
-
-        if (result != null && result.getCode() != 200) {
-            log.error("Error: quit group failed on IM server, code: {}", result.getCode());
             throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
         }
 
         //清除相关缓存
-        for (Integer memberId : memberIdInts) {
+        for (Integer memberId : memberIds) {
             CacheUtil.delete(CacheUtil.USER_GROUP_CACHE_PREFIX + memberId);
         }
         CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
@@ -1817,29 +1806,55 @@ public class GroupManager extends BaseManager {
         //删除groupFav
         Example example1 = new Example(GroupFavs.class);
         example1.createCriteria().andEqualTo("groupId", groupId)
-                .andEqualTo("memberId", memberIdInts);
+                .andEqualTo("memberId", memberIdList);
         groupFavsService.deleteByExample(example1);
 
-        //
-        for (Integer memberId : memberIdInts) {
-            groupExitedListsService.saveOrUpdate(groupId, memberId, currentUserId, 1);
+        //保存或更新 群退出列表
+        for (Integer memberId : memberIdList) {
+            processGroupExitedList(groupId, memberId, currentUserId, Constants.KICK_STATUS_MANAGER);
         }
         return;
-
     }
 
-    //TODO 事务
-    private void kickMember0(Integer groupId, String[] memberIds, long timestamp, Groups groups) {
-        groupsService.updateMemberCount(groupId, groups.getMemberCount() - memberIds.length, timestamp);
+    /**
+     * 新增或修改退群列表
+     * <p>
+     * //退群有两种情况： 自己主动退出、管理员踢
+     *
+     * @param groupId    群组id
+     * @param quitUserId 退出用户id
+     * @param operatorId 操作用户id
+     * @param kickStatus kickStatus=0 自己主动退出，  kickStatus=1 管理员踢
+     */
+    private void processGroupExitedList(Integer groupId, Integer quitUserId, Integer operatorId, Integer kickStatus) {
+        if(Constants.KICK_STATUS_SELF.equals(kickStatus)){
+            //自己主动退出
+            //TODO
 
-        List<Integer> memberIdIntList = CollectionUtils.arrayToList(MiscUtils.toInteger(memberIds));
+        }else {
+            //被管理员踢
 
-        Example example1 = new Example(GroupMembers.class);
-        example1.createCriteria().andEqualTo("groupId", groupId)
-                .andIn("memberId", memberIdIntList);
-        GroupMembers groupMembers = new GroupMembers();
-        groupMembers.setIsDeleted(GroupMembers.IS_DELETED_YES);
-        groupMembers.setTimestamp(timestamp);
-        groupMembersService.updateByExampleSelective(groupMembers, example1);
+        }
+    }
+
+    private void kickMember0(Integer groupId, Integer[] memberIds, long timestamp, Groups groups) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                //根据groupI更新Group的 memberCount、timestamp
+                groupsService.updateMemberCount(groupId, groups.getMemberCount() - memberIds.length, timestamp);
+
+                //根据groupId，memberIds 更新GroupMember的isDeleted=true、timestamp
+                List<Integer> memberIdList = CollectionUtils.arrayToList(memberIds);
+
+                Example example1 = new Example(GroupMembers.class);
+                example1.createCriteria().andEqualTo("groupId", groupId)
+                        .andIn("memberId", memberIdList);
+                GroupMembers groupMembers = new GroupMembers();
+                groupMembers.setIsDeleted(GroupMembers.IS_DELETED_YES);
+                groupMembers.setTimestamp(timestamp);
+                groupMembersService.updateByExampleSelective(groupMembers, example1);
+            }
+        });
     }
 }
