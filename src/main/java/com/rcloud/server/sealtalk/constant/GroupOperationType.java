@@ -10,23 +10,23 @@ public class GroupOperationType {
 
     public static final String GROUP_OPERATION_CREATE = "Create";   //创建群组
 
-    public static final String GROUP_OPERATION_ADD = "Add";     //
+    public static final String GROUP_OPERATION_ADD = "Add";     //加入群组
 
-    public static final String GROUP_OPERATION_QUIT = "Quit";
+    public static final String GROUP_OPERATION_QUIT = "Quit";   //退出群组
 
-    public static final String GROUP_OPERATION_DISMISS = "Dismiss";
+    public static final String GROUP_OPERATION_DISMISS = "Dismiss"; //  解散群组
 
-    public static final String GROUP_OPERATION_KICKED = "Kicked";
+    public static final String GROUP_OPERATION_KICKED = "Kicked";  //踢人
 
-    public static final String GROUP_OPERATION_RENAME = "Rename";
+    public static final String GROUP_OPERATION_RENAME = "Rename";   //重命名群组
 
-    public static final String GROUP_OPERATION_BULLETIN = "Bulletin";
+    public static final String GROUP_OPERATION_BULLETIN = "Bulletin";  //群公共
 
-    public static final String GROUP_OPERATION_TRANSFER = "Transfer";
+    public static final String GROUP_OPERATION_TRANSFER = "Transfer";  //转让群主
 
-    public static final String GROUP_OPERATION_SETMANAGER = "SetManager";
+    public static final String GROUP_OPERATION_SETMANAGER = "SetManager"; //设置管理员
 
-    public static final String GROUP_OPERATION_REMOVEMANAGER = "RemoveManager";
+    public static final String GROUP_OPERATION_REMOVEMANAGER = "RemoveManager"; //删除管理员
 
     public static final String GROUP_OPERATION_INVITE = "Invite";   //邀请好友
 }

@@ -1,6 +1,5 @@
 package com.rcloud.server.sealtalk.service;
 
-import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.GroupRole;
 import com.rcloud.server.sealtalk.dao.GroupMembersMapper;
 import com.rcloud.server.sealtalk.domain.GroupMembers;
@@ -11,6 +10,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,8 +53,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
      * @param creatorId
      * @throws ServiceException
      */
-    //TODO 事务
-    public void batchSaveOrUpdate(Integer groupId, List<Integer> memberIdList, long timestamp, Integer creatorId) throws ServiceException {
+    public void batchSaveOrUpdate(Integer groupId, List<Integer> memberIdList, long timestamp, Integer creatorId) {
         Example example = new Example(GroupMembers.class);
         example.createCriteria().andEqualTo("groupId", groupId);
 
@@ -65,9 +64,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
 
         boolean creatorInMemebers = false;
         for (Integer memberId : memberIdList) {
-            if (memberId == null) {
-                throw new ServiceException(ErrorCode.REQUEST_ERROR);
-            }
+
             boolean isUpdateMember = false;
             if (memberId.equals(creatorId)) {
                 creatorInMemebers = true;
@@ -87,35 +84,32 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
             }
         }
 
-        if (!creatorInMemebers && creatorId !=null) {
-            throw new ServiceException(ErrorCode.INVALID_PARAM_CREATOR);
-        }
-
-
         //更新已经存在的groupmember
         if (updateGroupMemberIds.size() > 0) {
             GroupMembers groupMembers = new GroupMembers();
             groupMembers.setRole(GroupRole.MEMBER.getCode());
             groupMembers.setIsDeleted(GroupMembers.IS_DELETED_NO);
             groupMembers.setTimestamp(timestamp);
+            groupMembers.setUpdatedAt(new Date());
             Example example1 = new Example(GroupMembers.class);
             example1.createCriteria().andEqualTo("groupId", groupId)
                     .andIn("memberId", updateGroupMemberIds);
             this.updateByExampleSelective(groupMembers, example1);
         }
 
-
         //保存新增的groupmember
         if (insertGroupMemberIds.size() > 0) {
             for (Integer memberId : insertGroupMemberIds) {
                 GroupMembers groupMembers = new GroupMembers();
                 groupMembers.setGroupId(groupId);
+                groupMembers.setMemberId(memberId);
                 groupMembers.setRole(memberId.equals(creatorId) ? GroupRole.CREATOR.getCode() : GroupRole.MEMBER.getCode());
                 groupMembers.setTimestamp(timestamp);
+                groupMembers.setCreatedAt(new Date());
+                groupMembers.setUpdatedAt(groupMembers.getCreatedAt());
                 this.saveSelective(groupMembers);
             }
         }
-
         return;
     }
 
@@ -155,6 +149,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
 
     /**
      * 更新isDelete字段 TODO
+     *
      * @param groupId
      * @param memberId
      * @param isDeleted
@@ -165,7 +160,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
     public void updateDeleteStatusAndRole(Integer groupId, Integer memberId, GroupRole role, long timestamp, boolean isDelete) {
     }
 
-    public void updateDeleteStatus(Integer groupId, boolean isDelete,long timestamp) {
+    public void updateDeleteStatus(Integer groupId, boolean isDelete, long timestamp) {
     }
 
     public List<GroupMembers> queryGroupMembersWithUsersByMGroupIds(List<Integer> groupIdList, Long version) {

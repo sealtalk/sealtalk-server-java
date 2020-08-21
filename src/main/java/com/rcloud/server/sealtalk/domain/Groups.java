@@ -22,6 +22,7 @@ public class Groups implements Serializable {
 
 
     @Id
+    @GeneratedValue(generator = "JDBC")
     private Integer id;
 
     private String name;

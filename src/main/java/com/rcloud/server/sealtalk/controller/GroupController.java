@@ -60,6 +60,9 @@ public class GroupController extends BaseController {
         name = MiscUtils.xss(name, ValidateUtils.GROUP_NAME_MAX_LENGTH);
         ValidateUtils.checkGroupName(name);
         ValidateUtils.checkMemberIds(memberIds);
+        if(portraitUri==null){
+            portraitUri="";
+        }
 
         Integer currentUserId = getCurrentUserId(request);
         GroupAddStatusDTO groupAddStatusDTO = groupManager.createGroup(currentUserId, name, MiscUtils.toInteger(memberIds), portraitUri);
@@ -86,7 +89,7 @@ public class GroupController extends BaseController {
         Integer currentUserId = getCurrentUserId(request);
         List<UserStatusDTO> userStatusDTOList = groupManager.addMember(currentUserId, Integer.valueOf(groupId), MiscUtils.toInteger(memberIds));
 
-        return APIResultWrap.ok(MiscUtils.encodeResults(userStatusDTOList));
+        return APIResultWrap.ok(userStatusDTOList);
     }
 
     @ApiOperation(value = "用户加入群组")

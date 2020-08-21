@@ -371,6 +371,10 @@ public class UserManager extends BaseManager {
             //如果user表中的融云token为空，
             //调用融云sdk 获取token
             TokenResult tokenResult = rongCloudClient.register(N3d.encode(u.getId()), u.getNickname(), u.getPortraitUri());
+            if (!Constants.CODE_OK.equals(tokenResult.getCode())) {
+                throw new ServiceException(ErrorCode.SERVER_ERROR, "'RongCloud Server API Error Code: " + tokenResult.getCode());
+            }
+
             token = tokenResult.getToken();
 
             //获取后根据userId更新表中token
@@ -381,7 +385,7 @@ public class UserManager extends BaseManager {
             usersService.updateByPrimaryKeySelective(users);
         }
 
-        //返回userid、token
+        //返回userId、token
         return Pair.of(u.getId(), token);
     }
 

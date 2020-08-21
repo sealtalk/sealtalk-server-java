@@ -7,8 +7,9 @@ import javax.persistence.*;
 @Table(name = "users")
 public class Users implements Serializable {
 
-    public static final Integer GROUP_VERIFY_CLOSED = 1;
-    public static final Integer GROUP_VERIFY_OPENED = 0;
+    //允许直接添加至群聊： 0 不允许 1 允许
+    public static final Integer GROUP_VERIFY_NO_NEED = 1;
+    public static final Integer GROUP_VERIFY_NEED = 0;
 
 
     @Id

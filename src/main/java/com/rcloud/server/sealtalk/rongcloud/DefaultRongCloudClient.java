@@ -9,10 +9,6 @@ import io.rong.RongCloud;
 import io.rong.messages.ContactNtfMessage;
 import io.rong.messages.GroupNotificationMessage;
 import io.rong.methods.message._private.Private;
-import io.rong.methods.message.chatroom.Chatroom;
-import io.rong.methods.message.discussion.Discussion;
-import io.rong.methods.message.group.Group;
-import io.rong.methods.message.history.History;
 import io.rong.methods.message.system.MsgSystem;
 import io.rong.methods.user.User;
 import io.rong.methods.user.blacklist.Blacklist;
@@ -32,7 +28,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -165,16 +160,16 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
 
-    public void sendContactNotification(String senderId, String nickname, String[] targetIds,String toUserId, String operation, String messageContent, long timestamp) throws ServiceException {
-         RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+    public void sendContactNotification(String senderId, String nickname, String[] targetIds, String toUserId, String operation, String messageContent, long timestamp) throws ServiceException {
+        RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
 
-                Map<String,Object> extraInfoMap = new HashMap<>();
-                extraInfoMap.put("sourceUserNickname",nickname);
-                extraInfoMap.put("version",timestamp);
+                Map<String, Object> extraInfoMap = new HashMap<>();
+                extraInfoMap.put("sourceUserNickname", nickname);
+                extraInfoMap.put("version", timestamp);
                 String extraInfo = JacksonUtil.toJson(extraInfoMap);
-                ContactNtfMessage contactNtfMessage = new ContactNtfMessage(operation,extraInfo,senderId,toUserId,messageContent);
+                ContactNtfMessage contactNtfMessage = new ContactNtfMessage(operation, extraInfo, senderId, toUserId, messageContent);
 
                 SystemMessage systemMessage = new SystemMessage()
                         .setSenderId(senderId)
@@ -217,7 +212,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
             @Override
             public Result doInvoker() throws Exception {
                 GroupMember[] members = new GroupMember[encodeMemberIds.length];
-                for(int i=0;i<encodeMemberIds.length;i++){
+                for (int i = 0; i < encodeMemberIds.length; i++) {
                     GroupMember groupMember = new GroupMember();
                     groupMember.setId(encodeMemberIds[i]);
                     members[i] = groupMember;
@@ -234,12 +229,12 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
 
     @Override
-    public Result sendGroupNotificationMessage(String encodeOperatorUserId, String encodeGroupId, String operationType, Map<String, Object> messageData,String message, String extra) throws ServiceException {
+    public Result sendGroupNotificationMessage(String encodeOperatorUserId, String encodeGroupId, String operationType, Map<String, Object> messageData, String message, String extra) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
 
-                GroupNotificationMessage groupNotificationMessage = new GroupNotificationMessage(encodeOperatorUserId,operationType,messageData,message,extra);
+                GroupNotificationMessage groupNotificationMessage = new GroupNotificationMessage(encodeOperatorUserId, operationType, messageData, message, extra);
 
                 GroupMessage groupMessage = new GroupMessage();
                 groupMessage.setTargetId(new String[]{encodeGroupId});
@@ -272,8 +267,25 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public Result joinGroup(String[] memberIds, String groupId, String groupName) {
-        return null;
+    public Result joinGroup(String[] memberIds, String groupId, String groupName) throws ServiceException {
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+
+                GroupMember[] members = new GroupMember[memberIds.length];
+                for (int i = 0; i < memberIds.length; i++) {
+                    GroupMember groupMember = new GroupMember();
+                    groupMember.setId(memberIds[i]);
+                    members[i] = groupMember;
+                }
+
+                GroupModel group = new GroupModel()
+                        .setId(groupId)
+                        .setMembers(members)
+                        .setName(groupName);
+                return rongCloud.group.join(group);
+            }
+        });
     }
 
     @Override
