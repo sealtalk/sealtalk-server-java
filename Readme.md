@@ -8,7 +8,7 @@ SealTalk 是使用[`融云 RongCloud`](http://www.rongcloud.cn)即时通讯云�
 
 请参见 [安装部署与开发调试](docs/install.md) 文档
 
-## API 列表
+## API  列表
 
 ### 用户相关 API
 
