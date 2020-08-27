@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: xiuwei.nie
@@ -53,6 +54,16 @@ public class JacksonUtil {
             return getInstance().readValue(jsonStr, clazz);
         } catch (Exception e) {
             throw new ServiceException("fromJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
+        }
+    }
+
+    public static Map<String, Object> toMap(String jsonStr) {
+
+        try {
+            return getInstance().readValue(jsonStr, Map.class);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException("convert json to map  exception:" + jsonStr);
         }
     }
 

@@ -4,8 +4,22 @@
 <generatorConfiguration>
     <classPathEntry location="src/main/resources/lib/mysql-connector-java-5.1.31.jar"/>
 
+    <!--
+        context:生成一组对象的环境
+        id:必选，上下文id，用于在生成错误时提示
+        defaultModelType:指定生成对象的样式
+            1，conditional：类似hierarchical；
+            2，flat：所有内容（主键，blob）等全部生成在一个对象中；
+            3，hierarchical：主键生成一个XXKey对象(key class)，Blob等单独生成一个对象，其他简单属性在一个对象中(record class)
+        targetRuntime:
+            1，MyBatis3：默认的值，生成基于MyBatis3.x以上版本的内容，包括XXXBySample；
+            2，MyBatis3Simple：类似MyBatis3，只是不生成XXXBySample；
+        introspectedColumnImpl：类全限定名，用于扩展MBG
+    -->
     <context id="Mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <!-- 生成的Java文件的编码 -->
         <property name="javaFileEncoding" value="UTF-8"/>
+        <!-- beginningDelimiter和endingDelimiter：指明数据库的用于标记数据库对象名的符号，比如ORACLE就是双引号，MYSQL默认是`反引号； -->
         <property name="beginningDelimiter" value="`"/>
         <property name="endingDelimiter" value="`"/>
 
@@ -30,6 +44,7 @@
           targetPackage="com.rcloud.server.sealtalk.domain"
           targetProject="src/main/java">
         </javaModelGenerator>
+
         <sqlMapGenerator
           targetPackage="mybatis"
           targetProject="src/main/resources">
@@ -45,49 +60,69 @@
         <table tableName="blacklists" domainObjectName="BlackLists">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="data_versions" domainObjectName="DataVersions">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="friendships" domainObjectName="Friendships">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="group_bulletins" domainObjectName="GroupBulletins">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="group_exited_lists" domainObjectName="GroupExitedLists">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="group_favs" domainObjectName="GroupFavs">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="group_members" domainObjectName="GroupMembers">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="group_receivers" domainObjectName="GroupReceivers">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="group_syncs" domainObjectName="GroupSyncs">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="groups" domainObjectName="Groups">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="login_logs" domainObjectName="LoginLogs">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="screen_statuses" domainObjectName="ScreenStatuses">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="users" domainObjectName="Users">
             <property name="useActualColumnNames" value="true"/>
             <generatedKey column="id" sqlStatement="JDBC"/>
         </table>
+
         <table tableName="verification_codes" domainObjectName="VerificationCodes">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
         <table tableName="verification_violations" domainObjectName="VerificationViolations">
             <property name="useActualColumnNames" value="true"/>
         </table>
+
+        <table tableName="verification_violations" domainObjectName="VerificationViolations">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+
+
     </context>
 </generatorConfiguration>
 

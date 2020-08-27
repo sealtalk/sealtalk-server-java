@@ -21,6 +21,11 @@ public class Groups implements Serializable {
     public static final Integer MUTE_STATUS_OPENED = 1;
 
 
+    //copiedTime 默认值
+    public static final Long COPIED_TIME_DEFAUT = 0L;
+
+
+
     @Id
     @GeneratedValue(generator = "JDBC")
     private Integer id;
@@ -39,6 +44,9 @@ public class Groups implements Serializable {
     @Column(name = "creatorId")
     private Integer creatorId;
 
+    /**
+     * 开启群认证 0-开启 1-关闭
+     */
     @Column(name = "certiStatus")
     private Integer certiStatus;
 
@@ -51,6 +59,9 @@ public class Groups implements Serializable {
     @Column(name = "clearTimeAt")
     private Long clearTimeAt;
 
+    /**
+     * 开启群保护 0-关闭 1-开启
+     */
     @Column(name = "memberProtection")
     private Integer memberProtection;
 

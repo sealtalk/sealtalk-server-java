@@ -1,11 +1,11 @@
 {
   "iOS": {
-    "version": "1.0.5",
-    "build": "201607181821",
-    "url": "https://dn-rongcloud.qbox.me/app.plist"
+    "version": "5.0.0",
+    "build": "202008191848",
+    "url": "https://www.pdsign.cn/m1598168900/3931a0f70a6370236aeee56ca2d2da32.htm?tid=1976"
   },
   "Android": {
-    "version": "1.0.5",
-    "url": "http://downloads.rongcloud.cn/SealTalk_by_RongCloud_Android_v1_0_5.apk"
+    "version": "5.0.0",
+    "url": "http://download.hotchatvip.com/hotchat-5.0.0.apk"
   }
 }

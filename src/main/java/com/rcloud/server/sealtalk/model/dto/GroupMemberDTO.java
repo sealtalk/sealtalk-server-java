@@ -18,8 +18,8 @@ public class GroupMemberDTO {
     private String groupNickname;
     private String region;
     private String phone;
-    private String weChat;
-    private String alipay;
+    private String WeChat;
+    private String Alipay;
     //memberDesc 返回给前端是json对象格式，不是String
     private Object memberDesc;
 

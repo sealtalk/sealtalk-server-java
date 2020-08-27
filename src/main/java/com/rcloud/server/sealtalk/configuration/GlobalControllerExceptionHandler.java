@@ -35,8 +35,7 @@ public class GlobalControllerExceptionHandler {
     private static final String CHARSET = "UTF-8";
 
     @ExceptionHandler(value = ServiceException.class)
-    public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response,
-                                           ServiceException e) throws Exception {
+    public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) throws Exception {
         String url = request.getRequestURI();
         String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
 
@@ -71,8 +70,7 @@ public class GlobalControllerExceptionHandler {
      * 参数类型不匹配异常
      */
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
-    public APIResult methodArgumentTypeExceptionHandler(HttpServletRequest request,
-                                                        MethodArgumentTypeMismatchException e) {
+    public APIResult methodArgumentTypeExceptionHandler(HttpServletRequest request, MethodArgumentTypeMismatchException e) {
         log.error("Error found:", e);
         String parameter = e.getName();
         String errorMsg = String.format("Argument %s type mismatch!", parameter);
@@ -83,8 +81,7 @@ public class GlobalControllerExceptionHandler {
      * 参数必传异常
      */
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
-    public APIResult missingServletRequestParameterExceptionHandler(
-            HttpServletRequest request, MissingServletRequestParameterException e) {
+    public APIResult missingServletRequestParameterExceptionHandler(HttpServletRequest request, MissingServletRequestParameterException e) {
         log.error("Error found:", e);
         String parameter = e.getParameterName();
         String errorMsg = String.format("The parameter %s is required.", parameter);

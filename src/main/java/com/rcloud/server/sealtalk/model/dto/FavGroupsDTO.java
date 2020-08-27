@@ -17,5 +17,5 @@ public class FavGroupsDTO {
     private Integer limit;
     private Integer offset;
     private Integer total;
-    private List<Groups> groupsList;
+    private List<FavGroupInfoDTO> list;
 }

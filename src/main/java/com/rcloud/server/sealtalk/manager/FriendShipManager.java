@@ -45,7 +45,7 @@ import java.util.*;
 @Slf4j
 public class FriendShipManager extends BaseManager {
 
-    public static final int VERIFY = 1;
+    public static final Integer VERIFY = 1;
 
     public static final String NONE = "None";
     public static final String ADDED = "Added";
@@ -88,8 +88,7 @@ public class FriendShipManager extends BaseManager {
         Users users = usersService.getByPrimaryKey(friendId);
         Integer friVerify = users.getFriVerify();
         log.info("invite user. friVerify:[{}]", friVerify);
-        String action = null;
-        if (friVerify == VERIFY) {
+        if (VERIFY.equals(friVerify)) {
             // 需要对方验证
             inviteResponse = addVerifyFriend(currentUserId, friendId, message);
         } else {
@@ -502,7 +501,7 @@ public class FriendShipManager extends BaseManager {
      * @param friendId
      * @throws ServiceException
      */
-    public void ignore(Integer currentUserId, int friendId) throws ServiceException {
+    public void ignore(Integer currentUserId, Integer friendId) throws ServiceException {
 
         long timestamp = System.currentTimeMillis();
         //更新对方Friendship好友关系表中的状态为FRIENDSHIP_IGNORED
@@ -681,15 +680,15 @@ public class FriendShipManager extends BaseManager {
      * 获取手机通讯录好友列表
      *
      * @param currentUserId
-     * @param contacstList
+     * @param contactList
      */
-    public List<ContractInfoDTO> getContactsInfo(Integer currentUserId, String[] contacstList) throws ServiceException {
+    public List<ContractInfoDTO> getContactsInfo(Integer currentUserId, String[] contactList) throws ServiceException {
 
         List<ContractInfoDTO> contractInfoDTOList = new ArrayList<>();
 
         //根据联系人手机号列表查询已经注册的的用户信息
         Example example = new Example(Users.class);
-        example.createCriteria().andIn("phone", CollectionUtils.arrayToList(contacstList));
+        example.createCriteria().andIn("phone", CollectionUtils.arrayToList(contactList));
         example.selectProperties("id", "phone", "nickname", "portraitUri", "stAccount");
         List<Users> usersList = usersService.getByExample(example);
 
@@ -720,7 +719,7 @@ public class FriendShipManager extends BaseManager {
         }
 
         //merge结果
-        for (String phone : contacstList) {
+        for (String phone : contactList) {
             ContractInfoDTO contractInfoDTO = new ContractInfoDTO();
             Users users = registerUsers.get(phone);
             if (users == null) {
@@ -750,7 +749,7 @@ public class FriendShipManager extends BaseManager {
         return contractInfoDTOList;
     }
 
-    public void batchDelete(Integer currentUserId, String[] friendIds) throws ServiceException {
+    public void batchDelete(Integer currentUserId, List<Integer> friendIds) throws ServiceException {
 
         long timestamp = System.currentTimeMillis();
         Friendships friendships = new Friendships();
@@ -762,7 +761,7 @@ public class FriendShipManager extends BaseManager {
         Example example = new Example(Friendships.class);
         example.createCriteria().andEqualTo("status", Friendships.FRIENDSHIP_AGREED)
                 .andEqualTo("userId", currentUserId)
-                .andIn("friendId", CollectionUtils.arrayToList(friendIds));
+                .andIn("friendId", friendIds);
 
         friendshipsService.updateByExampleSelective(friendships, example);
 
@@ -784,7 +783,7 @@ public class FriendShipManager extends BaseManager {
      * @param description
      * @param imageUri
      */
-    public void setFriendDescription(Integer currentUserId, String friendId, String displayName, String region, String phone, String description, String imageUri) throws ServiceException {
+    public void setFriendDescription(Integer currentUserId, Integer friendId, String displayName, String region, String phone, String description, String imageUri) throws ServiceException {
 
         Example example = new Example(Friendships.class);
         example.createCriteria().andEqualTo("userId", currentUserId)

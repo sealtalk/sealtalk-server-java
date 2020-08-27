@@ -50,7 +50,34 @@
         </association>
     </resultMap>
 
-    <select id="queryGroupMembersWithGroupByMemberId" resultMap="resultMapWithGroups">
+    <resultMap id="resultMapWithUsers" type="com.rcloud.server.sealtalk.domain.GroupMembers">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="groupId" jdbcType="INTEGER" property="groupId"/>
+        <result column="memberId" jdbcType="INTEGER" property="memberId"/>
+        <result column="displayName" jdbcType="VARCHAR" property="displayName"/>
+        <result column="role" jdbcType="INTEGER" property="role"/>
+        <result column="isDeleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="groupNickname" jdbcType="VARCHAR" property="groupNickname"/>
+        <result column="region" jdbcType="VARCHAR" property="region"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="WeChat" jdbcType="VARCHAR" property="weChat"/>
+        <result column="Alipay" jdbcType="VARCHAR" property="alipay"/>
+        <result column="memberDesc" jdbcType="VARCHAR" property="memberDesc"/>
+        <result column="timestamp" jdbcType="BIGINT" property="timestamp"/>
+        <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt"/>
+        <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt"/>
+        <association property="users" javaType="com.rcloud.server.sealtalk.domain.Users">
+            <id column="user_id" jdbcType="INTEGER" property="id"/>
+            <result column="user_nickname" jdbcType="VARCHAR" property="nickname"/>
+            <result column="user_portraitUri" jdbcType="VARCHAR" property="portraitUri"/>
+            <result column="user_gender" jdbcType="INTEGER" property="gender"/>
+            <result column="user_stAccount" jdbcType="INTEGER" property="stAccount"/>
+            <result column="user_phone" jdbcType="INTEGER" property="phone"/>
+            <result column="user_region" jdbcType="INTEGER" property="region"/>
+        </association>
+    </resultMap>
+
+    <select id="queryGroupMembersWithGroupByMemberId" resultMap="resultMapWithGroups" >
     SELECT gm.*,
        g.id g_id,
        g.name g_name,
@@ -62,6 +89,26 @@
 
     FROM group_members gm join `groups` g
     on gm.groupId = g.id
-    where gm.memberId=1 and g.deletedAt is null ;
+    where gm.memberId=#{memberId} and g.deletedAt is null ;
   </select>
+
+   <select id="queryGroupMembersWithUsersByGroupId" resultMap="resultMapWithUsers">
+    SELECT gm.*,
+       u.id user_id,
+       u.region user_region,
+       u.nickname user_nickname,
+       u.portraitUri user_portraitUri,
+       u.gender user_gender,
+       u.stAccount user_stAccount,
+       u.phone user_phone
+
+    FROM group_members gm join `users` u
+    on gm.memberId = u.id
+    where gm.groupId=#{groupId}
+  </select>
+
+
+
+
+
 </mapper>

@@ -4,7 +4,9 @@ import com.rcloud.server.sealtalk.constant.GroupRole;
 import com.rcloud.server.sealtalk.dao.GroupMembersMapper;
 import com.rcloud.server.sealtalk.domain.GroupMembers;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
@@ -37,11 +39,9 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
      * @param memberId 用户id
      * @return
      */
-    public List<GroupMembers> queryGroupMembersWithGroupByMemberId(int memberId) {
-        Example example = new Example(GroupMembers.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("memberId", memberId);
-        return mapper.queryGroupMembersWithGroupByMemberId(example);
+    public List<GroupMembers> queryGroupMembersWithGroupByMemberId(Integer memberId) {
+
+        return mapper.queryGroupMembersWithGroupByMemberId(memberId);
     }
 
     /**
@@ -129,42 +129,47 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
         return this.getOneByExample(example);
     }
 
-    /**
-     * 根据groupId、userId 更新群组角色信息
-     *
-     * @param groupId
-     * @param memberId
-     * @param groupRole
-     * @param timestamp
-     */
-    public void updateRoleAndTimestamp(Integer groupId, Integer memberId, GroupRole groupRole, long timestamp) {
-        GroupMembers groupMembers = new GroupMembers();
-        groupMembers.setRole(groupRole.getCode());
-        groupMembers.setTimestamp(timestamp);
+
+
+    public void updateByGroupIdAndMemberId(Integer groupId,Integer memberId,GroupMembers groupMembers){
+        Assert.notNull(groupId,"groupId is null");
+        Assert.notNull(memberId,"memberId is null");
+
         Example example = new Example(GroupMembers.class);
-        example.createCriteria().andEqualTo("groupId", groupId)
-                .andEqualTo("memberId", memberId);
-        this.updateByExampleSelective(groupMembers, example);
+        example.createCriteria().andEqualTo("groupId",groupId)
+                .andEqualTo("memberId",memberId);
+
+        this.updateByExampleSelective(groupMembers,example);
     }
 
-    /**
-     * 更新isDelete字段 TODO
-     *
-     * @param groupId
-     * @param memberId
-     * @param isDeleted
-     */
-    public void updateDeleteStatus(Integer groupId, Integer memberId, boolean isDeleted) {
+    public void updateByGroupIdAndMemberIds(Integer groupId,List<Integer> memberIdList,GroupMembers groupMembers){
+        Assert.notNull(groupId,"groupId is null");
+        Assert.notEmpty(memberIdList,"memberId is null");
+
+        Example example = new Example(GroupMembers.class);
+        example.createCriteria().andEqualTo("groupId",groupId)
+                .andIn("memberId",memberIdList);
+
+        this.updateByExampleSelective(groupMembers,example);
     }
 
-    public void updateDeleteStatusAndRole(Integer groupId, Integer memberId, GroupRole role, long timestamp, boolean isDelete) {
+    public void updateByGroupId(Integer groupId,GroupMembers groupMembers){
+        Assert.notNull(groupId,"groupId is null");
+
+        Example example = new Example(GroupMembers.class);
+        example.createCriteria().andEqualTo("groupId",groupId);
+        this.updateByExampleSelective(groupMembers,example);
     }
 
-    public void updateDeleteStatus(Integer groupId, boolean isDelete, long timestamp) {
-    }
 
     public List<GroupMembers> queryGroupMembersWithUsersByMGroupIds(List<Integer> groupIdList, Long version) {
         //TODO
         return null;
+    }
+
+
+    public List<GroupMembers> queryGroupMembersWithUsersByGroupId(Integer groupId) {
+        Assert.notNull(groupId,"groupId is null");
+        return mapper.queryGroupMembersWithUsersByGroupId(groupId);
     }
 }

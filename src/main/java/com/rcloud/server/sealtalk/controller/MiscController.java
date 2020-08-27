@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.controller.param.ScreenCaptureParam;
+import com.rcloud.server.sealtalk.controller.param.SendMessageParam;
 import com.rcloud.server.sealtalk.domain.Groups;
 import com.rcloud.server.sealtalk.domain.ScreenStatuses;
 import com.rcloud.server.sealtalk.exception.ServiceException;
@@ -12,11 +14,7 @@ import com.rcloud.server.sealtalk.manager.MiscManager;
 import com.rcloud.server.sealtalk.model.dto.DemoSquareDTO;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
-import com.rcloud.server.sealtalk.util.CacheUtil;
-import com.rcloud.server.sealtalk.util.JacksonUtil;
-import com.rcloud.server.sealtalk.util.MiscUtils;
-import com.rcloud.server.sealtalk.util.ValidateUtils;
-import io.micrometer.core.annotation.Timed;
+import com.rcloud.server.sealtalk.util.*;
 import io.micrometer.core.instrument.util.IOUtils;
 import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.Api;
@@ -26,12 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -50,7 +44,6 @@ import java.util.Map;
 @Api(tags = "其他相关")
 @RestController
 @RequestMapping("/misc")
-@Timed(percentiles = {0.9, 0.95, 0.99})
 @Slf4j
 public class MiscController extends BaseController {
 
@@ -128,8 +121,7 @@ public class MiscController extends BaseController {
             response.setCharacterEncoding("utf8");
             String result = CacheUtil.get(CacheUtil.CLIENT_VERSION_INFO);
             if (StringUtils.isEmpty(result)) {
-                String jsonData = IOUtils
-                        .toString(clientResource.getInputStream(), StandardCharsets.UTF_8);
+                String jsonData = IOUtils.toString(clientResource.getInputStream(), StandardCharsets.UTF_8);
                 result = jsonData;
 
             }
@@ -156,8 +148,7 @@ public class MiscController extends BaseController {
 
             String result = CacheUtil.get(CacheUtil.MOBILE_VERSION_INFO);
             if (StringUtils.isEmpty(result)) {
-                String jsonData = IOUtils
-                        .toString(clientResource.getInputStream(), StandardCharsets.UTF_8);
+                String jsonData = IOUtils.toString(clientResource.getInputStream(), StandardCharsets.UTF_8);
                 result = jsonData;
 
             }
@@ -175,8 +166,7 @@ public class MiscController extends BaseController {
     public APIResult<?> getDemoSquare() {
         try {
 
-            String jsonData = IOUtils
-                    .toString(demoSquareResource.getInputStream(), StandardCharsets.UTF_8);
+            String jsonData = IOUtils.toString(demoSquareResource.getInputStream(), StandardCharsets.UTF_8);
             ObjectMapper objectMapper = new ObjectMapper();
             List<DemoSquareDTO> demoSquareDTOList = objectMapper.readValue(jsonData, new TypeReference<List<DemoSquareDTO>>() {
             });
@@ -220,70 +210,59 @@ public class MiscController extends BaseController {
         }
     }
 
-
     @ApiOperation(value = "Server API 发送消息")
     @RequestMapping(value = "/send_message", method = RequestMethod.POST)
-    public APIResult<Object> sendMessage(@ApiParam(name = "conversationType", value = "会话类型 PRIVATE GROUP", required = true, type = "String", example = "xxx")
-                                         @RequestParam("conversationType") String conversationType,
-                                         @ApiParam(name = "targetId", value = "接收者 Id", required = true, type = "String", example = "xxx")
-                                         @RequestParam("targetId") String targetId,
-                                         @ApiParam(name = "objectName", value = "消息类型 RC:TxtMsg RC:ImgMsg", required = true, type = "String", example = "xxx")
-                                         @RequestParam("objectName") String objectName,
-                                         @ApiParam(name = "content", value = "消息内容", required = true, type = "String", example = "xxx")
-                                         @RequestParam("content") String content,
-                                         @ApiParam(name = "pushContent", value = "push 内容", required = false, type = "String", example = "xxx")
-                                         @RequestParam("pushContent") String pushContent,
-                                         @ApiParam(name = "encodedTargetId", value = "encodedTargetId", required = true, type = "String", example = "xxx")
-                                         @RequestParam("encodedTargetId") String encodedTargetId,
-                                         HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> sendMessage(@RequestBody SendMessageParam sendMessageParam) throws ServiceException {
+
+        String conversationType = sendMessageParam.getConversationType();
+        String targetId = sendMessageParam.getConversationType();
+        String objectName = sendMessageParam.getConversationType();
+        String content = sendMessageParam.getConversationType();
+        String pushContent = sendMessageParam.getPushContent();
 
         ValidateUtils.notEmpty(conversationType);
         ValidateUtils.notEmpty(targetId);
         ValidateUtils.notEmpty(objectName);
         ValidateUtils.notEmpty(content);
-        ValidateUtils.notEmpty(encodedTargetId);
 
-        Integer currentUserId = getCurrentUserId(request);
-        miscManager.sendMessage(currentUserId, conversationType, targetId, objectName, content, pushContent, encodedTargetId);
-        return APIResultWrap.ok("");
+        Integer currentUserId = getCurrentUserId();
+        miscManager.sendMessage(currentUserId, conversationType, N3d.decode(targetId), objectName, content, pushContent, targetId);
+        return APIResultWrap.ok();
     }
 
 
     @ApiOperation(value = "截屏通知状态设置")
     @RequestMapping(value = "/set_screen_capture", method = RequestMethod.POST)
-    public APIResult<Object> setScreenCapture(@ApiParam(name = "conversationType", value = "会话类型：1 单聊、3 群聊", required = true, type = "Integer", example = "xxx")
-                                              @RequestParam("conversationType") Integer conversationType,
-                                              @ApiParam(name = "targetId", value = "接收者 Id", required = true, type = "String", example = "xxx")
-                                              @RequestParam("targetId") Integer targetId,
-                                              @ApiParam(name = "noticeStatus", value = "设置状态： 0 关闭 1 打开", required = true, type = "Integer", example = "xxx")
-                                              @RequestParam("noticeStatus") Integer noticeStatus,
-                                              HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> setScreenCapture(@RequestBody ScreenCaptureParam screenCaptureParam) throws ServiceException {
+
+        Integer conversationType = screenCaptureParam.getConversationType();
+        String targetId = screenCaptureParam.getTargetId();
+        Integer noticeStatus = screenCaptureParam.getNoticeStatus();
 
         ValidateUtils.notNull(conversationType);
-        ValidateUtils.notNull(targetId);
+        ValidateUtils.notEmpty(targetId);
         ValidateUtils.notNull(noticeStatus);
 
-        Integer currentUserId = getCurrentUserId(request);
+        Integer currentUserId = getCurrentUserId();
 
-        miscManager.setScreenCapture(currentUserId, targetId, conversationType, noticeStatus);
-        return APIResultWrap.ok("");
+        miscManager.setScreenCapture(currentUserId, N3d.decode(targetId), conversationType, noticeStatus);
+        return APIResultWrap.ok();
     }
 
 
     @ApiOperation(value = "获取截屏通知状态")
     @RequestMapping(value = "/get_screen_capture", method = RequestMethod.POST)
-    public APIResult<Object> getScreenCapture(@ApiParam(name = "conversationType", value = "会话类型：1 单聊、3 群聊", required = true, type = "Integer", example = "xxx")
-                                              @RequestParam("conversationType") Integer conversationType,
-                                              @ApiParam(name = "targetId", value = "接收者 Id", required = true, type = "String", example = "xxx")
-                                              @RequestParam("targetId") String targetId,
-                                              HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> getScreenCapture(@RequestBody ScreenCaptureParam screenCaptureParam) throws ServiceException {
+
+        Integer conversationType = screenCaptureParam.getConversationType();
+        String targetId = screenCaptureParam.getTargetId();
 
         ValidateUtils.notNull(conversationType);
-        ValidateUtils.notNull(targetId);
+        ValidateUtils.notEmpty(targetId);
 
-        Integer currentUserId = getCurrentUserId(request);
+        Integer currentUserId = getCurrentUserId();
 
-        ScreenStatuses screenStatuses = miscManager.getScreenCapture(currentUserId, targetId, conversationType);
+        ScreenStatuses screenStatuses = miscManager.getScreenCapture(currentUserId, N3d.decode(targetId), conversationType);
         Map<String, Object> result = new HashMap<>();
         if (screenStatuses == null) {
             result.put("status", 0);
@@ -295,20 +274,19 @@ public class MiscController extends BaseController {
 
     @ApiOperation(value = "发送截屏通知消息")
     @RequestMapping(value = "/send_sc_msg", method = RequestMethod.POST)
-    public APIResult<Object> sendScreenCaptureMsg(@ApiParam(name = "conversationType", value = "会话类型：1 单聊、3 群聊", required = true, type = "Integer", example = "xxx")
-                                                  @RequestParam("conversationType") Integer conversationType,
-                                                  @ApiParam(name = "targetId", value = "接收者 Id", required = true, type = "String", example = "xxx")
-                                                  @RequestParam("targetId") String targetId,
-                                                  HttpServletRequest request) throws ServiceException {
+    public APIResult<Object> sendScreenCaptureMsg(@RequestBody ScreenCaptureParam screenCaptureParam) throws ServiceException {
+
+        Integer conversationType = screenCaptureParam.getConversationType();
+        String targetId = screenCaptureParam.getTargetId();
 
         ValidateUtils.notNull(conversationType);
-        ValidateUtils.notNull(targetId);
+        ValidateUtils.notEmpty(targetId);
 
-        Integer currentUserId = getCurrentUserId(request);
+        Integer currentUserId = getCurrentUserId();
 
-        miscManager.sendScreenCaptureMsg(currentUserId, targetId, conversationType);
+        miscManager.sendScreenCaptureMsg(currentUserId, N3d.decode(targetId), conversationType);
 
-        return APIResultWrap.ok("");
+        return APIResultWrap.ok();
     }
 
 

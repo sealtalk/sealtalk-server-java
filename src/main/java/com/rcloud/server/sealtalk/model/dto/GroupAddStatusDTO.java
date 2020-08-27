@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class GroupAddStatusDTO {
 
-    private int id;
+    private String id;
     private List<UserStatusDTO> userStatus;
 
 }

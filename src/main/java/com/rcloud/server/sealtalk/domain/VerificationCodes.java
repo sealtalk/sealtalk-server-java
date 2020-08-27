@@ -6,6 +6,9 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * 验证码
+ */
 @Table(name = "verification_codes")
 public class VerificationCodes implements Serializable {
     @Id

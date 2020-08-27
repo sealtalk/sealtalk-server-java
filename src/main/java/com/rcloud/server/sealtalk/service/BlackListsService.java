@@ -69,7 +69,6 @@ public class BlackListsService extends AbstractBaseService<BlackLists, Integer> 
      * @return
      */
     public List<BlackLists> getBlackListsWithFriendUsers(Integer currentUserId) {
-
         return mapper.selectBlackListsWithFriendUsers(currentUserId);
     }
 

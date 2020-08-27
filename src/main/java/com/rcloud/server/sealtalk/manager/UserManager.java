@@ -96,21 +96,22 @@ public class UserManager extends BaseManager {
      */
     public void sendCode(String region, String phone, SmsServiceType smsServiceType, ServerApiParams serverApiParams) throws ServiceException {
         log.info("send code. region:[{}] phone:[{}] smsServiceType:[{}]", region, phone, smsServiceType.getCode());
-        //如果是开发环境，且是调用云片服务直接返回，不执行后续逻辑
-        if (Constants.ENV_DEV.equals(profileConfig.getEnv()) && SmsServiceType.YUNPIAN.equals(smsServiceType)) {
-            return;
-        }
+
         region = MiscUtils.removeRegionPrefix(region);
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
 
+        String ip = serverApiParams.getRequestUriInfo().getIp();
+
+        // 获取最近一次发送验证码记录
         VerificationCodes verificationCodes = verificationCodesService.getByRegionAndPhone(region, phone);
         if (verificationCodes != null) {
             checkLimitTime(verificationCodes);
         }
+
         if (SmsServiceType.YUNPIAN.equals(smsServiceType)) {
-            //云片服务获取验证码，检查请求频率限制
-            checkRequestFrequency(serverApiParams);
+            //云片服务获取验证码，检查IP请求频率限制
+            checkRequestFrequency(ip);
         }
 
         //保存或更新verificationCodes、 发送验证码
@@ -118,53 +119,51 @@ public class UserManager extends BaseManager {
 
         //云片服务获取验证码 刷新请求频率限制指标数据
         if (SmsServiceType.YUNPIAN.equals(smsServiceType)) {
-            refreshRequestFrequency(serverApiParams, verificationCodes);
+            refreshRequestFrequency(ip);
         }
     }
 
     /**
      * 刷新ip请求频率
      *
-     * @param serverApiParams
-     * @param verificationCodes
+     * @param ip
      */
-    private void refreshRequestFrequency(ServerApiParams serverApiParams, VerificationCodes verificationCodes) {
+    private void refreshRequestFrequency(String ip) {
         //更新verification_violations ip地址访问时间次和数
-        if (serverApiParams != null && serverApiParams.getRequestUriInfo() != null && !StringUtils.isEmpty(serverApiParams.getRequestUriInfo().getIp())) {
-            VerificationViolations verificationViolations = verificationViolationsService.getByPrimaryKey(serverApiParams.getRequestUriInfo().getIp());
-            if (verificationViolations == null) {
-                verificationViolations = new VerificationViolations();
-                verificationViolations.setIp(serverApiParams.getRequestUriInfo().getIp());
+        VerificationViolations verificationViolations = verificationViolationsService.getByPrimaryKey(ip);
+        if (verificationViolations == null) {
+            verificationViolations = new VerificationViolations();
+            verificationViolations.setIp(ip);
+            verificationViolations.setCount(1);
+            verificationViolations.setTime(new Date());
+            verificationViolationsService.saveSelective(verificationViolations);
+        } else {
+            DateTime dateTime = new DateTime(new Date());
+            dateTime = dateTime.minusHours(sealtalkConfig.getYunpianLimitedTime());
+            Date limitDate = dateTime.toDate();
+            if (limitDate.after(verificationViolations.getTime())) {
+                //如果上次记录时间已经是1小时前，重置计数和开始时间
                 verificationViolations.setCount(1);
                 verificationViolations.setTime(new Date());
-                verificationViolationsService.saveSelective(verificationViolations);
             } else {
-                DateTime dateTime = new DateTime(new Date());
-                dateTime = dateTime.minusHours(sealtalkConfig.getYunpianLimitedTime());
-                Date limitDate = dateTime.toDate();
-                if (limitDate.after(verificationCodes.getUpdatedAt())) {
-                    //如果上次记录时间已经是1小时前，重置计数和开始时间
-                    verificationViolations.setCount(1);
-                    verificationViolations.setTime(new Date());
-                } else {
-                    verificationViolations.setCount(verificationViolations.getCount() + 1);
-                }
-                verificationViolationsService.updateByPrimaryKeySelective(verificationViolations);
+                verificationViolations.setCount(verificationViolations.getCount() + 1);
             }
+            verificationViolationsService.updateByPrimaryKeySelective(verificationViolations);
         }
+
     }
 
     /**
      * 发送短信并更新数据库
      */
-    private void upsertAndSendToSms(String region, String phone, SmsServiceType smsServiceType) throws ServiceException {
+    private VerificationCodes upsertAndSendToSms(String region, String phone, SmsServiceType smsServiceType) throws ServiceException {
         if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
             //开发环境直接插入数据库，不调用短信接口
-            verificationCodesService.saveOrUpdate(region, phone, "");
+            return verificationCodesService.saveOrUpdate(region, phone, "");
         } else {
             SmsService smsService = SmsServiceFactory.getSmsService(smsServiceType);
             String sessionId = smsService.sendVerificationCode(region, phone);
-            verificationCodesService.saveOrUpdate(region, phone, sessionId);
+            return verificationCodesService.saveOrUpdate(region, phone, sessionId);
         }
     }
 
@@ -195,19 +194,25 @@ public class UserManager extends BaseManager {
     /**
      * IP请求频率限制检查
      *
-     * @param serverApiParams
+     * @param ip
      * @throws ServiceException
      */
-    private void checkRequestFrequency(ServerApiParams serverApiParams) throws ServiceException {
-        String ip = serverApiParams.getRequestUriInfo().getIp();
+    private void checkRequestFrequency(String ip) throws ServiceException {
+        Integer yunpianLimitedTime = sealtalkConfig.getYunpianLimitedTime();
+        Integer yunpianLimitedCount = sealtalkConfig.getYunpianLimitedCount();
+
+        if (yunpianLimitedTime == null) {
+            yunpianLimitedTime = 1;
+        }
+
+        if (yunpianLimitedCount == null) {
+            yunpianLimitedCount = 20;
+        }
 
         VerificationViolations verificationViolations = verificationViolationsService.getByPrimaryKey(ip);
         if (verificationViolations == null) {
             return;
         }
-
-        Integer yunpianLimitedTime = sealtalkConfig.getYunpianLimitedTime();
-        Integer yunpianLimitedCount = sealtalkConfig.getYunpianLimitedCount();
 
         DateTime dateTime = new DateTime(new Date());
         Date sendDate = dateTime.minusHours(yunpianLimitedTime).toDate();
@@ -308,7 +313,10 @@ public class UserManager extends BaseManager {
                 u.setPasswordSalt(String.valueOf(salt));
                 u.setCreatedAt(new Date());
                 u.setUpdatedAt(u.getCreatedAt());
+                u.setPortraitUri(sealtalkConfig.getRongcloudDefaultPortraitUrl());
+
                 usersService.saveSelective(u);
+
 
                 //插入DataVersion表
                 DataVersions dataVersions = new DataVersions();
@@ -336,10 +344,12 @@ public class UserManager extends BaseManager {
         param.setRegion(region);
         param.setPhone(phone);
         Users u = usersService.getOne(param);
+
         //判断用户是否存在
         if (u == null) {
             throw new ServiceException(ErrorCode.USER_NOT_EXIST);
         }
+
         //校验密码是否正确
         String passwordHash = MiscUtils.hash(password, Integer.valueOf(u.getPasswordSalt()));
 
@@ -347,30 +357,44 @@ public class UserManager extends BaseManager {
             throw new ServiceException(ErrorCode.USER_PASSWORD_WRONG);
         }
 
+        log.info("login id:" + u.getId() + " nickname:" + u.getNickname());
         //缓存nickname
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
 
         //查询该用户所属的所有组,同步到融云
-        Map<String, String> groupIdNameMap = new HashMap<>();
+        List<Groups> groupsList = new ArrayList<>();
+        Map<String,String> idNamePariMap = new HashMap<>();
         List<GroupMembers> groupMembersList = groupMembersService.queryGroupMembersWithGroupByMemberId(u.getId());
         if (!CollectionUtils.isEmpty(groupMembersList)) {
             for (GroupMembers gm : groupMembersList) {
                 Groups groups = gm.getGroups();
                 if (groups != null) {
-                    groupIdNameMap.put(N3d.encode(groups.getId()), groups.getName());
+                    groupsList.add(groups);
+                    idNamePariMap.put(N3d.encode(groups.getId()),groups.getName());
                 }
             }
         }
 
         //同步前记录日志
-        log.info("'Sync groups: {}", groupIdNameMap);
-        //调用融云sdk 将登录用户的userid，与groupIdName信息同步到融云 TODO TODO
+        log.info("'Sync groups: {}", idNamePariMap);
+
+        //调用融云sdk 将登录用户的userid，与groupIdName信息同步到融云
+        try {
+            Result result = rongCloudClient.syncGroupInfo(N3d.encode(u.getId()), groupsList);
+            if (!Constants.CODE_OK.equals(result.getCode())) {
+                log.error("Error sync user's group list failed,code:" + result.getCode());
+            }
+        } catch (Exception e) {
+            log.error("Error sync user's group list error:" + e.getMessage(), e);
+        }
+
 
         String token = u.getRongCloudToken();
         if (StringUtils.isEmpty(token)) {
-            //如果user表中的融云token为空，
-            //调用融云sdk 获取token
-            TokenResult tokenResult = rongCloudClient.register(N3d.encode(u.getId()), u.getNickname(), u.getPortraitUri());
+            //如果user表中的融云token为空，调用融云sdk 获取token
+            //如果用户头像地址为空，采用默认头像地址
+            String portraitUri = StringUtils.isEmpty(u.getPortraitUri()) ? sealtalkConfig.getRongcloudDefaultPortraitUrl() : u.getPortraitUri();
+            TokenResult tokenResult = rongCloudClient.register(N3d.encode(u.getId()), u.getNickname(), portraitUri);
             if (!Constants.CODE_OK.equals(tokenResult.getCode())) {
                 throw new ServiceException(ErrorCode.SERVER_ERROR, "'RongCloud Server API Error Code: " + tokenResult.getCode());
             }
@@ -582,7 +606,9 @@ public class UserManager extends BaseManager {
         Users user = usersService.getByPrimaryKey(currentUserId);
 
         //调用融云用户注册接口，获取token
-        TokenResult tokenResult = rongCloudClient.register(N3d.encode(user.getId()), user.getNickname(), user.getPortraitUri());
+        //如果用户头像地址为空，采用默认头像地址
+        String portraitUri = StringUtils.isEmpty(user.getPortraitUri()) ? sealtalkConfig.getRongcloudDefaultPortraitUrl() : user.getPortraitUri();
+        TokenResult tokenResult = rongCloudClient.register(N3d.encode(user.getId()), user.getNickname(), portraitUri);
         String token = tokenResult.getToken();
 
         //根据userId更新本地数据users表中rongCloudToken
@@ -820,6 +846,31 @@ public class UserManager extends BaseManager {
     }
 
     /**
+     * 根据userIds批量查询用户信息
+     *
+     * @param userIds
+     * @return
+     */
+    public List<Users> getBatchUser(List<Integer> userIds) {
+
+        Example example = new Example(Users.class);
+        example.createCriteria().andIn("id", userIds);
+        return usersService.getByExample(example);
+    }
+
+    /**
+     * 根据stAccount查询用户信息
+     *
+     * @param stAccount
+     * @return
+     */
+    public Users getUserByStAccount(String stAccount) {
+        Users u = new Users();
+        u.setStAccount(stAccount);
+        return usersService.getOne(u);
+    }
+
+    /**
      * 根据手机号查询用户信息
      *
      * @param region
@@ -872,19 +923,21 @@ public class UserManager extends BaseManager {
      * @return
      * @throws ServiceException
      */
-    public List<Groups> getFavGroups(Integer userId, Integer limit, Integer offset) throws ServiceException {
+    public Pair<Integer, List<Groups>> getFavGroups(Integer userId, Integer limit, Integer offset) throws ServiceException {
         List<Groups> groupsList = new ArrayList<>();
-        List<GroupFavs> groupFavsList = groupFavsService.queryGroupFavsWithGroupByUserId(userId, limit, offset);
-
-        if (!CollectionUtils.isEmpty(groupFavsList)) {
-            for (GroupFavs groupFavs : groupFavsList) {
-                if (groupFavs.getGroups() != null) {
-                    groupsList.add(groupFavs.getGroups());
+        Integer count = groupFavsService.queryCountGroupFavs(userId);
+        if (count != null && count > 0) {
+            List<GroupFavs> groupFavsList = groupFavsService.queryGroupFavsWithGroupByUserId(userId, limit, offset);
+            if (!CollectionUtils.isEmpty(groupFavsList)) {
+                for (GroupFavs groupFavs : groupFavsList) {
+                    if (groupFavs.getGroups() != null) {
+                        groupsList.add(groupFavs.getGroups());
+                    }
                 }
             }
         }
 
-        return groupsList;
+        return Pair.of(count, groupsList);
     }
 
     /**
@@ -980,6 +1033,7 @@ public class UserManager extends BaseManager {
         }
 
         if (dataVersions.getGroupVersion() > version) {
+            //TODO
             groupMembersList = groupMembersService.queryGroupMembersWithUsersByMGroupIds(groupIdList, version);
         }
 
@@ -1024,7 +1078,6 @@ public class UserManager extends BaseManager {
         }
 
         log.info("sync info ,maxVersion={}", maxVersion);
-
 
         syncInfoDTO.setVersion(version);
         syncInfoDTO.setUser(users);

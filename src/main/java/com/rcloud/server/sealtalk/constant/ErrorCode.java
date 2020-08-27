@@ -16,7 +16,7 @@ public enum ErrorCode {
 
     EMPTY_STACCOUNT_LENGHT_ERROR(400,"Incorrect parameter length.",400),
     EMPTY_STACCOUNT_ERROR(400,"Not letter beginning or invalid symbol.",400),
-    EMPTY_STACCOUNT_EXIST(1000,"SealTalk 号已存在",200),
+    EMPTY_STACCOUNT_EXIST(1000,"该热聊号已存在",200),
 
     //send_code
     LIMIT_ERROR(5000, "Throttle limit exceeded.",200),
@@ -37,12 +37,12 @@ public enum ErrorCode {
     INVALID_PASSWORD_LENGHT(400, "Length of password invalid.",400),
     INVALID_VERIFICATION_TOKEN(400, "Invalid verification_token.",400),
     UNKNOWN_VERIFICATION_TOKEN(404, "Unknown verification_token.",404),
-    PHONE_ALREADY_REGIESTED(400, "Phone number has already existed.",400),
+    PHONE_ALREADY_REGIESTED(400, "该账号已经注册.",400),
 
     //login error
-    USER_NOT_EXIST(1000, "Phone number not found.",200),
-    USER_PASSWORD_WRONG(1001, "Wrong password.",200),
-    USER_PASSWORD_WRONG_2(1000, "Wrong old password.",200),
+    USER_NOT_EXIST(1000, "该账号不存在.",200),
+    USER_PASSWORD_WRONG(1001, "密码错误.",200),
+    USER_PASSWORD_WRONG_2(1000, "旧密码错误.",200),
 
     //user error
     INVALID_PORTRAITURI_FORMAT(400,"Invalid portraitUri format.",400),
@@ -87,13 +87,23 @@ public enum ErrorCode {
     ALREADY_EXISTS_GROUP(405,"Group already exists.",405),
     TRANSFER_TO_CREATOR_ERROR(403,"Can not transfer creator role to yourself.",403),
     INVALID_GROUPID_USERID(403,"Invalid groupId or userId.",403),
+    NOT_GROUP_CREATOR(400,"Current user is not group creator.",400),
     QUIT_IM_SERVER_ERROR(500,"Quit failed on IM server.",500),
     NOT_GROUP_MEMBER_3(403,"Current user is not group member.",403),
+    NOT_GROUP_MANAGER_3(403,"Current user is not group manager.",403),
     CAN_NOT_KICK_YOURSELF(400,"Can not kick yourself.",400),
     CAN_NOT_KICK_CREATOR(405,"Can not kick the host.",405),
     GROUP_MEMBER_EMPTY(500,"Group member should not be empty, please check your database.",500),
     EMPTY_MEMBERID(400,"Empty memberId.",400),
     CANT_NOT_KICK_NONE_MEMBER(400,"Can not kick none-member from the group.",400),
+    NOT_IN_MEMBER(403,"Not in the group.",403),
+    NO_PERMISSION_SET_MANAGER(401,"No permission to set up an manager.",401),
+    CAN_NOT_SET_CREATOR(403,"Cannot set the group creator.",403),
+    NO_GROUP(20006,"No Group",200),
+    IN_PROTECTED_GROUP(20004,"Protected",200),
+    COPIED_GROUP(20005,"Copied",200),
+    MEMBER_LIMIT(20007,"Member Limit",200),
+    NOT_FOUND(20003,"Not found",200),
 
 
     //yunpian error 云片服务错误，错误码3000 开头

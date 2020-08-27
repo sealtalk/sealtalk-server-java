@@ -66,7 +66,8 @@ public class MiscUtils {
     public static String hash(String text, int salt) {
         if (StringUtils.isEmpty(text)) {
             return null;
-        } else {
+        }
+        else {
             text = text + "|" + salt;
             return DigestUtils.sha1Hex(text);
         }
@@ -124,7 +125,7 @@ public class MiscUtils {
      * ]
      * }
      * <p>
-     * 如果参数propertyExpression 为空默认为 propertyExpression = id
+     * 如果参数propertyExpression 为空默认为 propertyExpression = "id"
      *
      * @param o
      * @param propertyExpressions
@@ -180,7 +181,7 @@ public class MiscUtils {
                         processResult(targetNode, propertyExpression.substring(index));
                         return;
                     }
-                    if (targetNode == null) {
+                    if (targetNode == null || targetNode.isNull()) {
                         return;
                     }
                 }
@@ -268,12 +269,12 @@ public class MiscUtils {
         return null;
     }
 
-    public static String[] decodeIds(String[] ids) throws ServiceException {
+    public static Integer[] decodeIds(String[] ids) throws ServiceException {
         if(ArrayUtils.isNotEmpty(ids)){
-            String[] result = new String[ids.length];
+            Integer[] result = new Integer[ids.length];
 
             for(int i=0;i<ids.length;i++){
-                result[i] = String.valueOf(N3d.decode(ids[i]));
+                result[i] = N3d.decode(ids[i]);
             }
 
             return result;

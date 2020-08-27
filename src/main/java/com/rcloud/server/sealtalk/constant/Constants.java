@@ -15,11 +15,6 @@ public class Constants {
     public final static String REGION_NAME = "zh-CN";
     public static final String STRING_ADD = "+";
 
-    public final static String SMS_YUNPIAN_URL = "sms.yunpian.com";
-    public final static String US_YUNPIAN_URL = "us.yunpian.com";
-    public final static String YUNPIAN_TPL_URI = "/v2/tpl/get.json";
-
-    public static final String SERVER_API_PARAMS = "serverApiParams";
     public static final String ENV_DEV = "dev";
     public static final String VERIFICATION_TOKEN_KEY = "verification_token";
 
@@ -38,21 +33,21 @@ public class Constants {
 
     public static final int MAX_USER_GROUP_OWN_COUNT = 500;
 
+    //TODO海外版
     public static final String URL_GET_RONGCLOUD_IMG_CODE = "http://api.sms.ronghub.com/getImgCode.json?appKey=";
 
     public static final String SEPARATOR_ESCAPE = "\\|";
     public static final String SEPARATOR_NO = "|";
 
 
-    //GrpApplyMessage默认fromUserId标示
+    //群组申请消息 GrpApplyMessage默认fromUserId标示
     public static final String GrpApplyMessage_fromUserId = "__group_apply__";
 
+    //群组通知消息 GrpApplyMessage默认fromUserId标示
+    public static final String GroupNotificationMessage_fromUserId = "__system__";
+
+
     public static final Integer CODE_OK = 200;
-    public static final Integer KICK_STATUS_SELF = 0;
-    public static final Integer KICK_STATUS_MANAGER = 1;
-
-
-
-
+    public static final String DATE_FORMATR_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
 }

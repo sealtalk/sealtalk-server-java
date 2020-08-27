@@ -8,8 +8,10 @@ import com.rcloud.server.sealtalk.constant.HttpStatusCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.sms.SmsService;
+import com.rcloud.server.sealtalk.sms.SmsTemplateService;
 import com.rcloud.server.sealtalk.util.MiscUtils;
 import com.rcloud.server.sealtalk.util.RandomUtil;
+import com.rcloud.server.sealtalk.util.RegionMapUtil;
 import com.yunpian.sdk.YunpianClient;
 import com.yunpian.sdk.model.Result;
 import com.yunpian.sdk.model.SmsSingleSend;
@@ -26,7 +28,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,8 +40,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 public class YunPianSmsService implements SmsService {
-
-    private static ConcurrentHashMap<String, String> regionTemplateMap = new ConcurrentHashMap<>();
 
 
     private static final int VERIFICATION_CODE_MIN = 100000;
@@ -56,23 +55,13 @@ public class YunPianSmsService implements SmsService {
     @Value("classpath:yunpian.properties")
     private org.springframework.core.io.Resource yunpianResource;
 
+    @Resource
+    private SmsTemplateService smsTemplateService;
+
     //短信模版缓存
     Cache<String, List<Template>> templateCache = CacheBuilder.newBuilder()
             .expireAfterWrite(60, TimeUnit.MINUTES)
             .build();
-
-
-    static {
-        //地区，对应短信模版id TODO
-        regionTemplateMap.put("86", "3910922");
-        regionTemplateMap.put("852", "3910922");
-        regionTemplateMap.put("853", "3910922");
-        regionTemplateMap.put("886", "3910922");
-        regionTemplateMap.put("81", "3910922");
-        regionTemplateMap.put("82", "3910922");
-        regionTemplateMap.put("other", "3910922");
-    }
-
 
     @PostConstruct
     public void postConstruct() {
@@ -83,6 +72,7 @@ public class YunPianSmsService implements SmsService {
         this.apiKey = sealtalkConfig.getYunpianApiKey();
         try {
             yunpianClient = new YunpianClient(apiKey, yunpianResource.getInputStream()).init();
+
         } catch (IOException e) {
             log.error("yunpian client init error:" + e.getMessage(), e);
             throw new RuntimeException(e);
@@ -137,12 +127,14 @@ public class YunPianSmsService implements SmsService {
     /**
      * 根据地区和模板列表 匹配模板内容, 获取模板 内容
      *
-     * @param region  86
+     * @param region 86
      * @return
      * @throws ServiceException
      */
     public String getTplIdByList(String region) throws ServiceException {
-        Long tplId = Long.valueOf(regionTemplateMap.get(region));
+        String lang = RegionMapUtil.getLangByRegion(region);
+        String templateId = smsTemplateService.getSmsTemplateIdByLang(lang);
+        Long tplId = Long.valueOf(templateId);
 
         List<Template> templates = getSmsTplList();
         if (templates != null) {

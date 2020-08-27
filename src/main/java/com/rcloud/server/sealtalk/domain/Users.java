@@ -11,6 +11,15 @@ public class Users implements Serializable {
     public static final Integer GROUP_VERIFY_NO_NEED = 1;
     public static final Integer GROUP_VERIFY_NEED = 0;
 
+    //允许 通过手机号搜索到我： 0 不允许 1允许
+    public static final Integer PHONE_VERIFY_NO_NEED = 1;
+    public static final Integer PHONE_VERIFY_NEED = 0;
+    //允许 SealTalk 号搜索到我： 0 不允许 1允许
+    public static final Integer ST_SEARCH_VERIFY_NO_NEED = 1;
+    public static final Integer ST_SEARCH_VERIFY_NEED = 0;
+
+
+
 
     @Id
     @GeneratedValue(generator = "JDBC")

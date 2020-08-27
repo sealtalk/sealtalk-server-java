@@ -64,10 +64,16 @@ public class ValidateUtils {
         if (str == null || str.length == 0) {
             throw new ServiceException(ErrorCode.PARAM_ERROR);
         }
+
+        for (String element : str) {
+            if (StringUtils.isEmpty(element)) {
+                throw new ServiceException(ErrorCode.PARAM_ERROR);
+            }
+        }
+
     }
 
     public static void checkCompletePhone(String completePhone) throws ServiceException {
-
         if (!RegexUtils.checkMobile(completePhone)) {
             throw new ServiceException(ErrorCode.INVALID_REGION_PHONE);
         }
@@ -267,7 +273,7 @@ public class ValidateUtils {
 
     public static void checkTimeStamp(String timeStamp) throws ServiceException {
 
-        if(!RegexUtils.checkDigit(timeStamp)){
+        if (!RegexUtils.checkDigit(timeStamp)) {
             throw new ServiceException(ErrorCode.INVALID_TIMESTAMP_VERSION);
         }
     }

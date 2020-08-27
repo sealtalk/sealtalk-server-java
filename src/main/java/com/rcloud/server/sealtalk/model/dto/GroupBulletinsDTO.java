@@ -13,9 +13,9 @@ import java.util.Date;
 @Data
 public class GroupBulletinsDTO {
 
-    private Integer id;
+    private String id;
 
-    private Integer groupId;
+    private String groupId;
 
     private Long timestamp;
     //公告内容

@@ -38,6 +38,7 @@ public class HttpClient {
         return entity;
     }
 
+
     public String get(String url) {
         return restTemplate.getForObject(url, String.class);
     }

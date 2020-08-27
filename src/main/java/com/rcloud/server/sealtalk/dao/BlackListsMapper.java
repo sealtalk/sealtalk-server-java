@@ -8,6 +8,5 @@ import tk.mybatis.mapper.common.Mapper;
 import java.util.List;
 
 public interface BlackListsMapper extends Mapper<BlackLists> {
-
     List<BlackLists> selectBlackListsWithFriendUsers(@Param("userId") Integer userId);
 }

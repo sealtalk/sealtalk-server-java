@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -18,6 +19,7 @@ public class APIResult<T> {
     @ApiModelProperty("返回码信息")
     protected String message;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     protected T result;
 
     public APIResult(String code, String message) {

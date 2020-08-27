@@ -62,4 +62,20 @@ public class MiscUtilsTest {
         System.out.println(N3d.encode(110));
     }
 
+    @Test
+    public void name2() throws ServiceException {
+
+        ClassA classA = new ClassA();
+        String[] region = {"86","87","88"};
+        classA.setRegion(region);
+        classA.setPhone("18810183283");
+        classA.setPassword("222222");
+
+
+        System.out.println(JacksonUtil.toJson(classA));
+
+
+    }
+
+
 }

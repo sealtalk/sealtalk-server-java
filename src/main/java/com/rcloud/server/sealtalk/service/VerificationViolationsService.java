@@ -27,7 +27,5 @@ public class VerificationViolationsService extends AbstractBaseService<Verificat
 
 
     public void saveOrUpdate(String ip, int count, Date date) {
-
-
     }
 }

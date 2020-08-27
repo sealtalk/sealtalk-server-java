@@ -36,7 +36,7 @@
 
 
 
-  <select id="queryGroupFavsWithGroupByUserId" resultMap="resultMapWithGroups">
+    <select id="queryGroupFavsWithGroupByUserId" resultMap="resultMapWithGroups">
     SELECT gm.*,
        g.id g_id,
        g.name g_name,
@@ -59,7 +59,16 @@
         offset #{offset}
     </if>
 
-  </select>
+    </select>
+
+
+    <select id="queryCountGroupFavsWithGroupByUserId" resultType="int">
+        SELECT count(1)
+        FROM group_favs gm join `groups` g
+        on gm.groupId = g.id
+        where gm.userId=#{userId}
+
+    </select>
 
 
 

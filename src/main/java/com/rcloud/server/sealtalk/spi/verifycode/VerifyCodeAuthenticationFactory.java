@@ -47,6 +47,7 @@ public class VerifyCodeAuthenticationFactory {
             while(iterator.hasNext()){
                 Map.Entry<String,VerifyCodeAuthentication> verifyCodeAuthenticationEntry = iterator.next();
                 VerifyCodeAuthentication verifyCodeAuthentication = verifyCodeAuthenticationEntry.getValue();
+                log.info("postConstruct identifier:"+verifyCodeAuthentication.getIdentifier());
                 verifyCodeAuthenticationMap.put(verifyCodeAuthentication.getIdentifier(), verifyCodeAuthentication);
             }
         }

@@ -1,7 +1,8 @@
 package com.rcloud.server.sealtalk.rongcloud;
 
+import com.rcloud.server.sealtalk.domain.Groups;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import com.rcloud.server.sealtalk.rongcloud.message.GrpApplyMessage;
+import com.rcloud.server.sealtalk.rongcloud.message.CustomerGroupApplyMessage;
 import io.rong.models.Result;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
@@ -21,8 +22,9 @@ import java.util.Map;
  */
 public interface RongCloudClient {
 
+
     /**
-     * 注册并获取token
+     * 注册并获取token 通过调用sdk的方式
      *
      * @param encodeId 用户id  n3d编码
      * @param name     昵称
@@ -110,7 +112,7 @@ public interface RongCloudClient {
      * @param encodeMemberIds 成员ID
      * @param name            群名称
      */
-    Result createGroup(String encodeGroupId,String[] encodeMemberIds, String name) throws ServiceException;
+    Result createGroup(String encodeGroupId, String[] encodeMemberIds, String name) throws ServiceException;
 
 
     /**
@@ -130,25 +132,25 @@ public interface RongCloudClient {
      * @param name
      * @return
      */
-    Result refreshGroupName(String encodedGroupId, String name);
+    Result refreshGroupName(String encodedGroupId, String name) throws ServiceException;
 
     /**
-     * 移除白名单 TODO
+     * 移除群禁言白名单
      *
      * @param encodedGroupId
      * @param encodedMemberIds
      * @return
      */
-    Result removeGroupWhiteList(String encodedGroupId, String[] encodedMemberIds);
+    Result removeGroupWhiteList(String encodedGroupId, String[] encodedMemberIds) throws ServiceException;
 
     /**
-     * 新增白名单 TODO
+     * 新增群禁言白名单
      *
      * @param encodedGroupId
      * @param encodedMemberIds
      * @return
      */
-    Result addGroupWhitelist(String encodedGroupId, String[] encodedMemberIds);
+    Result addGroupWhitelist(String encodedGroupId, String[] encodedMemberIds) throws ServiceException;
 
     /**
      * 解散群组
@@ -157,35 +159,36 @@ public interface RongCloudClient {
      * @param encodedGroupId
      * @return
      */
-    Result dismiss(String encodeUserId, String encodedGroupId);
+    Result dismiss(String encodeUserId, String encodedGroupId) throws ServiceException;
 
     /**
      * 用户退群
      *
      * @param encodedMemberIds
      * @param encodedGroupId
+     * @param groupName
      * @return
      */
-    Result quitGroup(String[] encodedMemberIds, String encodedGroupId);
+    Result quitGroup(String[] encodedMemberIds, String encodedGroupId, String groupName) throws ServiceException;
 
     /**
      * 取消群组禁言
      *
-     * @param encodeGroupId
+     * @param encodeGroupIds
      * @return
      */
-    Result removeMuteStatus(String encodeGroupId);
+    Result removeMuteStatus(String[] encodeGroupIds) throws ServiceException;
 
     /**
      * 设置群组禁言
      *
-     * @param encode
+     * @param encodeGroupIds
      * @return
      */
-    Result setMuteStatus(String encode);
+    Result setMuteStatus(String[] encodeGroupIds) throws ServiceException;
 
     /**
-     * 发送组通知消息
+     * 发送群组通知消息
      *
      * @param encodeOperatorUserId
      * @param encodeGroupId
@@ -199,7 +202,41 @@ public interface RongCloudClient {
 
 
     /**
-     * 发送群组申请加入消息
+     * 发送群组通知消息
+     *
+     * @param groupMessage
+     * @return
+     * @throws ServiceException
+     */
+    Result sendCustomerGroupNtfMessage(GroupMessage groupMessage) throws ServiceException;
+
+
+    /**
+     * 发送群组通知消息 ST:GrpNtf
+     *
+     * @param encodeUserId
+     * @param encodeTargetId
+     * @param operation
+     * @return
+     * @throws ServiceException
+     */
+    Result sendCustomerGroupNtfMessage(String encodeUserId, String encodeTargetId, String operation) throws ServiceException;
+
+
+    /**
+     * 发送群组通知消息 ST:ConNtf
+     *
+     * @param encodeUserId
+     * @param encodeTargetId
+     * @param operation
+     * @return
+     * @throws ServiceException
+     */
+    Result sendCustomerConNtfMessage(String encodeUserId, String encodeTargetId, String operation) throws ServiceException;
+
+
+    /**
+     * 发送群组申请消息
      *
      * @param senderId
      * @param targetId
@@ -207,5 +244,31 @@ public interface RongCloudClient {
      * @return
      * @throws ServiceException
      */
-    Result sendGroupApplyMessage(String senderId, String[] targetId, GrpApplyMessage grpApplyMessage) throws ServiceException;
+    Result sendGroupApplyMessage(String senderId, String[] targetId, CustomerGroupApplyMessage grpApplyMessage) throws ServiceException;
+
+    /**
+     * 同步用户组群信息
+     *
+     * @param encodeUserId
+     * @param groupsList
+     * @return
+     */
+    Result syncGroupInfo(String encodeUserId, List<Groups> groupsList) throws ServiceException;
+
+
+    /**
+     * 发送群公告通知
+     *
+     * @param fromUserId
+     * @param toGroupId
+     * @param content
+     * @param content          公告内容
+     * @param type             类型，1 表示 @ 所有人、2 表示 @ 指定用户
+     * @param userIds          type 为 2 时有效，为 1 时 userIdList 可以为空
+     * @param mentionedContent @ 消息的自定义 Push 内容
+     * @return
+     * @throws ServiceException
+     */
+    Result sendBulletinNotification(String fromUserId, String[] toGroupId, String content, Integer type, String[] userIds, String mentionedContent) throws ServiceException;
+
 }

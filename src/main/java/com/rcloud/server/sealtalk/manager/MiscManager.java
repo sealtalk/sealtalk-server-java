@@ -13,6 +13,7 @@ import com.rcloud.server.sealtalk.service.GroupMembersService;
 import com.rcloud.server.sealtalk.service.ScreenStatusesService;
 import com.rcloud.server.sealtalk.service.UsersService;
 import com.rcloud.server.sealtalk.util.N3d;
+import io.rong.messages.InfoNtfMessage;
 import io.rong.messages.TxtMessage;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
@@ -59,7 +60,7 @@ public class MiscManager extends BaseManager {
      * @param pushContent
      * @param encodedTargetId
      */
-    public void sendMessage(Integer currentUserId, String conversationType, String targetId, String objectName, String content, String pushContent, String encodedTargetId) throws ServiceException {
+    public void sendMessage(Integer currentUserId, String conversationType, Integer targetId, String objectName, String content, String pushContent, String encodedTargetId) throws ServiceException {
         if (Constants.CONVERSATION_TYPE_PRIVATE.equals(conversationType)) {
             //如果会话类型是单聊
             Example example = new Example(Friendships.class);
@@ -92,7 +93,7 @@ public class MiscManager extends BaseManager {
             if (groupMembers != null) {
                 GroupMessage groupMessage = new GroupMessage();
                 groupMessage.setSenderId(N3d.encode(currentUserId))
-                        .setTargetId(new String[]{targetId})
+                        .setTargetId(new String[]{encodedTargetId})
                         .setObjectName(objectName)
                         //TODO
                         .setContent(new TxtMessage(content, ""))
@@ -178,10 +179,10 @@ public class MiscManager extends BaseManager {
      * @param conversationType
      * @return
      */
-    public ScreenStatuses getScreenCapture(Integer currentUserId, String targetId, Integer conversationType) throws ServiceException {
-        String operateId = targetId;
+    public ScreenStatuses getScreenCapture(Integer currentUserId, Integer targetId, Integer conversationType) throws ServiceException {
+        String operateId = String.valueOf(targetId);
         if (conversationType == 1) {
-            operateId = currentUserId < Integer.valueOf(targetId) ? currentUserId + "_" + targetId : targetId + "_" + currentUserId;
+            operateId = currentUserId < targetId ? currentUserId + "_" + targetId : targetId + "_" + currentUserId;
         }
 
         Example example = new Example(ScreenStatuses.class);
@@ -198,7 +199,7 @@ public class MiscManager extends BaseManager {
      * @param targetId
      * @param conversationType
      */
-    public void sendScreenCaptureMsg(Integer currentUserId, String targetId, Integer conversationType) {
-        sendScreenMsg0(currentUserId, Integer.valueOf(targetId), conversationType, "sendScreenNtf");
+    public void sendScreenCaptureMsg(Integer currentUserId, Integer targetId, Integer conversationType) {
+        sendScreenMsg0(currentUserId, targetId, conversationType, "sendScreenNtf");
     }
 }

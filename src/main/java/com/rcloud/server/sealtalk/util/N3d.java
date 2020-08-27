@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.util;
 
+import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 
@@ -7,7 +8,7 @@ public class N3d {
 
     private static final String N3D_KEY = "11EdDIaqpcim";
 
-    private static final N3d n3d = new N3d(N3D_KEY, 1, 4294967295L);
+    private static final N3d n3d = new N3d(1, 4294967295L);
 
     private long keyCode = 0;
     private String key;
@@ -16,8 +17,9 @@ public class N3d {
     private long upper;
     private char[][] dict = new char[62][62];
 
-    private N3d(String keyx, long lower, long upper) {
-        this.key = keyx;
+    private N3d(long lower, long upper) {
+        SealtalkConfig sealtalkConfig = SpringContextUtil.getBean(SealtalkConfig.class);
+        this.key = sealtalkConfig.getN3dKey();
         this.lower = lower;
         this.upper = upper;
         char[] charMap = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
@@ -64,8 +66,9 @@ public class N3d {
 
 
     private String encrypt(long num) {
-        if (num > this.upper || num < this.lower)
+        if (num > this.upper || num < this.lower) {
             throw new RuntimeException("Parameter is error.");
+        }
 
         num = this.keyCode - num;
         StringBuilder result = new StringBuilder();
@@ -135,12 +138,11 @@ public class N3d {
     }
 
     public static void main(String[] args) {
-        N3d n = new N3d(N3D_KEY, 1, 4294967295L);
+        N3d n = new N3d(1, 4294967295L);
         for (long i = 1; i < 4294967295L; i++) {
             String ret = n.encrypt(i);
             System.out.println(ret);
             System.out.println(n.decrypt(ret));
         }
     }
-
 }

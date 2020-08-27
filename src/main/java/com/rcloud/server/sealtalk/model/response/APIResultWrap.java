@@ -1,10 +1,7 @@
 package com.rcloud.server.sealtalk.model.response;
 
-import com.google.common.collect.ImmutableMap;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -22,11 +19,16 @@ public class APIResultWrap {
     private APIResultWrap() {
     }
 
+
     public static <T> APIResult<T> ok(T data) {
         return new APIResult<>(SUCCESS_CODE, StringUtils.EMPTY, data);
     }
 
-    public static <T> APIResult<T> ok(T data,String message) {
+    public static <T> APIResult<T> ok() {
+        return new APIResult<>(SUCCESS_CODE, StringUtils.EMPTY, null);
+    }
+
+    public static <T> APIResult<T> ok(T data, String message) {
         return new APIResult<>(SUCCESS_CODE, message, data);
     }
 
@@ -39,13 +41,11 @@ public class APIResultWrap {
         int errorCode = ex.getErrorCode();
         String errorMessage = ex.getErrorMessage();
 
-        return new APIResult<>(String.valueOf(errorCode),
-            errorMessage);
+        return new APIResult<>(String.valueOf(errorCode), errorMessage);
     }
 
     public static APIResult error(ErrorCode errorCode) {
-        return new APIResult<>(String.valueOf(errorCode.getErrorCode()),
-            errorCode.getErrorMessage());
+        return new APIResult<>(String.valueOf(errorCode.getErrorCode()), errorCode.getErrorMessage());
     }
 
     public static APIResult error(int code, String msg) {

@@ -31,9 +31,12 @@ public class DefaultRongCloudClientTest {
         System.out.println(encodeId);
 
         String name="tom1";
-        String portrait="http://test.com/user/abc123.jpg";
+//        String portrait="http://test.com/user/abc123.jpg";
+        String portrait="";
         TokenResult tokenResult = defaultRongCloudClient.register(encodeId,name,portrait);
 
         System.out.println(tokenResult);
     }
+
+
 }

@@ -27,16 +27,16 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
     /**
      * 保存或更新GroupSyncs
      *
-     * @param id
+     * @param groupId
      * @param syncInfo
      * @param syncMember
      */
-    public void saveOrUpdate(Integer id, Integer syncInfo, Integer syncMember) {
+    public void saveOrUpdate(Integer groupId, Integer syncInfo, Integer syncMember) {
 
-        GroupSyncs groupSyncs = this.getByPrimaryKey(id);
+        GroupSyncs groupSyncs = this.getByPrimaryKey(groupId);
         if (groupSyncs == null) {
             groupSyncs = new GroupSyncs();
-            groupSyncs.setGroupId(id);
+            groupSyncs.setGroupId(groupId);
             if (syncInfo != null) {
                 groupSyncs.setSyncInfo(syncInfo);
             }

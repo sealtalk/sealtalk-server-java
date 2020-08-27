@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.GroupsMapper;
 import com.rcloud.server.sealtalk.domain.Groups;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.common.Mapper;
 
@@ -13,6 +14,7 @@ import javax.annotation.Resource;
  * @Description:
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
+@Slf4j
 @Service
 public class GroupsService extends AbstractBaseService<Groups, Integer> {
 
@@ -31,6 +33,9 @@ public class GroupsService extends AbstractBaseService<Groups, Integer> {
      * @param timestamp
      */
     public void updateMemberCount(Integer groupId, int memberCount, long timestamp) {
+        log.info("updateMemberCount groupId:"+groupId);
+        log.info("updateMemberCount memberCount:"+memberCount);
+        log.info("updateMemberCount timestamp:"+timestamp);
         Groups groups = new Groups();
         groups.setId(groupId);
         groups.setMemberCount(memberCount);

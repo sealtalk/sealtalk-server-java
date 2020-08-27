@@ -29,19 +29,26 @@
             <result column="u_user_stAccount" jdbcType="VARCHAR" property="stAccount"/>
             <result column="u_user_phone" jdbcType="VARCHAR" property="phone"/>
             <result column="u_user_updatedAt" jdbcType="TIMESTAMP" property="updatedAt"/>
+            <result column="u_user_createdAt" jdbcType="TIMESTAMP" property="createdAt"/>
+            <result column="u_user_region" jdbcType="TIMESTAMP" property="region"/>
         </association>
     </resultMap>
 
 
     <select id="getFriendShipListWithUsers" resultMap="withUserResultMap">
         select
-         f.*,
+         f.displayName,
+         f.message,
+         f.status,
+         f.updatedAt,
          u.id as u_user_id,
          u.nickname as u_user_nickname,
+         u.region as u_user_region,
          u.portraitUri as u_user_portraitUri,
          u.gender as u_user_gender,
          u.stAccount as u_user_stAccount,
          u.phone as u_user_phone,
+         u.createdAt as u_user_createdAt,
          u.updatedAt as u_user_updatedAt
          from
         friendships f join users u on f.friendId = u.id
@@ -51,13 +58,15 @@
 
     <select id="getFriendShipWithUsers" resultMap="withUserResultMap">
         select
-         f.*,
+         f.displayName,
          u.id as u_user_id,
          u.nickname as u_user_nickname,
          u.portraitUri as u_user_portraitUri,
          u.gender as u_user_gender,
          u.stAccount as u_user_stAccount,
+         u.region as u_user_region,
          u.phone as u_user_phone,
+         u.createdAt as u_user_createdAt,
          u.updatedAt as u_user_updatedAt
          from
         friendships f join users u on f.friendId = u.id
@@ -66,8 +75,6 @@
         and f.status = #{status}
 
   </select>
-
-
 
 
 </mapper>

@@ -22,6 +22,14 @@
         UPDATE data_versions d JOIN group_members g ON d.userId = g.memberId AND g.groupId = #{groupId} AND g.isDeleted = 0 SET d.groupVersion = #{timestamp}, d.groupMemberVersion = #{timestamp}
   </update>
 
+  <update id="updateGroupVersion" parameterType="map">
+   UPDATE data_versions d JOIN group_members g ON d.userId = g.memberId AND g.groupId = #{groupId} AND g.isDeleted = 0 SET d.groupVersion = #{timestamp}
+  </update>
+
+
+
+
+
 
 
 

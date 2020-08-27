@@ -6,11 +6,20 @@ import javax.persistence.*;
 
 @Table(name = "verification_violations")
 public class VerificationViolations implements Serializable {
+    /**
+     * 获取验证码的ip
+     */
     @Id
     private String ip;
 
+    /**
+     * 获取验证码的时间
+     */
     private Date time;
 
+    /**
+     * 获取验证码的次数
+     */
     private Integer count;
 
     private static final long serialVersionUID = 1L;

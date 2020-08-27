@@ -1,6 +1,8 @@
 package com.rcloud.server.sealtalk.util;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author, xiuwei.nie
@@ -8,26 +10,11 @@ import java.util.HashMap;
  * @Description,
  * @Copyright (c) 2020, rongcloud.cn All Rights Reserved
  */
-public class RegionMapSingleton {
+public class RegionMapUtil {
+    private static ConcurrentHashMap<String, String> regionMap = new ConcurrentHashMap<>();
 
-    private static RegionMapSingleton instance = null;
-    private static HashMap<String, String> regionMap = new HashMap<>();
-
-    private RegionMapSingleton() {}
-
-    public static RegionMapSingleton getInstance() {
-        if (instance == null) {
-            instance = new RegionMapSingleton();
-            init();
-        }
-        return instance;
-    }
-
-    public HashMap<String, String> getRegionMap(){
-        return regionMap;
-    }
-
-    private static void init() {
+    static {
+        //地区对应关系语言模版
         regionMap.put("86", "zh_cn"); // 中国大陆
         regionMap.put("852", "zh_tw"); // 中国香港
         regionMap.put("853", "zh_tw"); // 中国澳门
@@ -36,4 +23,14 @@ public class RegionMapSingleton {
         regionMap.put("82", "ko"); // 韩国
         regionMap.put("other", "en");
     }
+
+    public static Map<String,String> getRegionMap(){
+        return regionMap;
+    }
+
+    public static String getLangByRegion(String region){
+        return regionMap.get(region);
+    }
+
+
 }
