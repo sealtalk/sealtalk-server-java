@@ -400,7 +400,7 @@ public class GroupController extends BaseController {
         String groupId = groupParam.getGroupId();
         Integer certiStatus = groupParam.getCertiStatus();
         ValidateUtils.notEmpty(groupId);
-        ValidateUtils.valueOf(certiStatus, ImmutableList.of(0, 1));
+        ValidateUtils.valueOf(certiStatus, ImmutableList.of(Groups.CERTI_STATUS_OPENED, Groups.CERTI_STATUS_CLOSED));
 
         Integer currentUserId = getCurrentUserId();
 

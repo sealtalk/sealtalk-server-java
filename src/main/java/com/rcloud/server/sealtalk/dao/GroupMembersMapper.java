@@ -12,4 +12,7 @@ public interface GroupMembersMapper extends Mapper<GroupMembers> {
     List<GroupMembers> queryGroupMembersWithGroupByMemberId(@Param("memberId") Integer memberId);
 
     List<GroupMembers> queryGroupMembersWithUsersByGroupId(@Param("groupId") Integer groupId);
+
+    GroupMembers queryGroupMembersWithGroupByGroupIdAndMemberId(@Param("groupId") Integer groupId, @Param("memberId") Integer memberId);
+
 }

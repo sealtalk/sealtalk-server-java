@@ -107,6 +107,22 @@
     where gm.groupId=#{groupId}
   </select>
 
+  <select id="queryGroupMembersWithGroupByGroupIdAndMemberId" resultMap="resultMapWithGroups">
+    SELECT gm.*,
+       g.id g_id,
+       g.name g_name,
+       g.portraitUri g_portraitUri,
+       g.creatorId g_creatorId,
+       g.memberCount g_memberCount,
+       g.isMute g_isMute,
+       g.certiStatus g_certiStatus
+    FROM group_members gm join `groups` g
+    on gm.groupId = g.id
+    where gm.groupId = #{groupId} and gm.memberId=#{memberId}  ;
+  </select>
+
+
+
 
 
 

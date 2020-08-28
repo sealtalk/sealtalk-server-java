@@ -428,7 +428,6 @@ public class GroupManager extends BaseManager {
 
         //返回结果对象
         List<UserStatusDTO> userStatusDTOList = new ArrayList<>();
-        String nickname = usersService.getCurrentUserNickNameWithCache(currentUserId);
 
 
         //查询当前用户在群组中的角色是不是管理者
@@ -530,7 +529,7 @@ public class GroupManager extends BaseManager {
     }
 
     /**
-     * 添加群成员到群 TODO
+     * 添加群成员到群
      *
      * @param groupId
      * @param userIds
@@ -2270,7 +2269,7 @@ public class GroupManager extends BaseManager {
             throw new ServiceException(ErrorCode.NOT_FOUND);
         }
 
-        //跟新GroupReceivers 表状态
+        //更新GroupReceivers 表状态
         GroupReceivers newGroupReceivers = new GroupReceivers();
         newGroupReceivers.setStatus(Integer.valueOf(status));
         groupReceiversService.updateByExampleSelective(newGroupReceivers, example);
@@ -2283,6 +2282,45 @@ public class GroupManager extends BaseManager {
             //不同意直接返回
             return;
         }
-        //如果同意 TODO
+        //如果同意
+
+        GroupMembers groupMembers = groupMembersService.queryGroupMembersWithGroupByGroupIdAndMemberId(groupId, groupReceivers.getRequesterId());
+
+        //计算是否开启了群认证
+        boolean hasGroupVerify = false;
+        if (groupMembers != null && groupMembers.getGroups() != null) {
+            Groups g = groupMembers.getGroups();
+            Integer certiStatus = g.getCertiStatus();
+            if (!GroupRole.MANAGER.equals(groupMembers.getRole()) && !GroupRole.CREATOR.equals(groupMembers.getRole()) && Groups.CERTI_STATUS_OPENED.equals(certiStatus)) {
+                //当用户角色不是管理者并且群开启了认证， hasGroupVerify = true
+                hasGroupVerify = true;
+            }
+        }
+
+        //如果为被邀请者同意且群组开启了认证, 新增为管理员认证
+        if (isReceiverOpt && hasGroupVerify) {
+            //查询出群组的管理员们
+            Example groupMemberExample = new Example(GroupMembers.class);
+            groupMemberExample.createCriteria().andEqualTo("groupId", groupId)
+                    .andIn("role", ImmutableList.of(GroupRole.CREATOR.getCode(), GroupRole.MANAGER.getCode()));
+
+            List<GroupMembers> groupMembersList = groupMembersService.getByExample(groupMemberExample);
+
+            List<Integer> memberIds = new ArrayList<>();
+            if (groupMembersList != null) {
+                for (GroupMembers gm : groupMembersList) {
+                    memberIds.add(gm.getMemberId());
+                }
+            }
+            //批量保存或更新 GroupReceiver
+            batchSaveOrUpdateGroupReceiver(groups, groupReceivers.getRequesterId(), ImmutableList.of(receiverId), memberIds, GroupReceivers.GROUP_RECEIVE_TYPE_MANAGER, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT);
+            //发送好友邀请消息 TODO
+            sendGroupApplyMessage(groupReceivers.getRequesterId(), memberIds, groups.getId(), groups.getName(), GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, GroupReceivers.GROUP_RECEIVE_TYPE_MANAGER);
+        } else {
+            //如果为群组未开启认证 或 为管理员同意, 直接加群
+            addMember0(groupId, ImmutableList.of(receiverId), groupReceivers.getRequesterId());
+        }
+        //删除群组退出列表
+        groupExitedListsService.deleteGroupExitedListItems(groupId, ImmutableList.of(receiverId));
     }
 }
