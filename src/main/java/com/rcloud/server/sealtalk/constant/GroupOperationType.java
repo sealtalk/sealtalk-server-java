@@ -17,7 +17,8 @@ public enum GroupOperationType {
     TRANSFER("Transfer"),   //转让群主
     SET_MANAGER("SetManager"),  //设置管理员
     REMOVE_MANAGER("RemoveManager"),    //删除管理员
-    INVITE("Invite");       //邀请好友
+    INVITE("Invite"),       //邀请好友
+    CLEARG_GROUP_MSG("clearGroupMsg");       //清理群组历史消息
 
     private String type;
 
