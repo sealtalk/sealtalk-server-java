@@ -11,9 +11,7 @@ import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
-import com.rcloud.server.sealtalk.model.dto.FavGroupInfoDTO;
-import com.rcloud.server.sealtalk.model.dto.FavGroupsDTO;
-import com.rcloud.server.sealtalk.model.dto.SyncInfoDTO;
+import com.rcloud.server.sealtalk.model.dto.*;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import com.rcloud.server.sealtalk.util.*;
@@ -357,11 +355,29 @@ public class UserController extends BaseController {
 
         List<BlackLists> resultList = userManager.getBlackList(currentUserId);
 
-        //TODO
-        Object object = MiscUtils.encodeResults(resultList, "userId", "friendId", "users.id");
-        String result = MiscUtils.addUpdateTimeToList(JacksonUtil.toJson(object));
+        List<BlackListDTO>  BlackListDTOList = new ArrayList<>();
 
-        return APIResultWrap.ok(object);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMATR_PATTERN);
+
+        if(!CollectionUtils.isEmpty(resultList)) {
+
+            for (BlackLists blackLists : resultList) {
+                BlackListDTO blackListDTO = new BlackListDTO();
+                Users users = blackLists.getUsers();
+                BlackListsUserDTO dto = new BlackListsUserDTO();
+                dto.setId(N3d.encode(users.getId()));
+                dto.setGender(users.getGender());
+                dto.setNickname(users.getNickname());
+                dto.setPortraitUri(users.getPortraitUri());
+                dto.setPhone(users.getPhone());
+                dto.setStAccount(users.getStAccount());
+                dto.setUpdatedAt(sdf.format(users.getUpdatedAt()));
+                dto.setUpdatedTime(users.getUpdatedAt().getTime());
+                blackListDTO.setUser(dto);
+                BlackListDTOList.add(blackListDTO);
+            }
+        }
+        return APIResultWrap.ok(BlackListDTOList);
     }
 
 

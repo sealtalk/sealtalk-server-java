@@ -363,14 +363,14 @@ public class UserManager extends BaseManager {
 
         //查询该用户所属的所有组,同步到融云
         List<Groups> groupsList = new ArrayList<>();
-        Map<String,String> idNamePariMap = new HashMap<>();
+        Map<String, String> idNamePariMap = new HashMap<>();
         List<GroupMembers> groupMembersList = groupMembersService.queryGroupMembersWithGroupByMemberId(u.getId());
         if (!CollectionUtils.isEmpty(groupMembersList)) {
             for (GroupMembers gm : groupMembersList) {
                 Groups groups = gm.getGroups();
                 if (groups != null) {
                     groupsList.add(groups);
-                    idNamePariMap.put(N3d.encode(groups.getId()),groups.getName());
+                    idNamePariMap.put(N3d.encode(groups.getId()), groups.getName());
                 }
             }
         }
@@ -639,7 +639,7 @@ public class UserManager extends BaseManager {
         //从缓存中获取blacklist，存在直接返回
         String blackListStr = CacheUtil.get(CacheUtil.USER_BLACKLIST_CACHE_PREFIX + currentUserId);
         if (!StringUtils.isEmpty(blackListStr)) {
-//            return JacksonUtil.jsonToBean(blackListStr,BlackLists.class);
+            return JacksonUtil.fromJson(blackListStr, List.class, BlackLists.class);
         }
         //查询数据库blacklist表
         List<BlackLists> dbBlackLists = blackListsService.getBlackListsWithFriendUsers(currentUserId);
@@ -1001,10 +1001,10 @@ public class UserManager extends BaseManager {
         DataVersions dataVersions = dataVersionsService.getByPrimaryKey(currentUserId);
 
         Users users = null;
-        List<BlackLists> blackListsList = null;
-        List<Friendships> friendshipsList = null;
-        List<GroupMembers> groupsList = null;
-        List<GroupMembers> groupMembersList = null;
+        List<BlackLists> blackListsList = new ArrayList<>();
+        List<Friendships> friendshipsList = new ArrayList<>();
+        List<GroupMembers> groupsList = new ArrayList<>();
+        List<GroupMembers> groupMembersList = new ArrayList<>();
 
         if (dataVersions.getUserId() > version) {
             //获取用户信息

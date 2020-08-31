@@ -154,10 +154,6 @@ public class MiscUtils {
         }
     }
 
-    public static String addUpdateTimeToList(String result) {
-        //TODO
-        return result;
-    }
 
     private static void processResult(JsonNode jsonNode, String propertyExpression) throws ServiceException {
         if (jsonNode.isArray()) {
