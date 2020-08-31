@@ -4,6 +4,7 @@ import com.rcloud.server.sealtalk.dao.GroupReceiversMapper;
 import com.rcloud.server.sealtalk.domain.GroupReceivers;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
@@ -52,6 +53,8 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
      * @param userId
      */
     public void deleteGroupReverive(Integer groupId, Integer userId) {
+        Assert.notNull(groupId,"groupId is null");
+        Assert.notNull(userId,"userId is null");
 
         Example example = new Example(GroupReceivers.class);
         example.createCriteria().andEqualTo("groupId", groupId)
@@ -68,6 +71,8 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
 
     public int updateReceiversWithList(Integer requesterIdForUpdate,Long timestamp,Integer status,Integer groupId,Integer requesterId,List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType){
 
+        Assert.notEmpty(receiverIdList,"receiverIdList is empty");
+        Assert.notEmpty(operatorList,"operatorList is empty");
         return mapper.updateReceiversWithList(requesterIdForUpdate,timestamp,status,groupId,requesterId,receiverIdList,operatorList,groupReceiveType);
     }
 

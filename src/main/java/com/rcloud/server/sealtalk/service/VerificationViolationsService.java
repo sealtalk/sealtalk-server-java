@@ -25,7 +25,4 @@ public class VerificationViolationsService extends AbstractBaseService<Verificat
         return mapper;
     }
 
-
-    public void saveOrUpdate(String ip, int count, Date date) {
-    }
 }

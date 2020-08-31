@@ -420,6 +420,17 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
+    public Result clearHistoryMessage(String conversationType, String fromUserId, String targetId, String msgTimestamp) throws ServiceException {
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+                return rongCloud.message.history.clean(conversationType,fromUserId,targetId,msgTimestamp);
+            }
+        });
+    }
+
+
+    @Override
     public Result joinGroup(String[] memberIds, String groupId, String groupName) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override

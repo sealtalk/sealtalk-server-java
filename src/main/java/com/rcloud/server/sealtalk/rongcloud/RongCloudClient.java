@@ -280,4 +280,17 @@ public interface RongCloudClient {
      * @throws ServiceException
      */
     Result sendCustomerClearGroupMessage(String encodeUserId, String encodeTargetId, String operation,Long clearTimestamp) throws ServiceException;
+
+
+    /**
+     *  清除历史消息
+     * @param conversationType 会话类型 3 群聊
+     * @param fromUserId
+     * @param targetId
+     * @param msgTimestamp 时间戳，在这时间戳之前的记录会被清除
+     * @return
+     * @throws ServiceException
+     */
+    Result clearHistoryMessage(String conversationType, String fromUserId, String targetId, String msgTimestamp) throws ServiceException;
+
 }

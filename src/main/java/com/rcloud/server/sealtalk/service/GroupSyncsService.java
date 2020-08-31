@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.service;
 import com.rcloud.server.sealtalk.dao.GroupSyncsMapper;
 import com.rcloud.server.sealtalk.domain.GroupSyncs;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import tk.mybatis.mapper.common.Mapper;
 
 import javax.annotation.Resource;
@@ -32,6 +33,7 @@ public class GroupSyncsService extends AbstractBaseService<GroupSyncs, Integer> 
      * @param syncMember
      */
     public void saveOrUpdate(Integer groupId, Integer syncInfo, Integer syncMember) {
+        Assert.notNull(groupId,"groupId is null");
 
         GroupSyncs groupSyncs = this.getByPrimaryKey(groupId);
         if (groupSyncs == null) {

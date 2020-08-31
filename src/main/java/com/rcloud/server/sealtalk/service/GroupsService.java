@@ -4,6 +4,7 @@ import com.rcloud.server.sealtalk.dao.GroupsMapper;
 import com.rcloud.server.sealtalk.domain.Groups;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import tk.mybatis.mapper.common.Mapper;
 
 import javax.annotation.Resource;
@@ -32,10 +33,10 @@ public class GroupsService extends AbstractBaseService<Groups, Integer> {
      * @param memberCount
      * @param timestamp
      */
-    public void updateMemberCount(Integer groupId, int memberCount, long timestamp) {
-        log.info("updateMemberCount groupId:"+groupId);
-        log.info("updateMemberCount memberCount:"+memberCount);
-        log.info("updateMemberCount timestamp:"+timestamp);
+    public void updateMemberCount(Integer groupId, Integer memberCount, Long timestamp) {
+        Assert.notNull(groupId,"groupId is null");
+        Assert.notNull(memberCount,"memberCount is null");
+        Assert.notNull(timestamp,"timestamp is null");
         Groups groups = new Groups();
         groups.setId(groupId);
         groups.setMemberCount(memberCount);
@@ -50,7 +51,12 @@ public class GroupsService extends AbstractBaseService<Groups, Integer> {
      * @param timestamp
      * @param creatorId
      */
-    public void updateMemberCountAndCreatorId(Integer groupId, int memberCount, long timestamp, Integer creatorId) {
+    public void updateMemberCountAndCreatorId(Integer groupId, Integer memberCount, Long timestamp, Integer creatorId) {
+        Assert.notNull(groupId,"groupId is null");
+        Assert.notNull(memberCount,"memberCount is null");
+        Assert.notNull(timestamp,"timestamp is null");
+        Assert.notNull(creatorId,"creatorId is null");
+
         Groups groups = new Groups();
         groups.setId(groupId);
         groups.setMemberCount(memberCount);

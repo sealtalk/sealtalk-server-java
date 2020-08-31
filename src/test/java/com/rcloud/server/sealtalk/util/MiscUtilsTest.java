@@ -2,8 +2,6 @@ package com.rcloud.server.sealtalk.util;
 
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import com.rcloud.server.sealtalk.interceptor.ServerApiParamHolder;
-import com.sun.media.jfxmediaimpl.HostUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -11,8 +9,6 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 /**
  * @Author: Jianlu.Yu
@@ -24,26 +20,23 @@ import static org.junit.Assert.*;
 public class MiscUtilsTest {
 
 
-
     @Test
-    public void testMerge(){
+    public void testMerge() {
 
         String content = "【TEST】您的验证码是#code#。如非本人操作，请忽略本短信，test，test";
         String key = "#code#";
         String code = "123456";
-        String text = MiscUtils.merge(content,key,code);
+        String text = MiscUtils.merge(content, key, code);
         System.out.println(text);
 
-        Map<String,String> map = new HashMap<>();
-        map.put("abc",123+"");
-
+        Map<String, String> map = new HashMap<>();
+        map.put("abc", 123 + "");
         Users u = new Users();
-
-        log.info("test {},{},{},{}",3,key,map,u);
+        log.info("test {},{},{},{}", 3, key, map, u);
     }
 
     @Test
-    public void testDate(){
+    public void testDate() {
         Date now = new Date();
         DateTime dateTime = new DateTime(new Date());
         dateTime = dateTime.minusHours(1);
@@ -66,11 +59,10 @@ public class MiscUtilsTest {
     public void name2() throws ServiceException {
 
         ClassA classA = new ClassA();
-        String[] region = {"86","87","88"};
+        String[] region = {"86", "87", "88"};
         classA.setRegion(region);
         classA.setPhone("18810183283");
         classA.setPassword("222222");
-
 
         System.out.println(JacksonUtil.toJson(classA));
 

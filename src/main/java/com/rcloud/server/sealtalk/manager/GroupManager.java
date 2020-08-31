@@ -2329,6 +2329,8 @@ public class GroupManager extends BaseManager {
         }
 
         Long currentTimestamp = System.currentTimeMillis();
+        //群聊类型
+        String conversation = "3";
 
         for (Groups groups : groupsList) {
             boolean canCleanNow = false;
@@ -2342,6 +2344,7 @@ public class GroupManager extends BaseManager {
             Long clearTimestamp = 0L;
 
             if (Groups.CLEAR_STATUS_H_36.equals(clearStatus)) {
+                //36小时
                 Long time_36H = 36 * 60 * 60 * 1000L;
                 if (timeInterval >= time_36H) {
                     canCleanNow = true;
@@ -2349,6 +2352,7 @@ public class GroupManager extends BaseManager {
                 }
 
             } else if (Groups.CLEAR_STATUS_D_3.equals(clearStatus)) {
+                //3天
                 Long time_3D = 3 * 24 * 60 * 60 * 1000L;
                 if (timeInterval >= time_3D) {
                     canCleanNow = true;
@@ -2357,6 +2361,7 @@ public class GroupManager extends BaseManager {
                 }
 
             } else if (Groups.CLEAR_STATUS_D_7.equals(clearStatus)) {
+                //7天
                 Long time_7D = 7 * 24 * 60 * 60 * 1000L;
                 if (timeInterval >= time_7D) {
                     canCleanNow = true;
@@ -2380,12 +2385,11 @@ public class GroupManager extends BaseManager {
 
                 if (!CollectionUtils.isEmpty(groupMembersList)) {
                     for (GroupMembers groupMembers : groupMembersList) {
-                        //调用融云清理接口 TODO
-
+                        //调用融云清理接口
+                        rongCloudClient.clearHistoryMessage(conversation, N3d.encode(groupMembers.getMemberId()), N3d.encode(groups.getId()), String.valueOf(clearTimestamp));
                     }
                     //发送群组通知消息
                     sendCustomerClearGroupMessage(groups.getCreatorId(), groups.getId(), GroupOperationType.CLEARG_GROUP_MSG.getType(), clearTimestamp);
-
                 }
             }
         }
