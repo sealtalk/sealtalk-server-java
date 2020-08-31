@@ -71,7 +71,7 @@ public class DefaultSmsService implements SmsService {
     private String sendToSms(String region, String phone) {
         RongCloud rongCloud = RongCloud.getInstance(sealtalkConfig.getRongcloudAppKey(),
                 sealtalkConfig.getRongcloudAppSecret());
-        //TODO send sms
+        //TODO send sms  后面改为调用sdk
 
         return "";
     }

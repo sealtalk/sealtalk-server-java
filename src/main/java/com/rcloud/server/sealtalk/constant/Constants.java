@@ -33,7 +33,7 @@ public class Constants {
 
     public static final int MAX_USER_GROUP_OWN_COUNT = 500;
 
-    //TODO海外版
+    //TODO 后面改为调用sdk
     public static final String URL_GET_RONGCLOUD_IMG_CODE = "http://api.sms.ronghub.com/getImgCode.json?appKey=";
 
     public static final String SEPARATOR_ESCAPE = "\\|";

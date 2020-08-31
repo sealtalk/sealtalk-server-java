@@ -46,7 +46,7 @@ public class DefaultVerifyCodeAuthentication extends BaseVerifyCodeAuthenticatio
             return;
         }
 
-        //TODO，调用融云验证码校验接口
+        //TODO，调用融云验证码校验接口，后面改为调用SDK
         return;
     }
 

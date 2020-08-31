@@ -87,7 +87,7 @@ public class FriendshipsService extends AbstractBaseService<Friendships, Integer
     }
 
     public List<Friendships> getFriendShipListWithUsers(Integer currentUserId, Long version) {
-        return null;//TODO
+        return null;//TODO syncinfo
     }
 
     public Friendships getOneByUserIdAndFriendId(Integer currentUserId, Integer friendId) {

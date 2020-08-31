@@ -29,7 +29,7 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
     }
 
     /**
-     * 批量删除GroupReceivers TODO
+     * 批量删除GroupReceivers
      *
      * @param groupId
      * @param memberIds

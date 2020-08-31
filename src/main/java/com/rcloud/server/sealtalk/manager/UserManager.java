@@ -1032,7 +1032,7 @@ public class UserManager extends BaseManager {
         }
 
         if (dataVersions.getGroupVersion() > version) {
-            //TODO
+
             groupMembersList = groupMembersService.queryGroupMembersWithUsersByMGroupIds(groupIdList, version);
         }
 

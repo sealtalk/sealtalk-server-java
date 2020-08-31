@@ -163,7 +163,7 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
 
 
     public List<GroupMembers> queryGroupMembersWithUsersByMGroupIds(List<Integer> groupIdList, Long version) {
-        //TODO
+        //TODO syncinfo
         return null;
     }
 
