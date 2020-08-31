@@ -448,7 +448,6 @@ public class UserManager extends BaseManager {
         Users u = usersService.getByPrimaryKey(currentUserId);
 
         if (u == null) {
-            //TODO  未确认的错误
             throw new ServiceException(ErrorCode.REQUEST_ERROR);
         }
 

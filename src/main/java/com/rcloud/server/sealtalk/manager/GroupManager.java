@@ -769,7 +769,6 @@ public class GroupManager extends BaseManager {
 
         GroupMembers groupMembers = groupMembersService.getGroupMember(groupId, memberId);
 
-        //TODO getDeleted
         if (groupMembers == null || GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted())) {
             throw new ServiceException(ErrorCode.NOT_GROUP_MEMBER);
         }
@@ -1550,7 +1549,7 @@ public class GroupManager extends BaseManager {
         messageData.put("targetUserDisplayNames", userNickName);
         messageData.put("timestamp", timestamp);
 
-        //发送群组通知消息 TODO system？
+        //发送群组通知消息 TODO
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.TRANSFER);
 
 
@@ -1616,7 +1615,6 @@ public class GroupManager extends BaseManager {
 
         String nickname = usersService.getCurrentUserNickNameWithCache(currentUserId);
 
-        //TODO
         Example groupExample = new Example(Groups.class);
         groupExample.createCriteria().andEqualTo("id", groupId)
                 .andEqualTo("creatorId", currentUserId);
@@ -1628,7 +1626,7 @@ public class GroupManager extends BaseManager {
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("operatorNickname", nickname);
         messageData.put("timestamp", timestamp);
-        //发送群组通知消息 TODO system？
+        //发送群组通知消息 TODO
         Result res = sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.DISMISS);
 
         try {

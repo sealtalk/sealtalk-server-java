@@ -116,7 +116,7 @@ public interface RongCloudClient {
 
 
     /**
-     * 用户加入指定群组 TODO
+     * 用户加入指定群组
      *
      * @param encodedMemberIds
      * @param encodedGroupId
@@ -126,7 +126,7 @@ public interface RongCloudClient {
     Result joinGroup(String[] encodedMemberIds, String encodedGroupId, String groupName) throws ServiceException;
 
     /**
-     * 刷新群组名称 TODO
+     * 刷新群组名称
      *
      * @param encodedGroupId
      * @param name
