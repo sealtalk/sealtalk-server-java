@@ -107,10 +107,10 @@ sealtalk-config:
   nickname_cookie_name:
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
   rongcloud_sms_register_template_id: 3910922   #短信模版
-  rongcloud_app_key: bmdehs6pbauls
-  rongcloud_app_secret: xvQhSJbgYBtwF
-  rongcloud_api_url: api-cn.ronghub.com,api-cn.xxxx.com,api-cn.xxxx.com  # rongcloud api_url
-  rongcloud_default_portrait_url: http://test.com/11.jpg        #登录注册默认头像地址
+  rongcloud_app_key: x4vkb1qpv6hzk
+  rongcloud_app_secret: efW6LgGVPbrrP
+  rongcloud_api_url: api-cn.ronghub.com  # rongcloud api_url
+  rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png        #登录注册默认头像地址
   is_open_pass_code: xxxcode
   qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
   qiniu_secret_key: MRuJJ6AcBkFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
@@ -128,7 +128,7 @@ sealtalk-config:
   cors_hosts: web.sealtalk.im
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
   server_port: 8080
-  db_name: sealtalk_server
+  db_name: sealtalk
   db_user: root
   db_password: 123456
   db_host: 127.0.0.1
