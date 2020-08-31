@@ -2330,7 +2330,7 @@ public class GroupManager extends BaseManager {
 
         Long currentTimestamp = System.currentTimeMillis();
         //群聊类型
-        String conversation = "3";
+        String conversationType = "3";
 
         for (Groups groups : groupsList) {
             boolean canCleanNow = false;
@@ -2386,7 +2386,7 @@ public class GroupManager extends BaseManager {
                 if (!CollectionUtils.isEmpty(groupMembersList)) {
                     for (GroupMembers groupMembers : groupMembersList) {
                         //调用融云清理接口
-                        rongCloudClient.clearHistoryMessage(conversation, N3d.encode(groupMembers.getMemberId()), N3d.encode(groups.getId()), String.valueOf(clearTimestamp));
+                        rongCloudClient.clearHistoryMessage(conversationType, N3d.encode(groupMembers.getMemberId()), N3d.encode(groups.getId()), String.valueOf(clearTimestamp));
                     }
                     //发送群组通知消息
                     sendCustomerClearGroupMessage(groups.getCreatorId(), groups.getId(), GroupOperationType.CLEARG_GROUP_MSG.getType(), clearTimestamp);
