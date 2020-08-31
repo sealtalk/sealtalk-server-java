@@ -42,22 +42,6 @@ import static com.rcloud.server.sealtalk.util.N3d.encode;
 public class GroupManager extends BaseManager {
 
 
-    /**
-     * 发送群组通知时，一种默认的发送者ID，固定指定为__system__
-     * /group/kick
-     * /group/rename
-     * /group/copy_group
-     * /group/quit
-     * /group/join
-     * /group/dismiss
-     * /group/creator
-     * /group/transfer
-     * /group/agree
-     * /group/add
-     * /group/remove_manager
-     * /group/set_manager
-     */
-
     @Resource
     private RongCloudClient rongCloudClient;
 
@@ -734,6 +718,11 @@ public class GroupManager extends BaseManager {
     private Result sendCustomerConNtfMessage(Integer operatorId, Integer targetId, String operation) throws ServiceException {
 
         return rongCloudClient.sendCustomerConNtfMessage(N3d.encode(operatorId), N3d.encode(targetId), operation);
+    }
+
+    private Result sendCustomerClearGroupMessage(Integer operatorId, Integer targetId, String operation, Long clearTimestamp) throws ServiceException {
+
+        return rongCloudClient.sendCustomerClearGroupMessage(N3d.encode(operatorId), N3d.encode(targetId), operation, clearTimestamp);
     }
 
 
@@ -2322,5 +2311,83 @@ public class GroupManager extends BaseManager {
         }
         //删除群组退出列表
         groupExitedListsService.deleteGroupExitedListItems(groupId, ImmutableList.of(receiverId));
+    }
+
+    /**
+     * 定时清理任务 1小时执行一次，清理群组历史消息
+     */
+    public void cleanGroupMessage() throws ServiceException {
+        //查询出所有设置定时清理的群组
+        Example example = new Example(Groups.class);
+        List<Integer> needCleanStatus = ImmutableList.of(Groups.CLEAR_STATUS_D_3, Groups.CLEAR_STATUS_D_7, Groups.CLEAR_STATUS_H_36);
+        example.createCriteria().andIn("clearStatus", needCleanStatus);
+
+        List<Groups> groupsList = groupsService.getByExample(example);
+
+        if (CollectionUtils.isEmpty(groupsList)) {
+            return;
+        }
+
+        Long currentTimestamp = System.currentTimeMillis();
+
+        for (Groups groups : groupsList) {
+            boolean canCleanNow = false;
+            //清理状态标识
+            Integer clearStatus = groups.getClearStatus();
+            //上次清理的时间
+            Long lastClearTime = groups.getClearTimeAt();
+
+            Long timeInterval = currentTimestamp - lastClearTime;
+
+            Long clearTimestamp = 0L;
+
+            if (Groups.CLEAR_STATUS_H_36.equals(clearStatus)) {
+                Long time_36H = 36 * 60 * 60 * 1000L;
+                if (timeInterval >= time_36H) {
+                    canCleanNow = true;
+                    clearTimestamp = currentTimestamp - time_36H;
+                }
+
+            } else if (Groups.CLEAR_STATUS_D_3.equals(clearStatus)) {
+                Long time_3D = 3 * 24 * 60 * 60 * 1000L;
+                if (timeInterval >= time_3D) {
+                    canCleanNow = true;
+                    clearTimestamp = currentTimestamp - time_3D;
+
+                }
+
+            } else if (Groups.CLEAR_STATUS_D_7.equals(clearStatus)) {
+                Long time_7D = 7 * 24 * 60 * 60 * 1000L;
+                if (timeInterval >= time_7D) {
+                    canCleanNow = true;
+                    clearTimestamp = currentTimestamp - time_7D;
+
+                }
+            }
+
+            //如果达到清理时间，执行清理
+            if (canCleanNow) {
+                //更新groups的清理时间clearTimeAt字段
+                Groups newGroup = new Groups();
+                newGroup.setId(groups.getId());
+                newGroup.setClearTimeAt(currentTimestamp);
+                groupsService.updateByPrimaryKeySelective(newGroup);
+
+                //查询群组里所有组员
+                Example gmExample = new Example(GroupMembers.class);
+                gmExample.createCriteria().andEqualTo("groupId", groups.getId());
+                List<GroupMembers> groupMembersList = groupMembersService.getByExample(gmExample);
+
+                if (!CollectionUtils.isEmpty(groupMembersList)) {
+                    for (GroupMembers groupMembers : groupMembersList) {
+                        //调用融云清理接口 TODO
+
+                    }
+                    //发送群组通知消息
+                    sendCustomerClearGroupMessage(groups.getCreatorId(), groups.getId(), GroupOperationType.CLEARG_GROUP_MSG.getType(), clearTimestamp);
+
+                }
+            }
+        }
     }
 }

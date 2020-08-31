@@ -4,6 +4,7 @@ import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.domain.Groups;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.rongcloud.message.CustomerClearGroupMessage;
 import com.rcloud.server.sealtalk.rongcloud.message.CustomerConNtfMessage;
 import com.rcloud.server.sealtalk.rongcloud.message.CustomerGroupNtfMessage;
 import com.rcloud.server.sealtalk.rongcloud.message.CustomerGroupApplyMessage;
@@ -395,6 +396,27 @@ public class DefaultRongCloudClient implements RongCloudClient {
             }
         });
 
+    }
+
+    @Override
+    public Result sendCustomerClearGroupMessage(String encodeUserId, String encodeTargetId, String operation,Long clearTimestamp) throws ServiceException {
+        return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
+            @Override
+            public Result doInvoker() throws Exception {
+                CustomerClearGroupMessage customerClearGroupMessage = new CustomerClearGroupMessage();
+                customerClearGroupMessage.setOperatorUserId(encodeUserId);
+                customerClearGroupMessage.setOperation(operation);
+                customerClearGroupMessage.setClearTime(String.valueOf(clearTimestamp));
+
+                GroupMessage groupMessage = new GroupMessage();
+                groupMessage.setTargetId(new String[]{encodeTargetId});
+                groupMessage.setSenderId(encodeUserId);
+                groupMessage.setObjectName(customerClearGroupMessage.getType());
+                groupMessage.setContent(customerClearGroupMessage);
+                groupMessage.setIsIncludeSender(1);
+                return rongCloud.message.group.send(groupMessage);
+            }
+        });
     }
 
     @Override

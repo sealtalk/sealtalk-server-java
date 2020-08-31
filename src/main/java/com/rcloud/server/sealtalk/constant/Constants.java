@@ -43,7 +43,21 @@ public class Constants {
     //群组申请消息 GrpApplyMessage默认fromUserId标示
     public static final String GrpApplyMessage_fromUserId = "__group_apply__";
 
-    //群组通知消息 GrpApplyMessage默认fromUserId标示
+    /**
+     * 发送群组通知时，一种默认的发送者ID，固定指定为__system__
+     * /group/kick
+     * /group/rename
+     * /group/copy_group
+     * /group/quit
+     * /group/join
+     * /group/dismiss
+     * /group/creator
+     * /group/transfer
+     * /group/agree
+     * /group/add
+     * /group/remove_manager
+     * /group/set_manager
+     */
     public static final String GroupNotificationMessage_fromUserId = "__system__";
 
 

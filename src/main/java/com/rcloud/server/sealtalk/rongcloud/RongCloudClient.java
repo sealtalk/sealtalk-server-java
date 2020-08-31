@@ -271,4 +271,13 @@ public interface RongCloudClient {
      */
     Result sendBulletinNotification(String fromUserId, String[] toGroupId, String content, Integer type, String[] userIds, String mentionedContent) throws ServiceException;
 
+    /**
+     * 发送群组通知，消息类型：ST:MsgClear
+     * @param encodeUserId
+     * @param encodeTargetId
+     * @param operation
+     * @return
+     * @throws ServiceException
+     */
+    Result sendCustomerClearGroupMessage(String encodeUserId, String encodeTargetId, String operation,Long clearTimestamp) throws ServiceException;
 }
