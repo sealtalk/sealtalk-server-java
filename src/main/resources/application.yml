@@ -128,7 +128,7 @@ sealtalk-config:
   cors_hosts: web.sealtalk.im
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
   server_port: 8080
-  db_name: sealtalk
+  db_name: sealtalk_server
   db_user: root
   db_password: 123456
   db_host: 127.0.0.1
