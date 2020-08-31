@@ -28,7 +28,8 @@ public class AES256 {
             Security.addProvider(new BouncyCastleProvider());
             //创建一个实现指定转换的 Cipher对象，该转换由指定的提供程序提供。
             //"AES/ECB/PKCS7Padding"：转换的名称；"BC"：提供程序的名称
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
+//            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] byteContent = content.getBytes("utf-8");
             byte[] cryptograph = cipher.doFinal(byteContent);
@@ -61,7 +62,7 @@ public class AES256 {
             KeyGenerator generator = KeyGenerator.getInstance("AES");
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             secureRandom.setSeed(strKey.getBytes());
-            generator.init(256, secureRandom);
+            generator.init(128, secureRandom);
             return generator.generateKey();
         } catch (Exception e) {
             throw new RuntimeException("初始化密钥出现异常");
@@ -81,11 +82,11 @@ public class AES256 {
         String decryptResult = AES256.decrypt(encryptResult, password);
         System.out.println("解密：" + decryptResult);
 
-
-        String text = "wE7fOlq6wnXycHuqoMAPC+SQl+a2jG3Npl1AwZUaQEg0moEquUct88AVHprc39cl";
-
-        String decryptText = AES256.decrypt(text.getBytes(), password);
-
-        System.out.println("decryptText:"+decryptText);
+//
+//        String text = "wE7fOlq6wnXycHuqoMAPC+SQl+a2jG3Npl1AwZUaQEg0moEquUct88AVHprc39cl";
+//
+//        String decryptText = AES256.decrypt(text.getBytes(), password);
+//
+//        System.out.println("decryptText:"+decryptText);
     }
 }
