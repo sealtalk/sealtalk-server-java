@@ -6,8 +6,8 @@ import com.rcloud.server.sealtalk.domain.Groups;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.rongcloud.message.CustomerClearGroupMessage;
 import com.rcloud.server.sealtalk.rongcloud.message.CustomerConNtfMessage;
-import com.rcloud.server.sealtalk.rongcloud.message.CustomerGroupNtfMessage;
 import com.rcloud.server.sealtalk.rongcloud.message.CustomerGroupApplyMessage;
+import com.rcloud.server.sealtalk.rongcloud.message.CustomerGroupNtfMessage;
 import com.rcloud.server.sealtalk.util.JacksonUtil;
 import com.rcloud.server.sealtalk.util.N3d;
 import io.rong.RongCloud;
@@ -399,7 +399,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
     }
 
     @Override
-    public Result sendCustomerClearGroupMessage(String encodeUserId, String encodeTargetId, String operation,Long clearTimestamp) throws ServiceException {
+    public Result sendCustomerClearGroupMessage(String encodeUserId, String encodeTargetId, String operation, Long clearTimestamp) throws ServiceException {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
@@ -424,7 +424,7 @@ public class DefaultRongCloudClient implements RongCloudClient {
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<Result>() {
             @Override
             public Result doInvoker() throws Exception {
-                return rongCloud.message.history.clean(conversationType,fromUserId,targetId,msgTimestamp);
+                return rongCloud.message.history.clean(conversationType, fromUserId, targetId, msgTimestamp);
             }
         });
     }
