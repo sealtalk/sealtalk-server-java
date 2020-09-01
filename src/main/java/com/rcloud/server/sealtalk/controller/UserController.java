@@ -448,7 +448,7 @@ public class UserController extends BaseController {
     }
 
     @ApiOperation(value = "同步用户的好友、黑名单、群组、群组成员数据")
-    @RequestMapping(value = "/sync/{version}", method = RequestMethod.POST)
+    @RequestMapping(value = "/sync/{version}", method = RequestMethod.GET)
     public APIResult<Object> syncInfo(@ApiParam(name = "version", value = "请求的版本号(时间戳)", required = true, type = "String", example = "xxx")
                                       @PathVariable("version") String version) throws ServiceException {
 
