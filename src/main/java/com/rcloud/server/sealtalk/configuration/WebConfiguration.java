@@ -37,13 +37,13 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/group/**");
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins(sealtalkConfig.getCorsHosts())
-                .allowedMethods("GET,POST,PUT,DELETE,HEAD,OPTIONS")
-                .allowedHeaders("Content-Type")
-                .allowCredentials(true);
-
-    }
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")
+//                .allowedOrigins(sealtalkConfig.getCorsHosts())
+//                .allowedMethods("GET,POST,PUT,DELETE,HEAD,OPTIONS")
+//                .allowedHeaders("Content-Type,token")
+//                .allowCredentials(true);
+//
+//    }
 }
