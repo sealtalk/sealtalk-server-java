@@ -108,7 +108,7 @@ sealtalk-config:
   config_env: dev           # dev 注册环节不发短信，默认验证码9999
   rongcloud_app_key: c9kqb3rdkbb8j
   rongcloud_app_secret: 5W7vjUScQzR1
-  rongcloud_api_url: http://apiqa.cn.ronghub.com  # rongcloud api_url
+  rongcloud_api_url: apiserverqa.cn.ronghub.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png        #登录注册默认头像地址
   is_open_pass_code: xxxcode
   qiniu_access_key: livk5rb3__JZjCtEiMxpQ8QscsLxbNLehwhHySnX
