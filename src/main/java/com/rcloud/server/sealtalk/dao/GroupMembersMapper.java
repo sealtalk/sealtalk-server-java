@@ -15,4 +15,5 @@ public interface GroupMembersMapper extends Mapper<GroupMembers> {
 
     GroupMembers queryGroupMembersWithGroupByGroupIdAndMemberId(@Param("groupId") Integer groupId, @Param("memberId") Integer memberId);
 
+    List<GroupMembers> selectGroupMembersWithUsersByGroupIdsAndVersion(@Param("groupIdList") List<Integer> groupIdList, @Param("version") Long version);
 }

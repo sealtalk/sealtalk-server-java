@@ -162,9 +162,8 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
     }
 
 
-    public List<GroupMembers> queryGroupMembersWithUsersByGroupIds(List<Integer> groupIdList, Long version) {
-        //TODO syncinfo
-        return null;
+    public List<GroupMembers> queryGroupMembersWithUsersByGroupIdsAndVersion(List<Integer> groupIdList, Long version) {
+        return mapper.selectGroupMembersWithUsersByGroupIdsAndVersion(groupIdList,version);
     }
 
 

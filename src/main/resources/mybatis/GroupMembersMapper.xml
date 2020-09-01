@@ -122,6 +122,26 @@
   </select>
 
 
+    <select id="selectGroupMembersWithUsersByGroupIdsAndVersion" resultMap="resultMapWithUsers">
+    SELECT gm.*,
+       u.id user_id,
+       u.region user_region,
+       u.nickname user_nickname,
+       u.portraitUri user_portraitUri,
+       u.gender user_gender,
+       u.stAccount user_stAccount,
+       u.phone user_phone
+
+    FROM group_members gm join `users` u
+    on gm.memberId = u.id
+    where gm.groupId in
+        <foreach item="item" collection="groupIdList" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    and gm.timestamp > #{version}
+  </select>
+
+
 
 
 

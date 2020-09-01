@@ -1033,7 +1033,7 @@ public class UserManager extends BaseManager {
 
         if (dataVersions.getGroupVersion() > version) {
 
-            groupMembersList = groupMembersService.queryGroupMembersWithUsersByGroupIds(groupIdList, version);
+            groupMembersList = groupMembersService.queryGroupMembersWithUsersByGroupIdsAndVersion(groupIdList, version);
         }
 
         Long maxVersion = 0L;
