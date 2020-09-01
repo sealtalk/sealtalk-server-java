@@ -78,9 +78,10 @@ public class RequestInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        response.setHeader("Access-Control-Allow-Origin","*");
+        response.setHeader("Access-Control-Allow-Origin",sealtalkConfig.getCorsHosts());
         response.setHeader("Access-Control-Allow-Methods","*");
-        response.setHeader("Access-Control-Allow-Headers","*");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type,x-requested-with,Authorization,token,Accept,Referer,User-Agent");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         if(request.getMethod().equals("OPTIONS")){
             response.setStatus(HttpServletResponse.SC_OK);
             return false;
