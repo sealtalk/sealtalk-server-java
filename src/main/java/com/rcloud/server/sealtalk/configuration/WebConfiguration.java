@@ -42,7 +42,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(sealtalkConfig.getCorsHosts())
                 .allowedMethods("GET,POST,PUT,DELETE,HEAD,OPTIONS")
-                .allowedHeaders("*")
+                .allowedHeaders("Content-Type")
                 .allowCredentials(true);
 
     }

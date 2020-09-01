@@ -103,7 +103,7 @@ sealtalk-config:
   auth_cookie_name: rong_sealtalk_lvbu_auth
   auth_cookie_key: rong_lvbu_nickname
   nickname_cookie_name:
-  auth_cookie_max_age: 2592000000    #  auth_cookie有效期单位秒 8640000=100天
+  auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
   rongcloud_sms_register_template_id: 6iYv6rln4agT3tIPJCS2   #短信模版
   config_env: dev           # dev 注册环节不发短信，默认验证码9999
   rongcloud_app_key: c9kqb3rdkbb8j
@@ -123,7 +123,7 @@ sealtalk-config:
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
   yunpian_limited_count: 20   #云片发送验证码次数限制    20次
   n3d_key: 22EdDIauqcQW
-  auth_cookie_domain: rongcloud.net
+  auth_cookie_domain: devtalk.im
   cors_hosts: http://localhost
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
   server_port: 8080
