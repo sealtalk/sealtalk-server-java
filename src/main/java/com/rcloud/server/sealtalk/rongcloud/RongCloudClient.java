@@ -99,10 +99,10 @@ public interface RongCloudClient {
      */
     public void sendContactNotification(String senderId, String nickname, String[] targetIds, String toUserId, String operation, String messageContent, long timestamp) throws ServiceException;
 
-    //TODO
+
     ResponseResult sendPrivateMessage(PrivateMessage privateMessage) throws ServiceException;
 
-    //TODO
+
     ResponseResult sendGroupMessage(GroupMessage groupMessage) throws ServiceException;
 
     /**

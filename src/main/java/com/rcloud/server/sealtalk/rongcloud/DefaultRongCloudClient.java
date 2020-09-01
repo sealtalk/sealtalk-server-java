@@ -1,5 +1,6 @@
 package com.rcloud.server.sealtalk.rongcloud;
 
+import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.configuration.SealtalkConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.domain.Groups;
@@ -225,11 +226,11 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
     @Override
     public ResponseResult sendGroupMessage(GroupMessage groupMessage) throws ServiceException {
-        //TODO
+
         return RongCloudInvokeTemplate.getData(new RongCloudCallBack<ResponseResult>() {
             @Override
             public ResponseResult doInvoker() throws Exception {
-                return null;
+                return rongCloud.message.group.send(groupMessage);
             }
         });
     }

@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.rongcloud.message;
 
 import io.rong.messages.BaseMessage;
+import io.rong.util.GsonUtil;
 
 /**
  * @Author: Jianlu.Yu
@@ -17,12 +18,12 @@ public class CustomerConNtfMessage extends BaseMessage {
 
     @Override
     public String getType() {
-        return null;
+        return TYPE;
     }
 
     @Override
     public String toString() {
-        return null;
+        return GsonUtil.toJson(this, CustomerConNtfMessage.class);
     }
 
     public String getOperatorUserId() {

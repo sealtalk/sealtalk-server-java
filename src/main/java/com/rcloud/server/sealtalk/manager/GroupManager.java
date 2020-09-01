@@ -677,7 +677,7 @@ public class GroupManager extends BaseManager {
 
 
     /**
-     * 设置群成员保护模式 TODO 普通组员也能执行这个方法吗？
+     * 设置群成员保护模式
      *
      * @param currentUserId
      * @param groupId

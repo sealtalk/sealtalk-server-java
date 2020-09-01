@@ -132,7 +132,7 @@ public class FriendShipManager extends BaseManager {
 
             Calendar now_1 = Calendar.getInstance();
             Calendar now_3 = Calendar.getInstance();
-            if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
+            if (Constants.ENV_DEV.equals(sealtalkConfig.getConfigEnv())) {
                 now_1.add(Calendar.SECOND, -1);
                 now_3.add(Calendar.SECOND, -3);
             } else {

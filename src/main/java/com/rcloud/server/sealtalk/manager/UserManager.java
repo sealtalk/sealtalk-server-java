@@ -157,7 +157,7 @@ public class UserManager extends BaseManager {
      * 发送短信并更新数据库
      */
     private VerificationCodes upsertAndSendToSms(String region, String phone, SmsServiceType smsServiceType) throws ServiceException {
-        if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
+        if (Constants.ENV_DEV.equals(sealtalkConfig.getConfigEnv())) {
             //开发环境直接插入数据库，不调用短信接口
             return verificationCodesService.saveOrUpdate(region, phone, "");
         } else {
@@ -179,7 +179,7 @@ public class UserManager extends BaseManager {
             throws ServiceException {
 
         DateTime dateTime = new DateTime(new Date());
-        if (Constants.ENV_DEV.equals(profileConfig.getEnv())) {
+        if (Constants.ENV_DEV.equals(sealtalkConfig.getConfigEnv())) {
             dateTime = dateTime.minusSeconds(50);
         } else {
             dateTime = dateTime.minusMinutes(1);
@@ -257,7 +257,7 @@ public class UserManager extends BaseManager {
 
         VerificationCodes verificationCodes = verificationCodesService.getByRegionAndPhone(region, phone);
         VerifyCodeAuthentication verifyCodeAuthentication = VerifyCodeAuthenticationFactory.getVerifyCodeAuthentication(smsServiceType);
-        verifyCodeAuthentication.validate(verificationCodes, code, profileConfig.getEnv());
+        verifyCodeAuthentication.validate(verificationCodes, code, sealtalkConfig.getConfigEnv());
         return verificationCodes.getToken();
     }
 
@@ -980,7 +980,7 @@ public class UserManager extends BaseManager {
      */
     public String getSmsImgCode() {
 
-        //TODO
+        //TODO 后面改为调用sdk
         String result = httpClient.get(Constants.URL_GET_RONGCLOUD_IMG_CODE + sealtalkConfig.getRongcloudAppKey());
         return result;
     }
@@ -1033,7 +1033,7 @@ public class UserManager extends BaseManager {
 
         if (dataVersions.getGroupVersion() > version) {
 
-            groupMembersList = groupMembersService.queryGroupMembersWithUsersByMGroupIds(groupIdList, version);
+            groupMembersList = groupMembersService.queryGroupMembersWithUsersByGroupIds(groupIdList, version);
         }
 
         Long maxVersion = 0L;

@@ -50,4 +50,32 @@
         and status = 1;
 
   </select>
+
+
+
+    <select id="selectBlackListsWithUsersAndVersion" resultMap="withUserResultMap">
+        select
+         b.id,
+         b.userId,
+         b.friendId,
+         b.status,
+         b.timestamp,
+         b.createdAt,
+         b.updatedAt,
+         u.id as u_user_id,
+         u.nickname as u_user_nickname,
+         u.portraitUri as u_user_portraitUri,
+         u.gender as u_user_gender,
+         u.stAccount as u_user_stAccount,
+         u.phone as u_user_phone,
+         u.updatedAt as u_user_updatedAt
+         from
+        blacklists b join users u on b.friendId = u.id
+        where b.userId=#{userId}
+        and b.timestamp > #{version}
+
+  </select>
+
+
+
 </mapper>

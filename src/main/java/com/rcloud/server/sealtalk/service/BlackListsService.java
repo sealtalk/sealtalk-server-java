@@ -96,6 +96,6 @@ public class BlackListsService extends AbstractBaseService<BlackLists, Integer> 
 
     public List<BlackLists> getBlackListsWithFriendUsers(Integer currentUserId, Long timestamp) {
 
-        return null;//TODO syncinfo
+        return mapper.selectBlackListsWithUsersAndVersion(currentUserId,timestamp);
     }
 }

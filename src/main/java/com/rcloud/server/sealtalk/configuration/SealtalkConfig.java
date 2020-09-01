@@ -25,6 +25,8 @@ public class SealtalkConfig {
     private String rongcloudSmsRegisterTemplateId;
     @Value("${sealtalk-config.rongcloud_app_key}")
     private String rongcloudAppKey;
+    @Value("${sealtalk-config.config_env}")
+    private String configEnv;
     @Value("${sealtalk-config.rongcloud_app_secret}")
     private String rongcloudAppSecret;
     @Value("${sealtalk-config.rongcloud_api_url}")

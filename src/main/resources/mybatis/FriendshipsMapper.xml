@@ -77,4 +77,28 @@
   </select>
 
 
+
+    <select id="selectFriendShipListWithUsersAndVersion" resultMap="withUserResultMap">
+        select
+         f.displayName,
+         f.message,
+         f.status,
+         f.updatedAt,
+         u.id as u_user_id,
+         u.nickname as u_user_nickname,
+         u.region as u_user_region,
+         u.portraitUri as u_user_portraitUri,
+         u.gender as u_user_gender,
+         u.stAccount as u_user_stAccount,
+         u.phone as u_user_phone,
+         u.createdAt as u_user_createdAt,
+         u.updatedAt as u_user_updatedAt
+         from
+        friendships f join users u on f.friendId = u.id
+        where f.userId=#{userId}
+        and f.timestamp > #{version}
+
+  </select>
+
+
 </mapper>

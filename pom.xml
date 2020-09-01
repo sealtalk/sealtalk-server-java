@@ -24,6 +24,7 @@
     <mysql.version>5.1.46</mysql.version>
     <springfox.version>2.8.0</springfox.version>
     <pagehelper.version>1.2.10</pagehelper.version>
+
     <server-sdk.version>3.1.6</server-sdk.version>
     <joda-time.version>2.9.9</joda-time.version>
     <druid.version>1.1.5</druid.version>
@@ -209,9 +210,10 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>2.3.1.RELEASE</version>
         <configuration>
-          <mainClass>com.rcloud.server.sealtalk.SealtalkServerApplication</mainClass>
-          <!-- 简化启动命令-->
-          <executable>true</executable>
+<!--          <mainClass>com.rcloud.server.sealtalk.SealtalkServerApplication</mainClass>-->
+<!--          &lt;!&ndash; 简化启动命令&ndash;&gt;-->
+<!--          <executable>true</executable>-->
+          <includeSystemScope>true</includeSystemScope>
         </configuration>
       </plugin>
 

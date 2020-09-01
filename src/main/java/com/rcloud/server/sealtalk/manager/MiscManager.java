@@ -1,6 +1,7 @@
 package com.rcloud.server.sealtalk.manager;
 
 import com.rcloud.server.sealtalk.constant.Constants;
+import com.rcloud.server.sealtalk.constant.ConversationType;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.domain.Friendships;
 import com.rcloud.server.sealtalk.domain.GroupMembers;
@@ -8,12 +9,12 @@ import com.rcloud.server.sealtalk.domain.ScreenStatuses;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.rongcloud.RongCloudClient;
+import com.rcloud.server.sealtalk.rongcloud.message.CustomerConNtfMessage;
 import com.rcloud.server.sealtalk.service.FriendshipsService;
 import com.rcloud.server.sealtalk.service.GroupMembersService;
 import com.rcloud.server.sealtalk.service.ScreenStatusesService;
 import com.rcloud.server.sealtalk.service.UsersService;
 import com.rcloud.server.sealtalk.util.N3d;
-import io.rong.messages.InfoNtfMessage;
 import io.rong.messages.TxtMessage;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
@@ -75,7 +76,6 @@ public class MiscManager extends BaseManager {
                         .setSenderId(N3d.encode(currentUserId))
                         .setTargetId(new String[]{encodedTargetId})
                         .setObjectName(objectName)
-                        //TODO
                         .setContent(new TxtMessage(content, ""))
                         .setPushContent(pushContent);
                 rongCloudClient.sendPrivateMessage(privateMessage);
@@ -95,14 +95,13 @@ public class MiscManager extends BaseManager {
                 groupMessage.setSenderId(N3d.encode(currentUserId))
                         .setTargetId(new String[]{encodedTargetId})
                         .setObjectName(objectName)
-                        //TODO
                         .setContent(new TxtMessage(content, ""))
                         .setPushContent(pushContent);
                 //发送群组消息
                 rongCloudClient.sendGroupMessage(groupMessage);
             } else {
-                //TODO
-                throw new ServiceException(ErrorCode.NOT_YOUR_GROUP);
+
+                throw new ServiceException(ErrorCode.NOT_YOUR_GROUP.getErrorCode(), "Your are not member of Group " + encodedTargetId + ".", ErrorCode.NOT_YOUR_GROUP.getErrorCode());
             }
         } else {
             throw new ServiceException(ErrorCode.UNSUPPORTED_CONVERSATION_TYPE);
@@ -164,11 +163,32 @@ public class MiscManager extends BaseManager {
      * @param currentUserId
      * @param targetId
      * @param conversationType
-     * @param statusContent
+     * @param operation
      */
 
-    private void sendScreenMsg0(Integer currentUserId, Integer targetId, Integer conversationType, String statusContent) {
-        //TODO
+    private void sendScreenMsg0(Integer currentUserId, Integer targetId, Integer conversationType, String operation) throws ServiceException {
+
+        if (ConversationType.PRIVATE.getCode().equals(conversationType)) {
+            String encodeUserId = N3d.encode(currentUserId);
+            String encodeTargetId = N3d.encode(targetId);
+
+            CustomerConNtfMessage customerConNtfMessage = new CustomerConNtfMessage();
+            customerConNtfMessage.setOperatorUserId(encodeUserId);
+            customerConNtfMessage.setOperation(operation);
+
+            PrivateMessage privateMessage = new PrivateMessage()
+                    .setSenderId(encodeUserId)
+                    .setTargetId(new String[]{encodeTargetId})
+                    .setObjectName(customerConNtfMessage.getType())
+                    .setContent(customerConNtfMessage);
+
+            rongCloudClient.sendPrivateMessage(privateMessage);
+        } else if (ConversationType.GROUP.getCode().equals(conversationType)) {
+            rongCloudClient.sendCustomerConNtfMessage(N3d.encode(currentUserId), N3d.encode(targetId), operation);
+        } else {
+            throw new ServiceException(ErrorCode.REQUEST_ERROR);
+        }
+
     }
 
     /**
@@ -199,7 +219,7 @@ public class MiscManager extends BaseManager {
      * @param targetId
      * @param conversationType
      */
-    public void sendScreenCaptureMsg(Integer currentUserId, Integer targetId, Integer conversationType) {
+    public void sendScreenCaptureMsg(Integer currentUserId, Integer targetId, Integer conversationType) throws ServiceException {
         sendScreenMsg0(currentUserId, targetId, conversationType, "sendScreenNtf");
     }
 }
