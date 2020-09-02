@@ -44,9 +44,11 @@ sealtalk:
   #  auth_cookie_key: '<-- 此处设置 Cookie 加密密钥 -->'
   #  auth_cookie_max_age: 8640000
   #  rongcloud_sms_register_template_id: 3910922
+  #  config_env: dev    # dev 调试环境， 注册环节不发短信，默认验证码9999
   #  rongcloud_app_key: '<-- 此处填写融云颁发的 App Key -->'
   #  rongcloud_app_secret: '<-- 此处填写融云颁发的 App Secret -->'
   #  rongcloud_api_url: '<-- 此处填写融云 Api Url -->'
+  #  rongcloud_default_portrait_url: '<-- 此处填写默认头像地址 -->'
   #  qiniu_access_key: '<-- 此处填写七牛颁发的 Access Key -->'
   #  qiniu_secret_key: '<-- 此处填写七牛颁发的 Secret Key -->'
   #  qiniu_bucket_name: '<-- 此处填写七牛创建的空间名称 -->'
@@ -74,9 +76,11 @@ sealtalk:
 #    auth_cookie_key: zsyy
 #    auth_cookie_max_age: 8640000
 #    rongcloud_sms_register_template_id: 3910922
+#    config_env: dev    # dev 注册环节不发短信，默认验证码9999
 #    rongcloud_app_key: bmdehs6apbauls
 #    rongcloud_app_secret: xvQhSJbgYBtwF
 #    rongcloud_api_url: api-sg01.ronghub.com
+#    rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png
 #    qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
 #    qiniu_secret_key: MRuJJ6AcBkaFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
 #    qiniu_bucket_name: devtalk-image
@@ -105,21 +109,16 @@ sealtalk-config:
   nickname_cookie_name:
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
   rongcloud_sms_register_template_id: 3910922   #短信模版
-  config_env: dev                 # dev 注册环节不发短信，默认验证码9999
+  config_env: dev                 # dev 调试环境 注册环节不发短信，默认验证码9999
   rongcloud_app_key: bmdehs6pbauls
   rongcloud_app_secret: xvQhSJbgYBtwF
   rongcloud_api_url: apiserverqa.cn.ronghub.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png        #登录注册默认头像地址
-  is_open_pass_code: xxxcode
   qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
   qiniu_secret_key: MRuJJ6AcBkFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
   qiniu_bucket_name: devtalk-image
   qiniu_bucket_domain: self.domain.com
   yunpian_api_key: 830c36ecb0ef1667e02769e1f33d9942
-  #  yunpian_sms_host: sms.yunpian.com
-  #  yunpian_internal_sms_host: us.yunpian.com
-  #  yunpian_send_sms_uri: /v2/sms/tpl_single_send.json
-  #  yunpian_get_tpl_uri: /v2/tpl/get.json
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
   yunpian_limited_count: 20   #云片发送验证码次数限制    20次
   n3d_key: 11EdDIaqpcim
