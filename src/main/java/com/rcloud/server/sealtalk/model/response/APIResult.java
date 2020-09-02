@@ -14,7 +14,7 @@ import lombok.Data;
 public class APIResult<T> {
 
     @ApiModelProperty("返回码")
-    protected String code;
+    protected Integer code;
 
     @ApiModelProperty("返回码信息")
     protected String message;
@@ -23,12 +23,12 @@ public class APIResult<T> {
     protected T result;
 
     public APIResult(String code, String message) {
-        this.code = code;
+        this.code = Integer.valueOf(code);
         this.message = message;
     }
 
     public APIResult(String code, String message, T result) {
-        this.code = code;
+        this.code = Integer.valueOf(code);
         this.message = message;
         this.result = result;
     }
