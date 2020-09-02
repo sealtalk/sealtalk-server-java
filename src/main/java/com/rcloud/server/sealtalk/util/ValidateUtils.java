@@ -187,7 +187,10 @@ public class ValidateUtils {
     }
 
     public static void checkInviteMessage(String message) throws ServiceException {
-        if (StringUtils.isEmpty(message) || message.length() < FRIEND_REQUEST_MESSAGE_MIN_LENGTH || message.length() > FRIEND_REQUEST_MESSAGE_MAX_LENGTH) {
+        if(message==null){
+            return;
+        }
+        if (message.length() < FRIEND_REQUEST_MESSAGE_MIN_LENGTH || message.length() > FRIEND_REQUEST_MESSAGE_MAX_LENGTH) {
             throw new ServiceException(ErrorCode.INVALID_INVITE_MESSAGE_LENGTH);
         }
     }
