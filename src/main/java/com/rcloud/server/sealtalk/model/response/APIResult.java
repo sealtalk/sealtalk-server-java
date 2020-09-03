@@ -17,6 +17,7 @@ public class APIResult<T> {
     protected Integer code;
 
     @ApiModelProperty("返回码信息")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     protected String message;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

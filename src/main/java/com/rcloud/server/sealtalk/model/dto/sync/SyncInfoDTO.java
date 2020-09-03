@@ -1,4 +1,4 @@
-package com.rcloud.server.sealtalk.model.dto;
+package com.rcloud.server.sealtalk.model.dto.sync;
 
 import com.rcloud.server.sealtalk.domain.BlackLists;
 import com.rcloud.server.sealtalk.domain.Friendships;
@@ -18,9 +18,9 @@ import java.util.List;
 public class SyncInfoDTO {
 
     private Long version;
-    private Users user;
-    private List<BlackLists> blacklist = null;
-    private List<Friendships> friends = null;
-    private List<GroupMembers> groups = null;
-    private List<GroupMembers> group_members = null;
+    private SyncUserDTO user;
+    private List<SyncBlackListDTO> blacklist;
+    private List<SyncFriendshipDTO> friends;
+    private List<SyncGroupDTO> groups;
+    private List<SyncGroupMemberDTO> group_members;
 }

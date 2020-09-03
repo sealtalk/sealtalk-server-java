@@ -4,7 +4,6 @@ import com.rcloud.server.sealtalk.constant.GroupRole;
 import com.rcloud.server.sealtalk.dao.GroupMembersMapper;
 import com.rcloud.server.sealtalk.domain.GroupMembers;
 import com.rcloud.server.sealtalk.exception.ServiceException;
-import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import tk.mybatis.mapper.common.Mapper;
@@ -167,9 +166,9 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
     }
 
 
-    public List<GroupMembers> queryGroupMembersWithUsersByGroupId(Integer groupId) {
+    public List<GroupMembers> queryGroupMembersWithUsersByGroupId(Integer groupId,Integer isDeleted) {
         Assert.notNull(groupId,"groupId is null");
-        return mapper.queryGroupMembersWithUsersByGroupId(groupId);
+        return mapper.queryGroupMembersWithUsersByGroupId(groupId,isDeleted);
     }
 
     public GroupMembers queryGroupMembersWithGroupByGroupIdAndMemberId(Integer groupId, Integer memberId) {

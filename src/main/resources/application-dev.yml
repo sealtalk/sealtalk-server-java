@@ -113,7 +113,7 @@ sealtalk-config:
   rongcloud_app_key: bmdehs6pbauls
   rongcloud_app_secret: xvQhSJbgYBtwF
   rongcloud_api_url: apiserverqa.cn.ronghub.com  # rongcloud api_url
-  rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png        #登录注册默认头像地址
+  rongcloud_default_portrait_url: https://avatars0.githubusercontent.com/u/17310999?s=60&v=4        #登录注册默认头像地址
   qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
   qiniu_secret_key: MRuJJ6AcBkFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
   qiniu_bucket_name: devtalk-image
@@ -122,8 +122,8 @@ sealtalk-config:
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
   yunpian_limited_count: 20   #云片发送验证码次数限制    20次
   n3d_key: 11EdDIaqpcim
-  auth_cookie_domain: rongcloud.net
-  cors_hosts:  http://webqa.rongcloud.net
+  auth_cookie_domain: devtalk.im
+  cors_hosts:  web.devtalk.im
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
   server_port: 8080
   db_name: sealtalk

@@ -80,10 +80,12 @@
 
     <select id="selectFriendShipListWithUsersAndVersion" resultMap="withUserResultMap">
         select
+         f.friendId,
          f.displayName,
          f.message,
          f.status,
          f.updatedAt,
+         f.timestamp,
          u.id as u_user_id,
          u.nickname as u_user_nickname,
          u.region as u_user_region,

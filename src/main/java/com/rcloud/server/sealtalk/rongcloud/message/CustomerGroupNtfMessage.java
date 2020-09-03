@@ -18,7 +18,7 @@ public class CustomerGroupNtfMessage extends BaseMessage {
     private String operation;
     private String clearTime;
     private String message ="";
-    private Map<String, Object> messageData;
+    private Map<String, Object> data;
 
 
     @Override
@@ -63,11 +63,11 @@ public class CustomerGroupNtfMessage extends BaseMessage {
         this.message = message;
     }
 
-    public Map<String, Object> getMessageData() {
-        return messageData;
+    public Map<String, Object> getData() {
+        return data;
     }
 
-    public void setMessageData(Map<String, Object> messageData) {
-        this.messageData = messageData;
+    public void setData(Map<String, Object> data) {
+        this.data = data;
     }
 }

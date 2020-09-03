@@ -46,14 +46,7 @@ public class MiscUtilsTest {
         System.out.println(limitDate.before(now));
     }
 
-    @Test
-    public void name() throws ServiceException {
 
-        // id=101->U6BnNu73w
-        System.out.println(N3d.encode(101));
-        //id=110->3tge7fGra
-        System.out.println(N3d.encode(110));
-    }
 
     @Test
     public void name2() throws ServiceException {

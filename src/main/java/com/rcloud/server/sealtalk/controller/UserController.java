@@ -12,6 +12,7 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.manager.UserManager;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.model.dto.*;
+import com.rcloud.server.sealtalk.model.dto.sync.SyncInfoDTO;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
 import com.rcloud.server.sealtalk.util.*;
@@ -438,7 +439,7 @@ public class UserController extends BaseController {
     }
 
     @ApiOperation(value = "获取当前用户所属群组")
-    @RequestMapping(value = "/groups", method = RequestMethod.POST)
+    @RequestMapping(value = "/groups", method = RequestMethod.GET)
     public APIResult<Object> getGroups() throws ServiceException {
 
         Integer currentUserId = getCurrentUserId();
@@ -461,7 +462,7 @@ public class UserController extends BaseController {
     }
 
     @ApiOperation(value = "根据手机号查找用户信息")
-    @RequestMapping(value = "/find/{region}/{phone}", method = RequestMethod.POST)
+    @RequestMapping(value = "/find/{region}/{phone}", method = RequestMethod.GET)
     public APIResult<Object> getUserByPhone(@ApiParam(name = "region", value = "region", required = true, type = "String", example = "xxx")
                                             @PathVariable("region") String region,
                                             @ApiParam(name = "phone", value = "phone", required = true, type = "String", example = "xxx")
@@ -528,14 +529,15 @@ public class UserController extends BaseController {
         Integer userId = N3d.decode(id);
         Users users = userManager.getUser(userId);
         if (users != null) {
-            Users t_user = new Users();
-            t_user.setId(users.getId());
-            t_user.setNickname(users.getNickname());
-            t_user.setPortraitUri(users.getPortraitUri());
-            t_user.setGender(users.getGender());
-            t_user.setStAccount(users.getStAccount());
-            t_user.setPhone(users.getPhone());
-            return APIResultWrap.ok(MiscUtils.encodeResults(t_user));
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(N3d.encode(users.getId()));
+            userDTO.setRegion(users.getRegion());
+            userDTO.setNickname(users.getNickname());
+            userDTO.setPortraitUri(users.getPortraitUri());
+            userDTO.setGender(users.getGender());
+            userDTO.setStAccount(users.getStAccount());
+            userDTO.setPhone(users.getPhone());
+            return APIResultWrap.ok(userDTO);
         } else {
             throw new ServiceException(ErrorCode.UNKNOW_USER);
         }

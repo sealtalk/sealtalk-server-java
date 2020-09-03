@@ -47,6 +47,7 @@
             <result column="g_memberCount" jdbcType="INTEGER" property="memberCount"/>
             <result column="g_isMute" jdbcType="INTEGER" property="isMute"/>
             <result column="g_certiStatus" jdbcType="INTEGER" property="certiStatus"/>
+            <result column="g_timestamp" jdbcType="INTEGER" property="timestamp"/>
         </association>
     </resultMap>
 
@@ -85,7 +86,9 @@
        g.creatorId g_creatorId,
        g.memberCount g_memberCount,
        g.isMute g_isMute,
-       g.certiStatus g_certiStatus
+       g.certiStatus g_certiStatus,
+       g.timestamp g_timestamp
+
 
     FROM group_members gm join `groups` g
     on gm.groupId = g.id
@@ -105,6 +108,9 @@
     FROM group_members gm join `users` u
     on gm.memberId = u.id
     where gm.groupId=#{groupId}
+    <if test=" isDeleted != null">
+        and isDeleted = #{isDeleted}
+    </if>
   </select>
 
   <select id="queryGroupMembersWithGroupByGroupIdAndMemberId" resultMap="resultMapWithGroups">
