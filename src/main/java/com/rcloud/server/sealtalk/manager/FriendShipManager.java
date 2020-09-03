@@ -825,7 +825,7 @@ public class FriendShipManager extends BaseManager {
      * @param currentUserId
      * @param friendId
      */
-    public FriendDTO getFriendDescription(Integer currentUserId, String friendId) {
+    public FriendDTO getFriendDescription(Integer currentUserId, Integer friendId) {
         FriendDTO friendDTO = new FriendDTO();
         Example example = new Example(Friendships.class);
         example.createCriteria().andEqualTo("userId", currentUserId)

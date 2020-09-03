@@ -265,7 +265,8 @@ public class FriendshipController extends BaseController {
 
         Integer currentUserId = getCurrentUserId();
 
-        FriendDTO dto = friendShipManager.getFriendDescription(currentUserId, friendId);
+
+        FriendDTO dto = friendShipManager.getFriendDescription(currentUserId, N3d.decode(friendId));
 
         return APIResultWrap.ok(dto);
     }
