@@ -67,4 +67,39 @@
         </if>
 
     </update>
+
+    <insert id ="insertBatch"  keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into group_receivers
+        (
+        userId,
+        groupId,
+        groupName,
+        groupPortraitUri,
+        requesterId,
+        receiverId,
+        status,
+        `type`,
+        isRead,
+        `timestamp` ,
+        createdAt,
+        updatedAt
+        )
+        values
+        <foreach collection ="groupReceiverList" item="gr" index= "index" separator =",">
+            (
+            #{gr.userId,jdbcType=INTEGER},
+            #{gr.groupId,jdbcType=INTEGER},
+            #{gr.groupName,jdbcType=VARCHAR},
+            #{gr.groupPortraitUri,jdbcType=VARCHAR},
+            #{gr.requesterId,jdbcType=INTEGER},
+            #{gr.receiverId,jdbcType=INTEGER},
+            #{gr.status,jdbcType=INTEGER},
+            #{gr.type,jdbcType=INTEGER},
+            #{gr.isRead,jdbcType=INTEGER},
+            #{gr.timestamp,jdbcType=BIGINT},
+            #{gr.createdAt,jdbcType=TIMESTAMP},
+            #{gr.updatedAt,jdbcType=TIMESTAMP}
+            )
+        </foreach >
+    </insert >
 </mapper>

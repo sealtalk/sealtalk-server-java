@@ -150,6 +150,32 @@
 
 
 
+    <insert id ="insertBatch"  keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into group_members
+        (
+        groupId,
+        memberId,
+        role,
+        `timestamp` ,
+        createdAt,
+        updatedAt
+        )
+        values
+        <foreach collection ="groupMemberList" item="gm" index= "index" separator =",">
+        (
+            #{gm.groupId,jdbcType=INTEGER},
+            #{gm.memberId,jdbcType=INTEGER},
+            #{gm.role,jdbcType=INTEGER},
+            #{gm.timestamp,jdbcType=BIGINT},
+            #{gm.createdAt,jdbcType=TIMESTAMP},
+            #{gm.updatedAt,jdbcType=TIMESTAMP}
+        )
+        </foreach >
+    </insert >
+
+
+
+
 
 
 

@@ -381,8 +381,8 @@ public class GroupManager extends BaseManager {
                 groupReceiversService.updateReceiversWithList(requesterIdForUpdate, timestamp, groupReceiveStatusW, groups.getId(), selectRequesterId, receiverIdList, operatorList, groupReceiveType);
 
                 //插入新增记录
-                for (GroupReceivers groupReceivers : createReceiverList) {
-                    groupReceiversService.saveSelective(groupReceivers);
+                if(!CollectionUtils.isEmpty(createReceiverList)){
+                    groupReceiversService.batchSave(createReceiverList);
                 }
                 return true;
             }

@@ -9,6 +9,7 @@ import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,8 +78,20 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
     }
 
 
+    public void batchSave(List<GroupReceivers> groupReceiverList) {
+        Assert.notEmpty(groupReceiverList,"groupReceiverList is empty");
+        List<GroupReceivers> grListForInsert = new ArrayList<>();
 
+        Integer index = 0;
+        for(int i=0;i<groupReceiverList.size();i++){
 
-
-
+            grListForInsert.add(groupReceiverList.get(i));
+            //批量插入groupReceiver，每1000条执行一次insert sql
+            index++;
+            if( index % 1000 == 0 || index.equals(groupReceiverList.size())){
+                mapper.insertBatch(grListForInsert);
+                grListForInsert.clear();
+            }
+        }
+    }
 }

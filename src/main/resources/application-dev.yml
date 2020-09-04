@@ -37,7 +37,7 @@ sealtalk:
     url: jdbc:mysql://${sealtalk-config.db_host}:${sealtalk-config.db_port}/${sealtalk-config.db_name}?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=utf8&useCompress=true
     username: ${sealtalk-config.db_user}
     password: ${sealtalk-config.db_password}
-    maximum-pool-size: 10
+    maximum-pool-size: 20
 
   #sealtalk-config:
   #  auth_cookie_name: '<-- 此处设置 Cookie 名称 -->'

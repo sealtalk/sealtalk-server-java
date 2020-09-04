@@ -98,6 +98,8 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
 
         //保存新增的groupmember
         if (insertGroupMemberIds.size() > 0) {
+            List<GroupMembers> gmList = new ArrayList<>();
+            Integer index = 0;
             for (Integer memberId : insertGroupMemberIds) {
                 GroupMembers groupMembers = new GroupMembers();
                 groupMembers.setGroupId(groupId);
@@ -106,7 +108,13 @@ public class GroupMembersService extends AbstractBaseService<GroupMembers, Integ
                 groupMembers.setTimestamp(timestamp);
                 groupMembers.setCreatedAt(new Date());
                 groupMembers.setUpdatedAt(groupMembers.getCreatedAt());
-                this.saveSelective(groupMembers);
+
+                //批量插入groupMembers，每1000条执行一次insert sql
+                index++;
+                if( index % 1000 == 0 || index.equals(gmList.size())){
+                    mapper.insertBatch(groupMembersList);
+                    groupMembersList.clear();
+                }
             }
         }
         return;
