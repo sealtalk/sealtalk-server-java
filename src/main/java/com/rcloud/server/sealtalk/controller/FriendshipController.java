@@ -240,11 +240,6 @@ public class FriendshipController extends BaseController {
             return APIResultWrap.error(ErrorCode.PARAM_ERROR);
         }
 
-        // region,phone 要么都为空，要么都不为空
-        if ((StringUtils.isEmpty(region) && !StringUtils.isEmpty(phone)) ||
-                (!StringUtils.isEmpty(region) && StringUtils.isEmpty(phone))) {
-            return APIResultWrap.error(ErrorCode.PARAM_ERROR);
-        }
 
         Integer currentUserId = getCurrentUserId();
 

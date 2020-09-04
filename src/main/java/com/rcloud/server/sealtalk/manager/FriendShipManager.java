@@ -580,7 +580,7 @@ public class FriendShipManager extends BaseManager {
 
             //清除相关缓存
             CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId);
-            CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
+            CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
             CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
             CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);
 
@@ -619,7 +619,7 @@ public class FriendShipManager extends BaseManager {
         refreshFriendshipVersion(currentUserId, timestamp);
 
         //清除缓存
-        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX + currentUserId + "_" + friendId);
+        CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         return;
 
@@ -655,7 +655,7 @@ public class FriendShipManager extends BaseManager {
     public Friendships getFriendProfile(Integer currentUserId, Integer friendId) throws ServiceException {
 
 
-        String result = CacheUtil.get(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX  + currentUserId + "_" + friendId);
+        String result = CacheUtil.get(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
 
         if (!StringUtils.isEmpty(result)) {
             return JacksonUtil.fromJson(result, Friendships.class);
@@ -667,7 +667,7 @@ public class FriendShipManager extends BaseManager {
             throw new ServiceException(ErrorCode.NOT_FRIEND_USER, "Current user is not friend of user " + currentUserId + ".");
         } else {
             result = JacksonUtil.toJson(friendships);
-            CacheUtil.set(CacheUtil.FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX  + currentUserId + "_" + friendId, result);
+            CacheUtil.set(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId, result);
 
             CacheUtil.set(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId + "_" + friendId, JacksonUtil.toJson(friendships.getUsers()));
             return friendships;
@@ -811,6 +811,8 @@ public class FriendShipManager extends BaseManager {
 
             friendshipsService.updateByExampleSelective(newFriendships, example);
             CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
+
+            CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendId);
 
             return;
         } else {

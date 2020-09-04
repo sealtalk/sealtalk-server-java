@@ -21,7 +21,7 @@ public class CacheUtil {
     public static final String GROUP_CACHE_PREFIX = "group_";
     public static final String USER_BLACKLIST_CACHE_PREFIX = "user_blacklist_";
 
-    public static final String FRIENDSHIP_PROFILE_DISPLAYNAME_CACHE_PREFIX = "friendship_profile_displayName_";
+    public static final String FRIENDSHIP_PROFILE_CACHE_PREFIX = "friendship_profile_";
 
     public static final String USER_GROUP_CACHE_PREFIX = "user_groups_";
     public static final String LAST_UPDATE_VERSION_INFO = "last_update_version_info";
