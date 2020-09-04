@@ -233,9 +233,6 @@ public class GroupManager extends BaseManager {
         return groupAddStatusDTO;
     }
 
-    private Result sendGroupNotificationMessage(Integer currentUserId, Integer groupId, Map<String, Object> messageData, String groupNotificationType) throws ServiceException {
-        return rongCloudClient.sendGroupNotificationMessage(N3d.encode(currentUserId), N3d.encode(groupId), groupNotificationType, messageData, "", "");
-    }
 
     /**
      * 发送群组通知： 操作人固定=》"__system__"
@@ -621,7 +618,7 @@ public class GroupManager extends BaseManager {
                 String nickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
                 Map<String, Object> messageData = new HashMap<>();
                 messageData.put("operatorNickname", nickName);
-                messageData.put("targetUserIds", N3d.encode(currentUserId));
+                messageData.put("targetUserIds", new String[]{N3d.encode(currentUserId)});
                 messageData.put("targetUserDisplayNames", new String[]{nickName});
                 messageData.put("timestamp", timestamp);
                 //发送群组通知 TODO
@@ -1510,6 +1507,9 @@ public class GroupManager extends BaseManager {
         //刷新然后刷新GroupMemberVersion数据版本
         dataVersionsService.updateGroupMemberVersion(groupId, timestamp);
 
+        //清除群成员缓存
+        CacheUtil.delete(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX + groupId);
+
         //根据groupId查询Groups
         Groups groups = groupsService.getByPrimaryKey(groupId);
 
@@ -1632,7 +1632,7 @@ public class GroupManager extends BaseManager {
 
         try {
             Result result = rongCloudClient.dismiss(N3d.encode(currentUserId), encodedGroupId);
-            if (Constants.CODE_OK.equals(result.getCode())) {
+            if (!Constants.CODE_OK.equals(result.getCode())) {
                 log.error("Error: dismiss group failed on IM server, code: {},errorMessage: {}", result.getCode(), result.getErrorMessage());
                 throw new ServiceException(ErrorCode.QUIT_IM_SERVER_ERROR);
             } else {

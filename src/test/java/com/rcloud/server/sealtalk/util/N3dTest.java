@@ -24,21 +24,24 @@ import java.util.List;
 public class N3dTest {
     @Test
     public void name() throws ServiceException {
-        // id=101->U6BnNu73w
-        System.out.println(N3d.encode(101));
-        //id=110->3tge7fGra
-        System.out.println(N3d.encode(110));
-        //id=110->aAKZwl3Yn
-        System.out.println(N3d.encode(111));
-        //id=110->
-        System.out.println(N3d.encode(113));
-        /**
-         * U6BnNu73w
-         * 3tge7fGra
-         * aAKZwl3Yn
-         * mjfl43NCB
-         */
+        System.out.println("101: "+N3d.encode(101));
+        System.out.println("110: "+N3d.encode(110));
+        System.out.println("111: "+N3d.encode(111));
+        System.out.println("113: "+N3d.encode(113));
+        System.out.println("groupId 10: "+N3d.encode(10));
 
-        System.out.println(N3d.decode("pLwiBIrW9"));
+
+
+        System.out.println("groupId Sv7gGCckF: "+N3d.decode("Sv7gGCckF"));
+
+
+        System.out.println("groupId 5jLgxna0X: "+N3d.decode("5jLgxna0X"));
+
+//        uid Sv7gGCckF: 3
+//        groupId 5jLgxna0X: 14
+
+
+
+
     }
 }
