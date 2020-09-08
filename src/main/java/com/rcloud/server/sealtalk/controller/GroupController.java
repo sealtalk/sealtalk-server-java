@@ -300,6 +300,7 @@ public class GroupController extends BaseController {
         return APIResultWrap.ok("群头像设置成功");
     }
 
+
     @ApiOperation(value = "设置自己的群名片")
     @RequestMapping(value = "/set_display_name", method = RequestMethod.POST)
     public APIResult<Object> setDisplayName(@RequestBody GroupParam groupParam) throws ServiceException {
@@ -581,7 +582,7 @@ public class GroupController extends BaseController {
 
     @ApiOperation(value = "获取退群列表")
     @RequestMapping(value = "/exited_list", method = RequestMethod.POST)
-    public APIResult<List<GroupExitedListDTO>> getExitedList(@RequestBody GroupParam groupParam) throws ServiceException {
+    public APIResult<?> getExitedList(@RequestBody GroupParam groupParam) throws ServiceException {
 
         String groupId = groupParam.getGroupId();
         ValidateUtils.notEmpty(groupId);
@@ -596,7 +597,7 @@ public class GroupController extends BaseController {
                 groupExitedListDTOList.add(dto);
             }
         }
-        return APIResultWrap.ok(groupExitedListDTOList);
+        return APIResultWrap.ok(MiscUtils.encodeResults(groupExitedListDTOList,"quitUserId","operatorId"));
     }
 
     @ApiOperation(value = "设置群成员保护模式")

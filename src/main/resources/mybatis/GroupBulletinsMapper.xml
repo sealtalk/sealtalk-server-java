@@ -12,4 +12,11 @@
     <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
+
+  <select id="getLastestGroupBulletin" resultMap="BaseResultMap">
+    select * from group_bulletins
+    where groupId = #{groupId}
+    order by timestamp desc limit 1
+
+  </select>
 </mapper>

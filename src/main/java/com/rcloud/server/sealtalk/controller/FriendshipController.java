@@ -63,6 +63,7 @@ public class FriendshipController extends BaseController {
          //去掉邀请好友的提示信息
         ValidateUtils.checkInviteMessage(message);
         Integer currentUserId = getCurrentUserId();
+
         InviteDTO inviteResponse = friendShipManager.invite(currentUserId, N3d.decode(friendId), message);
         return APIResultWrap.ok(inviteResponse);
     }

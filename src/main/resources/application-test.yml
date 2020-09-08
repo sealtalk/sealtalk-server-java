@@ -109,7 +109,7 @@ sealtalk-config:
   rongcloud_app_key: c9kqb3rdkbb8j
   rongcloud_app_secret: 5W7vjUScQzR1
   rongcloud_api_url: apiserverqa.cn.ronghub.com  # rongcloud api_url
-  rongcloud_default_portrait_url: https://avatars0.githubusercontent.com/u/17310999?s=60&v=4        #登录注册默认头像地址
+  rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
   qiniu_access_key: livk5rb3__JZjCtEiMxpQ8QscsLxbNLehwhHySnX
   qiniu_secret_key: ysrYdcDrrF425QNz0sfa9RoafANC6Hni3TIVgjw5
   qiniu_bucket_name: devtalk-image

@@ -90,10 +90,9 @@ public class RequestInterceptor implements HandlerInterceptor {
         ServerApiParams serverApiParams = new ServerApiParams();
         serverApiParams.setTraceId(UUID.randomUUID().toString());
         String uri = request.getRequestURI();
-        log.info("preHandle uri="+uri);
 
         RequestUriInfo requestUriInfo = getRequestUriInfo(request);
-        log.info("preHandle requestUriInfo: ip={}, remoteAddress={},uri={}", requestUriInfo.getIp(), requestUriInfo.getRemoteAddress(), requestUriInfo.getUri());
+//        log.info("preHandle requestUriInfo: ip={}, remoteAddress={},uri={}", requestUriInfo.getIp(), requestUriInfo.getRemoteAddress(), requestUriInfo.getUri());
         serverApiParams.setRequestUriInfo(requestUriInfo);
 
         if (!excludeUrlSet.contains(uri)) {
@@ -108,7 +107,6 @@ public class RequestInterceptor implements HandlerInterceptor {
             Integer currentUserId = null;
             try {
                 currentUserId = getCurrentUserId(authCookie);
-                log.info("preHandle currentUserId:" + currentUserId);
                 serverApiParams.setCurrentUserId(currentUserId);
             } catch (Exception e) {
                 log.error("获取currentUserId异常,error: " + e.getMessage(), e);

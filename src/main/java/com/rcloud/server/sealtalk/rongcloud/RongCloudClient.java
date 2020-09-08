@@ -86,18 +86,18 @@ public interface RongCloudClient {
 
 
     /**
-     * 发送通知
+     * 发送联系人通知
      *
      * @param senderId       发送人
      * @param nickname       发送人昵称
      * @param targetIds      这条消息的接收人
      * @param toUserId       operatoion操作对应的人，比如添加好友动作的好友
      * @param operation      操作
-     * @param messageContent 消息内容
+     * @param message 消息内容
      * @param timestamp      版本
      * @throws ServiceException
      */
-    public void sendContactNotification(String senderId, String nickname, String[] targetIds, String toUserId, String operation, String messageContent, long timestamp) throws ServiceException;
+    public void sendContactNotification(String senderId, String nickname, String[] targetIds, String toUserId, String operation, String message, long timestamp) throws ServiceException;
 
 
     ResponseResult sendPrivateMessage(PrivateMessage privateMessage) throws ServiceException;

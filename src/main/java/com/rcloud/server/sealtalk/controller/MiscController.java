@@ -156,6 +156,7 @@ public class MiscController extends BaseController {
 
             return APIResultWrap.ok(JacksonUtil.getJsonNode(result));
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             return APIResultWrap.error(ErrorCode.SERVER_ERROR);
         }
     }

@@ -18,6 +18,10 @@ public class Users implements Serializable {
     public static final Integer ST_SEARCH_VERIFY_NO_NEED = 1;
     public static final Integer ST_SEARCH_VERIFY_NEED = 0;
 
+    //加好友需要验证环节
+    public static final Integer FRI_VERIFY_NEED = 1;
+
+
 
 
 

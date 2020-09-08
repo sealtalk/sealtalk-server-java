@@ -306,7 +306,7 @@ public class GroupManager extends BaseManager {
     }
 
     /**
-     * s
+     *
      * 批量保存或更新GroupReceivers
      *
      * @param groups
@@ -1138,11 +1138,7 @@ public class GroupManager extends BaseManager {
      * @return
      */
     public GroupBulletins getBulletin(Integer groupId) {
-
-        Example example = new Example(GroupBulletins.class);
-        example.createCriteria().andEqualTo("groupId", groupId);
-        example.setOrderByClause(" timestamp DESC ");
-        return groupBulletinsService.getOneByExample(example);
+        return groupBulletinsService.getGroupBulletins(groupId);
     }
 
     /**
@@ -1176,7 +1172,8 @@ public class GroupManager extends BaseManager {
         String nickname = usersService.getCurrentUserNickNameWithCache(currentUserId);
         if (!StringUtils.isEmpty(bulletin) && !StringUtils.isEmpty(nickname)) {
             //发布群通知
-            rongCloudClient.sendBulletinNotification(N3d.encode(currentUserId), new String[]{N3d.encode(groupId)}, bulletin, 1, null, "");
+            String content = "@所有人 " + bulletin;
+            rongCloudClient.sendBulletinNotification(N3d.encode(currentUserId), new String[]{N3d.encode(groupId)}, content, 1, null, "");
         }
 
         return;
@@ -1202,6 +1199,7 @@ public class GroupManager extends BaseManager {
             if (e.getCause() instanceof java.sql.SQLIntegrityConstraintViolationException) {
                 throw new ServiceException(ErrorCode.ALREADY_EXISTS_GROUP);
             }
+            log.error("group fav error:"+e.getMessage(),e);
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
         return;
@@ -2199,10 +2197,12 @@ public class GroupManager extends BaseManager {
                 }
             } else {
                 //如果失败，插入GroupSync表进行记录 组信息同步失败记录
+                log.error("copy group,invoke rongcloud error,errorCode={},errorMessage{}",result.getCode(),result.getErrorMessage());
                 groupSyncsService.saveOrUpdate(newGroups.getId(), GroupSyncs.INVALID, GroupSyncs.INVALID);
             }
         } catch (Exception e) {
             //如果失败，插入GroupSync表进行记录 组信息同步失败记录
+            log.error(e.getMessage(),e);
             groupSyncsService.saveOrUpdate(newGroups.getId(), GroupSyncs.INVALID, GroupSyncs.INVALID);
         }
 

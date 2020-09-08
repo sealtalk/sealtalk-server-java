@@ -45,13 +45,9 @@ import java.util.*;
 @Slf4j
 public class FriendShipManager extends BaseManager {
 
-    public static final Integer VERIFY = 1;
 
     public static final String NONE = "None";
     public static final String ADDED = "Added";
-
-    @Resource
-    private ProfileConfig profileConfig;
 
     @Resource
     private RongCloudClient rongCloudClient;
@@ -87,8 +83,8 @@ public class FriendShipManager extends BaseManager {
 
         Users users = usersService.getByPrimaryKey(friendId);
         Integer friVerify = users.getFriVerify();
-        log.info("invite user. friVerify:[{}]", friVerify);
-        if (VERIFY.equals(friVerify)) {
+
+        if (Users.FRI_VERIFY_NEED.equals(friVerify)) {
             // 需要对方验证
             inviteResponse = addVerifyFriend(currentUserId, friendId, message);
         } else {
@@ -451,7 +447,7 @@ public class FriendShipManager extends BaseManager {
         //获取当前用户昵称
         String currentUserNickName = usersService.getCurrentUserNickNameWithCache(currentUserId);
         //调用融云发送通知接口
-        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, new String[]{N3d.encode(friendId)}, N3d.encode(friendId), Constants.CONTACT_OPERATION_REQUEST, "", timestamp);
+        rongCloudClient.sendContactNotification(N3d.encode(currentUserId), currentUserNickName, new String[]{N3d.encode(friendId)}, N3d.encode(friendId), Constants.CONTACT_OPERATION_ACCEPT_RESPONSE, "", timestamp);
         //清除缓存
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendId);

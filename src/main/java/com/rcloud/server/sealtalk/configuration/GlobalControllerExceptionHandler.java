@@ -38,8 +38,9 @@ public class GlobalControllerExceptionHandler {
     public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) throws Exception {
         String url = request.getRequestURI();
         String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
-
-        log.error(errorInfo,e);
+        if(log.isDebugEnabled()){
+            log.debug(errorInfo,e);
+        }
 
         String contentType = "application/json;charset=" + CHARSET;
         response.addHeader("Content-Type", contentType);

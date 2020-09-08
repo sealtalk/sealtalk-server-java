@@ -36,6 +36,7 @@ public class JacksonUtil {
         try {
             return getInstance().writeValueAsString(object);
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             throw new ServiceException("toJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
@@ -53,6 +54,7 @@ public class JacksonUtil {
         try {
             return getInstance().readValue(jsonStr, clazz);
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             throw new ServiceException("fromJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
@@ -82,6 +84,7 @@ public class JacksonUtil {
             JavaType javaType = getInstance().getTypeFactory().constructParametricType(parametrized, parameterClasses);
             return getInstance().readValue(jsonStr, javaType);
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             throw new ServiceException("fromJson exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }
@@ -95,6 +98,7 @@ public class JacksonUtil {
             json = json.replaceAll("\r|\n|\t", "");
             return getInstance().reader().readTree(json);
         } catch (Exception e) {
+            log.error(e.getMessage(),e);
             throw new ServiceException("getJsonNode exception:" + e.getMessage(), ErrorCode.SERVER_ERROR, e);
         }
     }

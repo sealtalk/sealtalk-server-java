@@ -24,23 +24,34 @@ import java.util.List;
 public class N3dTest {
     @Test
     public void name() throws ServiceException {
-        System.out.println("101: "+N3d.encode(101));
-        System.out.println("110: "+N3d.encode(110));
-        System.out.println("111: "+N3d.encode(111));
-        System.out.println("113: "+N3d.encode(113));
-        System.out.println("groupId 10: "+N3d.encode(10));
+//        System.out.println("101: "+N3d.encode(101));
+//        System.out.println("110: "+N3d.encode(110));
+//        System.out.println("111: "+N3d.encode(111));
+//        System.out.println("113: "+N3d.encode(113));
+//        System.out.println("groupId 10: "+N3d.encode(10));
+//
+//
+//
+//        System.out.println("groupId Sv7gGCckF: "+N3d.decode("Sv7gGCckF"));
+//
+//
+//        System.out.println("groupId 5jLgxna0X: "+N3d.decode("5jLgxna0X"));
+//        System.out.println("groupId xUw2IoeAV: "+N3d.decode("xUw2IoeAV"));
+        System.out.println("groupId H6SzV9OXf: "+N3d.decode("H6SzV9OXf"));
 
 
-
-        System.out.println("groupId Sv7gGCckF: "+N3d.decode("Sv7gGCckF"));
-
-
-        System.out.println("groupId 5jLgxna0X: "+N3d.decode("5jLgxna0X"));
 
 //        uid Sv7gGCckF: 3
 //        groupId 5jLgxna0X: 14
 
 
+
+        System.out.println("groupId 10: "+N3d.encode(30));
+
+
+        System.out.println("groupId 8YlorweNS: "+N3d.decode("8YlorweNS"));
+        System.out.println("groupId 7CsRfEKg4: "+N3d.decode("7CsRfEKg4"));
+        System.out.println("groupId ipJumrPq7: "+N3d.decode("ipJumrPq7"));
 
 
     }

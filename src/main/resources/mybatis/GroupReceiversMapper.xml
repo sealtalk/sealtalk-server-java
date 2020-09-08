@@ -44,7 +44,7 @@
 
 
     <update id="updateReceiversWithList" >
-        upate group_receivers
+        update group_receivers
         set
         status = #{status},
         `timestamp` = #{timestamp}

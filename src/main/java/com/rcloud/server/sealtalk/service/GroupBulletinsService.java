@@ -23,4 +23,9 @@ public class GroupBulletinsService extends AbstractBaseService<GroupBulletins, I
     protected Mapper<GroupBulletins> getMapper() {
         return mapper;
     }
+
+    public GroupBulletins getGroupBulletins(Integer groupId){
+        return mapper.getLastestGroupBulletin(groupId);
+
+    }
 }
