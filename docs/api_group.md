@@ -21,8 +21,8 @@
 | [/group/:id/members](#get-groupidmembers) | 获取群成员 |
 | [/group/set_certification](#post-groupset_certification) | 设置群认证 |
 | [/group/agree](#post-groupagree) | 同意加群请求 |
-| [/group/notice_info](#get-groupnotice_info) | 群通知邀请信息 |
-| [/group/clear_notice](#post-groupclear_notice) | 群通知邀请信息 |
+| [/group/notice_info](#get-groupnotice_info) | 获取群通知邀请信息 |
+| [/group/clear_notice](#post-groupclear_notice) | 清空群通知邀请信息 |
 | [/group/mute_all](#post-groupmute_all) | 全员禁言 |
 | [/group/set_regular_clear](#post-groupset-regular-clear) | 开启/更新 清理群离线消息 |
 | [/group/get_regular_clear](#post-groupgetregularclear) | 获取群定时清理状态 |
@@ -794,7 +794,7 @@ ST:GrpNtf
 
 ### GET /group/notice_info
 
-群通知邀请信息
+获取群通知邀请信息
 
 #### 请求参数
 
@@ -835,7 +835,7 @@ ST:GrpNtf
 
 ### POST /group/clear_notice
 
-清空群验证通知消息
+清空群通知邀请信息
 
 #### 请求参数
 

@@ -5,7 +5,7 @@
 | [/friendship/invite](#post-friendshipinvite) | 发起添加好友 |
 | [/friendship/agree](#post-friendshipagree) | 同意加好友请求 |
 | [/friendship/ignore](#post-friendshipignore) | 忽略好友请求 |
-| [/friendship/delete](#post-friendshipdelete) | 删除好友请求 |
+| [/friendship/delete](#post-friendshipdelete) | 删除好友 |
 | [/friendship/set_display_name](#post-friendshipset_display_name) | 设置好友备注名 |
 | [/friendship/all](#get-friendshipall) | 获取好友列表 |
 | [/friendship/:friendId/profile](#get-friendshipfriendidprofile) | 获取好友信息 |

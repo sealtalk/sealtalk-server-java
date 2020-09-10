@@ -49,9 +49,8 @@ public class N3dTest {
         System.out.println("groupId 10: "+N3d.encode(30));
 
 
-        System.out.println("groupId 8YlorweNS: "+N3d.decode("8YlorweNS"));
-        System.out.println("groupId 7CsRfEKg4: "+N3d.decode("7CsRfEKg4"));
-        System.out.println("groupId ipJumrPq7: "+N3d.decode("ipJumrPq7"));
+        System.out.println("groupId ipJumrPq7: "+N3d.encode(621));
+        System.out.println("groupId ipJumrPq7: "+N3d.encode(622));
 
 
     }

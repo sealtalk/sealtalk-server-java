@@ -110,10 +110,14 @@ sealtalk-config:
   rongcloud_app_secret: 5W7vjUScQzR1
   rongcloud_api_url: apiserverqa.cn.ronghub.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
-  qiniu_access_key: livk5rb3__JZjCtEiMxpQ8QscsLxbNLehwhHySnX
-  qiniu_secret_key: ysrYdcDrrF425QNz0sfa9RoafANC6Hni3TIVgjw5
-  qiniu_bucket_name: devtalk-image
-  qiniu_bucket_domain: 7x2gjk.com1.z0.glb.clouddn.com
+#  qiniu_access_key: livk5rb3__JZjCtEiMxpQ8QscsLxbNLehwhHySnX
+#  qiniu_secret_key: ysrYdcDrrF425QNz0sfa9RoafANC6Hni3TIVgjw5
+#  qiniu_bucket_name: sealtalk-image
+#  qiniu_bucket_domain: 7xogjk.com1.z0.glb.clouddn.com
+  qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
+  qiniu_secret_key: MRuJJ6AcBkFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
+  qiniu_bucket_name: dev-sealtalk
+  qiniu_bucket_domain: dev.sealtalk.yujianlu.clouddn.com
   yunpian_api_key: 18da070ea943e524b71f416264a4189d
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
   yunpian_limited_count: 20   #云片发送验证码次数限制    20次
@@ -127,3 +131,4 @@ sealtalk-config:
   db_password: 123456
   db_host: 127.0.0.1
   db_port: 3306
+

@@ -2,10 +2,10 @@
 
 | 接口地址 | 说明 |
 |---------|-----| 
-| [/misc/latest_update](#get-misclatest_update) | 注册新用户 |
-| [/misc/client_version](#get-miscclient_version) | 用户登录 |
-| [/misc/send_message](#post-miscsend_message) | 通过手机验证码设置新密码 |
-| [/misc/set_screen_capture](#post-miscset_screen_capture) | 截屏通知设置 |
+| [/misc/latest_update](#get-misclatest_update) | 获取客户端最新版本（ Desktop 使用 ） |
+| [/misc/client_version](#get-miscclient_version) | Android、iOS 获取更新版本 |
+| [/misc/send_message](#post-miscsend_message) | Server API 发送消息 |
+| [/misc/set_screen_capture](#post-miscset_screen_capture) | 设置截屏通知状态 |
 | [/misc/get_screen_capture](#post-miscget_screen_capture) | 获取截屏通知状态 |
 | [/misc/send_sc_msg](#post-miscsend_sc_msg) | 发送截屏通知消息 |
 
@@ -144,7 +144,7 @@ Server API 发送消息
 
 ### POST /misc/set_screen_capture
 
-截屏通知设置
+设置截屏通知状态
 
 |参数|说明|数据类型|是否必填|
 |---|----|------|------|
@@ -175,7 +175,7 @@ Server API 发送消息
 
 ### POST /misc/get_screen_capture
 
-截屏通知设置
+获取截屏通知状态
 
 |参数|说明|数据类型|是否必填|
 |---|----|------|------|
