@@ -689,26 +689,25 @@ public class FriendShipManager extends BaseManager {
         List<Integer> registerUserIdList = new ArrayList<>();
         Map<String, Users> registerUsers = new HashMap<>();
 
+        List<Integer> friendIdList = new ArrayList<>();
+
         if (!CollectionUtils.isEmpty(usersList)) {
             for (Users users : usersList) {
                 registerUserIdList.add(users.getId());
                 registerUsers.put(users.getPhone(), users);
             }
-        }
+            //根据已注册用户信息查询好友关系
+            Example friendShipExample = new Example(Friendships.class);
+            friendShipExample.createCriteria().andEqualTo("userId", currentUserId)
+                    .andEqualTo("status", Friendships.FRIENDSHIP_AGREED)
+                    .andIn("friendId", registerUserIdList);
+            friendShipExample.selectProperties("friendId");
+            List<Friendships> friendshipsList = friendshipsService.getByExample(friendShipExample);
 
-        //根据已注册用户信息查询好友关系
-        Example friendShipExample = new Example(Friendships.class);
-        friendShipExample.createCriteria().andEqualTo("userId", currentUserId)
-                .andEqualTo("status", Friendships.FRIENDSHIP_AGREED)
-                .andIn("friendId", registerUserIdList);
-        friendShipExample.selectProperties("friendId");
-        List<Friendships> friendshipsList = friendshipsService.getByExample(friendShipExample);
-
-        List<Integer> friendIdList = new ArrayList<>();
-
-        if (!CollectionUtils.isEmpty(friendshipsList)) {
-            for (Friendships friendships : friendshipsList) {
-                friendIdList.add(friendships.getFriendId());
+            if (!CollectionUtils.isEmpty(friendshipsList)) {
+                for (Friendships friendships : friendshipsList) {
+                    friendIdList.add(friendships.getFriendId());
+                }
             }
         }
 
@@ -720,7 +719,7 @@ public class FriendShipManager extends BaseManager {
                 contractInfoDTO.setRegistered(ContractInfoDTO.UN_REGISTERED);
                 contractInfoDTO.setRelationship(ContractInfoDTO.NON_FRIEND);
                 contractInfoDTO.setStAccount("");
-                contractInfoDTO.setPhone("");
+                contractInfoDTO.setPhone(phone);
                 contractInfoDTO.setId("");
                 contractInfoDTO.setNickname("");
                 contractInfoDTO.setPortraitUri("");
