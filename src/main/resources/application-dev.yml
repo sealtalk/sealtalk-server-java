@@ -27,8 +27,7 @@ mybatis:
   mapper-locations: classpath:mybatis/*.xml
 
 logging:
-  level:
-    com.rcloud.server.sealtalk.dao: debug
+  config: classpath:logback-config.xml
 
 
 sealtalk:

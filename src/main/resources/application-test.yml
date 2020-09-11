@@ -27,8 +27,7 @@ mybatis:
   mapper-locations: classpath:mybatis/*.xml
 
 logging:
-  level:
-    com.rcloud.server.sealtalk.dao: debug
+  config: classpath:logback-config.xml
 
 
 sealtalk:
@@ -120,7 +119,7 @@ sealtalk-config:
   qiniu_bucket_domain: dev.sealtalk.yujianlu.clouddn.com
   yunpian_api_key: 18da070ea943e524b71f416264a4189d
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
-  yunpian_limited_count: 20   #云片发送验证码次数限制    20次
+  yunpian_limited_count: 2000   #云片发送验证码次数限制    20次
   n3d_key: 22EdDIauqcQW
   auth_cookie_domain: rongcloud.net
   cors_hosts:  http://webqa.rongcloud.net

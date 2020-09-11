@@ -74,6 +74,9 @@ public class UserController extends BaseController {
         String region = userParam.getRegion();
         String phone = userParam.getPhone();
 
+        ValidateUtils.notEmpty(region);
+        ValidateUtils.notEmpty(phone);
+
         region = MiscUtils.removeRegionPrefix(region);
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
@@ -227,6 +230,10 @@ public class UserController extends BaseController {
         String region = userParam.getRegion();
         String phone = userParam.getPhone();
         String password = userParam.getPassword();
+
+        ValidateUtils.notEmpty(region);
+        ValidateUtils.notEmpty(phone);
+        ValidateUtils.notEmpty(password);
 
         region = MiscUtils.removeRegionPrefix(region);
         ValidateUtils.checkRegionName(MiscUtils.getRegionName(region));
