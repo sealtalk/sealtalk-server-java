@@ -297,12 +297,12 @@ public class FriendShipManager extends BaseManager {
             public Boolean doInTransaction(TransactionStatus transactionStatus) {
                 friendshipsCF.setTimestamp(timestamp);
                 friendshipsCF.setStatus(cfStatus);
-                friendshipsService.updateByPrimaryKey(friendshipsCF);
+                friendshipsService.updateByPrimaryKeySelective(friendshipsCF);
 
                 friendshipsFC.setTimestamp(timestamp);
                 friendshipsFC.setStatus(fcStatus);
                 friendshipsFC.setMessage(message);
-                friendshipsService.updateByPrimaryKey(friendshipsFC);
+                friendshipsService.updateByPrimaryKeySelective(friendshipsFC);
                 return true;
             }
         });

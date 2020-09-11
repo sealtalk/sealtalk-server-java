@@ -35,9 +35,9 @@ public class FriendshipsService extends AbstractBaseService<Friendships, Integer
                 .andEqualTo("friendId", friendId);
         Friendships f = this.getOneByExample(example);
         if (f == null) {
-            this.save(friendship);
+            this.saveSelective(friendship);
         } else {
-            this.updateByExample(friendship, example);
+            this.updateByExampleSelective(friendship, example);
         }
     }
 
