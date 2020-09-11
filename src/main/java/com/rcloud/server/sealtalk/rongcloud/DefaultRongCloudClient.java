@@ -332,12 +332,12 @@ public class DefaultRongCloudClient implements RongCloudClient {
 
                 //构建消息内容
                 PrivateMessage privateMessage = new PrivateMessage();
-                CustomerGroupApplyMessage grpApplyMessage = new CustomerGroupApplyMessage();
 
-                privateMessage.setSenderId(Constants.GrpApplyMessage_fromUserId);
+                privateMessage.setSenderId(senderId);
                 privateMessage.setTargetId(targetId);
                 privateMessage.setObjectName(grpApplyMessage.getType());
                 privateMessage.setContent(grpApplyMessage);
+
                 //发送单聊消息
                 return Private.send(privateMessage);
             }

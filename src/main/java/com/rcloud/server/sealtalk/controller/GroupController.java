@@ -417,11 +417,14 @@ public class GroupController extends BaseController {
 
         List<GroupReceivers> groupReceiversList = groupManager.getNoticeInfo(currentUserId);
         List<GroupReceiverDTO> groupReceiverDTOList = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMATR_PATTERN);
+
         if (!CollectionUtils.isEmpty(groupReceiversList)) {
             for (GroupReceivers groupReceivers : groupReceiversList) {
                 GroupReceiverDTO dto = new GroupReceiverDTO();
                 dto.setId(N3d.encode(groupReceivers.getId()));
                 dto.setCreatedTime(groupReceivers.getCreatedAt());
+                dto.setCreatedAt(sdf.format(groupReceivers.getCreatedAt()));
                 dto.setStatus(groupReceivers.getStatus());
                 dto.setType(groupReceivers.getType());
                 Map<String, Object> group = Maps.newHashMap();

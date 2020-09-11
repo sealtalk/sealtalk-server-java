@@ -50,7 +50,7 @@ public class N3dTest {
 
 
         System.out.println("groupId ipJumrPq7: "+N3d.encode(621));
-        System.out.println("groupId ipJumrPq7: "+N3d.encode(622));
+        System.out.println("groupId ipJumrPq7: "+N3d.decode("8ORupd2zh"));
 
 
     }

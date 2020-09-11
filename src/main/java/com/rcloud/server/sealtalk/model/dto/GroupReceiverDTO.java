@@ -15,10 +15,19 @@ public class GroupReceiverDTO {
     private Integer status;
     private Integer type;
     private Date createdTime;
+    private String createdAt;
 
     private Map<String,Object> group;
     private Map<String,Object> requester;
     private Map<String,Object> receiver;
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public String getId() {
         return id;

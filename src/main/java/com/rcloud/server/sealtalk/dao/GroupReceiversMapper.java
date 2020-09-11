@@ -16,4 +16,5 @@ public interface GroupReceiversMapper extends Mapper<GroupReceivers> {
 
     int insertBatch(@Param("groupReceiverList") List<GroupReceivers> groupReceiverList);
 
+    List<GroupReceivers> selectGroupReceiversWithIncludes(@Param("userId") Integer userId);
 }

@@ -99,4 +99,8 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
             }
         }
     }
+
+    public List<GroupReceivers> getGroupReceiversWithIncludes(Integer currentUserId) {
+        return mapper.selectGroupReceiversWithIncludes(currentUserId);
+    }
 }
