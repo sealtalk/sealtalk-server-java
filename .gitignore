@@ -1,6 +1,7 @@
 /.idea/
 /target/
 /release/
+/logs/
 *.gz
 *.iml
 *.log
