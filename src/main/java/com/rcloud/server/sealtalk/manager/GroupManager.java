@@ -1306,12 +1306,13 @@ public class GroupManager extends BaseManager {
 
         Groups groups = groupsService.getByPrimaryKey(groupId);
 
-        if (Groups.MUTE_STATUS_OPENED.equals(groups.getIsMute())) {
-            //如果全员禁言
+        if (!Groups.MUTE_STATUS_OPENED.equals(groups.getIsMute())) {
+            //如果群设置不是全员禁言
             groupReceiversService.deleteByMemberIds(groupId, memberIds);
             return;
         } else {
             try {
+                //如果群设置是全员禁言，移除白名单
                 Result result = rongCloudClient.removeGroupWhiteList(N3d.encode(groupId), encodedMemberIds);
 
                 if (Constants.CODE_OK.equals(result.getCode())) {

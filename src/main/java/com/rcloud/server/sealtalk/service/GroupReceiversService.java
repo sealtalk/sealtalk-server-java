@@ -36,6 +36,8 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
      * @param memberIds
      */
     public void deleteByMemberIds(Integer groupId, Integer[] memberIds) {
+        Assert.notNull(groupId,"groupId is null");
+        Assert.notEmpty(memberIds,"memberIds is empty");
 
         Example example = new Example(GroupReceivers.class);
         example.createCriteria().andEqualTo("groupId", groupId);
@@ -45,6 +47,9 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
             criteria2.orEqualTo("userId", memberId);
         }
         example.and(criteria2);
+        this.deleteByExample(example);
+
+
     }
 
     /**
