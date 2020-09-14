@@ -37,8 +37,8 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(value = ServiceException.class)
     public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) throws Exception {
         String url = request.getRequestURI();
-        String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
         if(log.isDebugEnabled()){
+            String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
             log.debug(errorInfo,e);
         }
 

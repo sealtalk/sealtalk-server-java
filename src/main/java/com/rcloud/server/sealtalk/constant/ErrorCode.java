@@ -6,17 +6,16 @@ public enum ErrorCode {
     COOKIE_ERROR(404, "Invalid cookie value!",404),
     SEND_SMS_ERROR(401, "Send sms error.",401),
     SERVER_ERROR(500, "Server error.",500),
-    PARAM_ERROR(400, "缺少参数，请检查。",400),
+    PARAM_ERROR(400, "Parameter error or empty,Please check.",400),
     YUN_PIAN_SMS_ERROR(3004, "Too many times sent",3004),
-    TPL_FAILED_ERROR(3001, "Failed to get YunPian template",3001),
-    REQUEST_ERROR(400, "错误的请求",400),
-    ILLEGAL_PARAMETER(400,"Illegal parameter .",400),
+    REQUEST_ERROR(400, "Request error.",400),
+    ILLEGAL_PARAMETER(400,"Illegal parameter.",400),
     EMPTY_PARAMETER(400,"Parameter is empty.",400),
     PARAMETER_ERROR(400,"Parameter error.",400),
 
     EMPTY_STACCOUNT_LENGHT_ERROR(400,"Incorrect parameter length.",400),
     EMPTY_STACCOUNT_ERROR(400,"Not letter beginning or invalid symbol.",400),
-    EMPTY_STACCOUNT_EXIST(1000,"该热聊号已存在",200),
+    USER_STACCOUNT_EXIST(1000,"User stAccount already exists.",200),
 
     //send_code
     LIMIT_ERROR(5000, "Throttle limit exceeded.",200),
@@ -37,12 +36,12 @@ public enum ErrorCode {
     INVALID_PASSWORD_LENGHT(400, "Length of password invalid.",400),
     INVALID_VERIFICATION_TOKEN(400, "Invalid verification_token.",400),
     UNKNOWN_VERIFICATION_TOKEN(404, "Unknown verification_token.",404),
-    PHONE_ALREADY_REGIESTED(400, "该账号已经注册.",400),
+    PHONE_ALREADY_REGISTERED(400, "the phone already registered.",400),
 
     //login error
-    USER_NOT_EXIST(1000, "该账号不存在.",200),
-    USER_PASSWORD_WRONG(1001, "密码错误.",200),
-    USER_PASSWORD_WRONG_2(1000, "旧密码错误.",200),
+    USER_NOT_EXIST(1000, "Phone number not found.",200),
+    USER_PASSWORD_WRONG(1001, "Wrong password.",200),
+    USER_PASSWORD_WRONG_2(1000, "Wrong old password.",200),
 
     //user error
     INVALID_PORTRAITURI_FORMAT(400,"Invalid portraitUri format.",400),

@@ -275,7 +275,7 @@ public class UserManager extends BaseManager {
         Users users = usersService.getOne(param);
 
         if (users != null) {
-            throw new ServiceException(ErrorCode.PHONE_ALREADY_REGIESTED);
+            throw new ServiceException(ErrorCode.PHONE_ALREADY_REGISTERED);
         }
         //如果没有注册过，密码hash
         int salt = RandomUtil.randomBetween(1000, 9999);
@@ -905,7 +905,7 @@ public class UserManager extends BaseManager {
 
         Users users = usersService.getOne(u);
         if (users != null) {
-            throw new ServiceException(ErrorCode.EMPTY_STACCOUNT_EXIST);
+            throw new ServiceException(ErrorCode.USER_STACCOUNT_EXIST);
         }
 
         u.setId(currentUserId);
