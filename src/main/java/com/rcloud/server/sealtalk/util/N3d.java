@@ -6,8 +6,6 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 
 public class N3d {
 
-    private static final String N3D_KEY = "11EdDIaqpcim";
-
     private static final N3d n3d = new N3d(1, 4294967295L);
 
     private long keyCode = 0;

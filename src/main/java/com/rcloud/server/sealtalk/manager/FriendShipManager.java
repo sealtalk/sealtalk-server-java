@@ -122,7 +122,7 @@ public class FriendShipManager extends BaseManager {
         if (friendshipsCF != null && friendshipsFC != null) {
             if (Friendships.FRIENDSHIP_AGREED.equals(friendshipsCF.getStatus()) && Friendships.FRIENDSHIP_AGREED.equals(friendshipsFC.getStatus())) {
                 //如果双方的已经是好友了，返回异常提示
-                String errorMsg = "User " + friendId + " is already your friend.";
+                String errorMsg = "User " + N3d.encode(friendId) + " is already your friend.";
                 throw new ServiceException(ErrorCode.ALREADY_YOUR_FRIEND, errorMsg);
             }
 

@@ -1249,7 +1249,6 @@ public class GroupManager extends BaseManager {
 
         groupSyncsService.saveOrUpdate(groupId, GroupSyncs.VALID, null);
 
-
         String nickname = usersService.getCurrentUserNickNameWithCache(currentUserId);
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("operatorNickname", nickname);
@@ -2349,6 +2348,8 @@ public class GroupManager extends BaseManager {
             if (Groups.CLEAR_STATUS_H_36.equals(clearStatus)) {
                 //36小时
                 Long time_36H = 36 * 60 * 60 * 1000L;
+                //测试环境3分钟
+//                Long time_36H = 3 * 60 * 1000L;
                 if (timeInterval >= time_36H) {
                     canCleanNow = true;
                     clearTimestamp = currentTimestamp - time_36H;
@@ -2357,6 +2358,8 @@ public class GroupManager extends BaseManager {
             } else if (Groups.CLEAR_STATUS_D_3.equals(clearStatus)) {
                 //3天
                 Long time_3D = 3 * 24 * 60 * 60 * 1000L;
+                //测试环境 6分钟
+//                Long time_3D = 10 * 60 * 1000L;
                 if (timeInterval >= time_3D) {
                     canCleanNow = true;
                     clearTimestamp = currentTimestamp - time_3D;
@@ -2366,6 +2369,8 @@ public class GroupManager extends BaseManager {
             } else if (Groups.CLEAR_STATUS_D_7.equals(clearStatus)) {
                 //7天
                 Long time_7D = 7 * 24 * 60 * 60 * 1000L;
+                //测试环境
+//                Long time_7D = 15 * 60 * 1000L;
                 if (timeInterval >= time_7D) {
                     canCleanNow = true;
                     clearTimestamp = currentTimestamp - time_7D;
