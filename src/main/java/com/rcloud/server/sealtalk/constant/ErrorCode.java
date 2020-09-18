@@ -103,6 +103,8 @@ public enum ErrorCode {
     COPIED_GROUP(20005,"Copied",200),
     MEMBER_LIMIT(20007,"Member Limit",200),
     NOT_FOUND(20003,"Not found",200),
+    EMPTY_GROUPID(400,"Empty groupId.",400),
+
 
 
     //yunpian error 云片服务错误，错误码3000 开头

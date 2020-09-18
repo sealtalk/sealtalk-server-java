@@ -425,7 +425,7 @@ public class GroupManager extends BaseManager {
         Groups groups = groupsService.getByPrimaryKey(Integer.valueOf(groupId));
 
         if (groups == null) {
-            throw new ServiceException(ErrorCode.ILLEGAL_PARAMETER);
+            throw new ServiceException(ErrorCode.EMPTY_GROUPID);
         }
 
         //群组是否开启了入群认证
