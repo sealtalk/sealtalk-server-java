@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.controller;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.rcloud.server.sealtalk.constant.Constants;
+import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.controller.param.GroupParam;
 import com.rcloud.server.sealtalk.controller.param.TransferGroupParam;
 import com.rcloud.server.sealtalk.domain.*;
@@ -21,6 +22,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -55,7 +57,7 @@ public class GroupController extends BaseController {
         String[] memberIds = groupParam.getMemberIds();
         String portraitUri = groupParam.getPortraitUri();
 
-        ValidateUtils.notEmpty(name);
+        ValidateUtils.checkGroupName(name);
         ValidateUtils.notEmpty(memberIds);
 
         name = MiscUtils.xss(name, ValidateUtils.GROUP_NAME_MAX_LENGTH);
@@ -128,7 +130,7 @@ public class GroupController extends BaseController {
         Integer currentUserId = getCurrentUserId();
 
         String resultMessage = groupManager.quitGroup(currentUserId, N3d.decode(groupId), groupId);
-        return APIResultWrap.ok(resultMessage);
+        return APIResultWrap.ok(null,resultMessage);
     }
 
 
@@ -216,7 +218,9 @@ public class GroupController extends BaseController {
 
         String groupId = groupParam.getGroupId();
 
-        ValidateUtils.notEmpty(groupId);
+        if(StringUtils.isEmpty(groupId)){
+            throw new ServiceException(ErrorCode.GROUPID_NULL);
+        }
 
         Integer currentUserId = getCurrentUserId();
         groupManager.fav(currentUserId, N3d.decode(groupId));
@@ -240,6 +244,10 @@ public class GroupController extends BaseController {
     public APIResult<Object> setBulletin(@RequestBody GroupParam groupParam) throws ServiceException {
 
         String groupId = groupParam.getGroupId();
+
+        if(groupId==null || StringUtils.isEmpty(groupId.trim())){
+            throw new ServiceException(ErrorCode.GROUPID_NULL);
+        }
         String bulletin = groupParam.getBulletin();
         String content = groupParam.getContent();
 
@@ -267,9 +275,7 @@ public class GroupController extends BaseController {
 
         GroupBulletinsDTO groupBulletinsDTO = new GroupBulletinsDTO();
         if (groupBulletins == null) {
-            groupBulletinsDTO.setGroupId(groupId);
-            groupBulletinsDTO.setContent("");
-            groupBulletinsDTO.setId("");
+            throw new ServiceException(ErrorCode.NO_GROUP_BULLETIN);
         } else {
             // 返回给前端的结构id属性需要N3d编码
             groupBulletinsDTO.setGroupId(N3d.encode(groupBulletins.getGroupId()));
@@ -610,6 +616,9 @@ public class GroupController extends BaseController {
         String groupId = groupParam.getGroupId();
         Integer memberProtection = groupParam.getMemberProtection();
         ValidateUtils.notEmpty(groupId);
+        if(memberProtection==null){
+            throw new ServiceException(ErrorCode.MemberProtection_NULL);
+        }
         ValidateUtils.valueOf(memberProtection, ImmutableList.of(0, 1));
 
         Integer currentUserId = getCurrentUserId();

@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.configuration;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.HttpStatusCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.exception.ServiceRuntimeException;
 import com.rcloud.server.sealtalk.interceptor.ServerApiParamHolder;
 import com.rcloud.server.sealtalk.model.response.APIResult;
 import com.rcloud.server.sealtalk.model.response.APIResultWrap;
@@ -33,6 +34,27 @@ import java.util.List;
 public class GlobalControllerExceptionHandler {
 
     private static final String CHARSET = "UTF-8";
+
+    @ExceptionHandler(value = ServiceRuntimeException.class)
+    public void serviceRuntimeExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceRuntimeException e) throws Exception {
+        String url = request.getRequestURI();
+        if(log.isDebugEnabled()){
+            String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
+            log.debug(errorInfo,e);
+        }
+
+        String contentType = "application/json;charset=" + CHARSET;
+        response.addHeader("Content-Type", contentType);
+
+        if (!HttpStatusCode.CODE_200.getCode().equals(e.getHttpStatusCode())) {
+            response.setStatus(e.getHttpStatusCode());
+            response.getWriter().write(e.getErrorMessage());
+        } else {
+            response.setStatus(HttpStatusCode.CODE_200.getCode());
+            response.getWriter().write(JacksonUtil.toJson(APIResultWrap.error(e)));
+        }
+    }
+
 
     @ExceptionHandler(value = ServiceException.class)
     public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) throws Exception {

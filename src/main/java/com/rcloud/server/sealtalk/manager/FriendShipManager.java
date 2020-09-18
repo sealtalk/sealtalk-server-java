@@ -9,6 +9,7 @@ import com.rcloud.server.sealtalk.domain.DataVersions;
 import com.rcloud.server.sealtalk.domain.Friendships;
 import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.exception.ServiceRuntimeException;
 import com.rcloud.server.sealtalk.model.dto.ContractInfoDTO;
 import com.rcloud.server.sealtalk.model.dto.FriendDTO;
 import com.rcloud.server.sealtalk.model.dto.InviteDTO;
@@ -463,7 +464,7 @@ public class FriendShipManager extends BaseManager {
                 //更新当前用户好友关系状态
                 int effectedCount = friendshipsService.updateAgreeStatus(currentUserId, friendId, timestamp, ImmutableList.of(Friendships.FRIENDSHIP_REQUESTED, Friendships.FRIENDSHIP_AGREED));
                 if (effectedCount == 0) {
-                    throw new RuntimeException("Unknown friend user or invalid status.");
+                    throw new ServiceRuntimeException(ErrorCode.UNKNOW_FRIEND_USER_OR_INVALID_STATUS);
                 }
                 //更新对方Friendship好友关系表中的状态为FRIENDSHIP_AGREED
                 friendshipsService.updateAgreeStatus(friendId, currentUserId, timestamp, null);

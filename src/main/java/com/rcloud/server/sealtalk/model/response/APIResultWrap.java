@@ -2,6 +2,7 @@ package com.rcloud.server.sealtalk.model.response;
 
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.exception.ServiceException;
+import com.rcloud.server.sealtalk.exception.ServiceRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -38,6 +39,13 @@ public class APIResultWrap {
 //    }
 
     public static APIResult error(ServiceException ex) {
+        int errorCode = ex.getErrorCode();
+        String errorMessage = ex.getErrorMessage();
+
+        return new APIResult<>(String.valueOf(errorCode), errorMessage);
+    }
+
+    public static APIResult error(ServiceRuntimeException ex) {
         int errorCode = ex.getErrorCode();
         String errorMessage = ex.getErrorMessage();
 

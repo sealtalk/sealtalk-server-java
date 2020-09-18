@@ -167,9 +167,9 @@ public class UserController extends BaseController {
         String phone = userParam.getPhone();
 
         region = MiscUtils.removeRegionPrefix(region);
-        ValidateUtils.checkRegion(region);
-        ValidateUtils.checkCompletePhone(phone);
-
+        if(Constants.REGION_NUM.equals(region)){
+            ValidateUtils.checkCompletePhone(phone);
+        }
         if (userManager.isExistUser(region, phone)) {
             return APIResultWrap.ok(false, "Phone number has already existed.");
         } else {
@@ -198,8 +198,9 @@ public class UserController extends BaseController {
         String password = userParam.getPassword();
         String verification_token = userParam.getVerification_token();
 
-        nickname = MiscUtils.xss(nickname, ValidateUtils.NICKNAME_MAX_LENGTH);
         checkRegisterParam(nickname, password, verification_token);
+
+        nickname = MiscUtils.xss(nickname, ValidateUtils.NICKNAME_MAX_LENGTH);
         Integer id = userManager.register(nickname, password, verification_token);
         //设置cookie
         setCookie(response, id);
@@ -236,7 +237,7 @@ public class UserController extends BaseController {
         ValidateUtils.notEmpty(password);
 
         region = MiscUtils.removeRegionPrefix(region);
-        ValidateUtils.checkRegionName(MiscUtils.getRegionName(region));
+//        ValidateUtils.checkRegionName(MiscUtils.getRegionName(region));
         ValidateUtils.checkCompletePhone(phone);
 
         Pair<Integer, String> pairResult = userManager.login(region, phone, password);
@@ -403,7 +404,7 @@ public class UserController extends BaseController {
 
 
     @ApiOperation(value = "将好友移除黑名单")
-    @RequestMapping(value = "/remove_from_blacklist", method = RequestMethod.POST)
+    @RequestMapping(value = "check_phone_availableremove_from_blacklist", method = RequestMethod.POST)
     public APIResult<Object> removeBlacklist(@RequestBody UserParam userParam) throws ServiceException {
         String friendId = userParam.getFriendId();
         ValidateUtils.notEmpty(friendId);

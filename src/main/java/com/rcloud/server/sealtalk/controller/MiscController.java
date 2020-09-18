@@ -242,6 +242,9 @@ public class MiscController extends BaseController {
 
         ValidateUtils.notNull(conversationType);
         ValidateUtils.notEmpty(targetId);
+        if(noticeStatus==null){
+            throw new ServiceException(ErrorCode.STATUS_NULL);
+        }
         ValidateUtils.notNull(noticeStatus);
 
         Integer currentUserId = getCurrentUserId();

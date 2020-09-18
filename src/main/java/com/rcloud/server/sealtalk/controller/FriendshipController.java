@@ -75,7 +75,6 @@ public class FriendshipController extends BaseController {
 
         String friendId = friendshipParam.getFriendId();
         ValidateUtils.notEmpty(friendId);
-        log.info("agree friendId:" + friendId);
         Integer currentUserId = getCurrentUserId();
         friendShipManager.agree(currentUserId, N3d.decode(friendId));
         return APIResultWrap.ok();
@@ -193,7 +192,9 @@ public class FriendshipController extends BaseController {
     @RequestMapping(value = "/get_contacts_info", method = RequestMethod.POST)
     public APIResult<?> getContactsInfo(@RequestBody FriendshipParam friendshipParam) throws ServiceException {
         String[] contactList = friendshipParam.getContactList();
-        ValidateUtils.notEmpty(contactList);
+        if(contactList==null || contactList.length==0){
+            throw new ServiceException(ErrorCode.EMPTY_ContactList);
+        }
 
         Integer currentUserId = getCurrentUserId();
         List<ContractInfoDTO> contractInfoDTOList = friendShipManager.getContactsInfo(currentUserId, contactList);

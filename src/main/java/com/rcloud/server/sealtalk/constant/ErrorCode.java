@@ -46,7 +46,7 @@ public enum ErrorCode {
     //user error
     INVALID_PORTRAITURI_FORMAT(400,"Invalid portraitUri format.",400),
     INVALID_PORTRAITURI_LENGTH(400,"Invalid portraitUri length.",400),
-    FRIEND_USER_NOT_EXIST(400,"friendId is not an available userId.",400),
+    FRIEND_USER_NOT_EXIST(404,"friendId is not an available userId.",404),
     UNKNOW_USER(404,"Unknown user.",404),
     INVALID_REGION_LIST(1000,"Invalid region list.",1000),
     INVALID_TIMESTAMP_VERSION(400,"Version parameter is not integer.",400),
@@ -63,6 +63,7 @@ public enum ErrorCode {
     UNKNOW_FRIEND_USER_OR_INVALID_STATUS(404,"Unknown friend user or invalid status.",404),
     NOT_FRIEND_USER(403,"Current user is not friend of user",403),
     ALREADY_YOUR_FRIEND(400, "User + friendId  is already your friend.",400),
+    EMPTY_ContactList(400, "Empty contactList.",400),
 
 
     //group error
@@ -74,7 +75,7 @@ public enum ErrorCode {
     GROUP_LIMIT_ERROR(20002,"Creator is not in memeber list.",20002),
     GROUP_UNKNOWN_ERROR(404,"Unknown group.",404),
     NOT_GROUP_MANAGER(400,"Current user is not group manager.",400),
-    NOT_GROUP_MEMBER(404,"Not a group member",404),
+    NOT_GROUP_MEMBER(400,"Not a group member",400),
     NOT_GROUP_OWNER(400,"Not a group owner .",400),
     NO_PERMISSION(20001,"No permission",20001),
     NOT_GROUP_MEMBER_2(403,"Only group member can get group member info.",403),
@@ -104,6 +105,9 @@ public enum ErrorCode {
     MEMBER_LIMIT(20007,"Member Limit",200),
     NOT_FOUND(20003,"Not found",200),
     EMPTY_GROUPID(400,"Empty groupId.",400),
+    GROUPID_NULL(500,"groupId cannot be null.",500),
+    MemberProtection_NULL(500,"memberProtection cannot be null.",500),
+    STATUS_NULL(500,"status cannot be null.",500),
 
 
 
