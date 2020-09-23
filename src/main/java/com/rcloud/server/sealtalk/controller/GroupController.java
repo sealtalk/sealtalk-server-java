@@ -519,10 +519,14 @@ public class GroupController extends BaseController {
 
         Groups groups = groupManager.getGroup(N3d.decode(groupId));
 
-        Integer clearStatus = groups.getClearStatus();
-        Map<String, Integer> result = new HashMap<>();
-        result.put("clearStatus", clearStatus);
-        return APIResultWrap.ok(clearStatus);
+        if(groups!=null){
+            Integer clearStatus = groups.getClearStatus();
+            Map<String, Integer> result = new HashMap<>();
+            result.put("clearStatus", clearStatus);
+            return APIResultWrap.ok(clearStatus);
+        }else {
+            return APIResultWrap.ok();
+        }
     }
 
     @ApiOperation(value = "设置群成员信息")
