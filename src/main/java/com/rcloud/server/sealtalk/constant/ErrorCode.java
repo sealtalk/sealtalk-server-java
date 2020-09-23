@@ -86,7 +86,7 @@ public enum ErrorCode {
     INVALID_GROUP_BULLETIN(400,"Length of bulletin invalid.",400),
     ALREADY_EXISTS_GROUP(405,"Group already exists.",405),
     TRANSFER_TO_CREATOR_ERROR(403,"Can not transfer creator role to yourself.",403),
-    INVALID_GROUPID_USERID(403,"Invalid groupId or userId.",403),
+    INVALID_GROUPID_USERID(400,"Invalid groupId or userId.",400),
     NOT_GROUP_CREATOR(400,"Current user is not group creator.",400),
     QUIT_IM_SERVER_ERROR(500,"Quit failed on IM server.",500),
     NOT_GROUP_MEMBER_3(403,"Current user is not group member.",403),

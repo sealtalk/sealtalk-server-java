@@ -801,6 +801,7 @@ public class GroupManager extends BaseManager {
         newGroupMembers.setPhone(phone);
         newGroupMembers.setWeChat(weChat);
         newGroupMembers.setAlipay(alipay);
+        newGroupMembers.setUpdatedAt(new Date());
         if (memberDesc != null) {
             newGroupMembers.setMemberDesc(JacksonUtil.toJson(memberDesc));
         }
