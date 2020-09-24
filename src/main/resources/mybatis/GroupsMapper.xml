@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.GroupsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.Groups">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="portraitUri" jdbcType="VARCHAR" property="portraitUri" />
+    <result column="memberCount" jdbcType="INTEGER" property="memberCount" />
+    <result column="maxMemberCount" jdbcType="INTEGER" property="maxMemberCount" />
+    <result column="creatorId" jdbcType="INTEGER" property="creatorId" />
+    <result column="certiStatus" jdbcType="INTEGER" property="certiStatus" />
+    <result column="isMute" jdbcType="INTEGER" property="isMute" />
+    <result column="clearStatus" jdbcType="INTEGER" property="clearStatus" />
+    <result column="clearTimeAt" jdbcType="BIGINT" property="clearTimeAt" />
+    <result column="memberProtection" jdbcType="INTEGER" property="memberProtection" />
+    <result column="copiedTime" jdbcType="BIGINT" property="copiedTime" />
+    <result column="timestamp" jdbcType="BIGINT" property="timestamp" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deletedAt" jdbcType="TIMESTAMP" property="deletedAt" />
+    <result column="bulletin" jdbcType="LONGVARCHAR" property="bulletin" />
+  </resultMap>
+</mapper>

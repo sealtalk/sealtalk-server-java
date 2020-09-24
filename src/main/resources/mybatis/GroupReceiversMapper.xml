@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.GroupReceiversMapper">
+    <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.GroupReceivers">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="userId" jdbcType="INTEGER" property="userId"/>
+        <result column="groupId" jdbcType="INTEGER" property="groupId"/>
+        <result column="groupName" jdbcType="VARCHAR" property="groupName"/>
+        <result column="groupPortraitUri" jdbcType="VARCHAR" property="groupPortraitUri"/>
+        <result column="requesterId" jdbcType="INTEGER" property="requesterId"/>
+        <result column="receiverId" jdbcType="INTEGER" property="receiverId"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="deletedUsers" jdbcType="VARCHAR" property="deletedUsers"/>
+        <result column="isRead" jdbcType="INTEGER" property="isRead"/>
+        <result column="joinInfo" jdbcType="VARCHAR" property="joinInfo"/>
+        <result column="timestamp" jdbcType="BIGINT" property="timestamp"/>
+        <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt"/>
+        <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt"/>
+    </resultMap>
+
+
+    <resultMap id="withIncludeResultMap" type="com.rcloud.server.sealtalk.domain.GroupReceivers">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="userId" jdbcType="INTEGER" property="userId"/>
+        <result column="groupId" jdbcType="INTEGER" property="groupId"/>
+        <result column="groupName" jdbcType="VARCHAR" property="groupName"/>
+        <result column="groupPortraitUri" jdbcType="VARCHAR" property="groupPortraitUri"/>
+        <result column="requesterId" jdbcType="INTEGER" property="requesterId"/>
+        <result column="receiverId" jdbcType="INTEGER" property="receiverId"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="deletedUsers" jdbcType="VARCHAR" property="deletedUsers"/>
+        <result column="isRead" jdbcType="INTEGER" property="isRead"/>
+        <result column="joinInfo" jdbcType="VARCHAR" property="joinInfo"/>
+        <result column="timestamp" jdbcType="BIGINT" property="timestamp"/>
+        <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt"/>
+        <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt"/>
+
+        <association property="group" javaType="com.rcloud.server.sealtalk.domain.Groups">
+            <id column="g_id" jdbcType="INTEGER" property="id"/>
+            <result column="g_name" jdbcType="VARCHAR" property="name"/>
+            <result column="g_portraitUri" jdbcType="VARCHAR" property="portraitUri"/>
+            <result column="g_creatorId" jdbcType="INTEGER" property="creatorId"/>
+            <result column="g_memberCount" jdbcType="INTEGER" property="memberCount"/>
+            <result column="g_isMute" jdbcType="INTEGER" property="isMute"/>
+            <result column="g_certiStatus" jdbcType="INTEGER" property="certiStatus"/>
+            <result column="g_timestamp" jdbcType="INTEGER" property="timestamp"/>
+        </association>
+
+        <association property="requester" javaType="com.rcloud.server.sealtalk.domain.Users">
+            <id column="requester_user_id" jdbcType="INTEGER" property="id"/>
+            <result column="requester_user_nickname" jdbcType="VARCHAR" property="nickname"/>
+            <result column="requester_user_portraitUri" jdbcType="VARCHAR" property="portraitUri"/>
+            <result column="requester_user_gender" jdbcType="INTEGER" property="gender"/>
+            <result column="requester_user_stAccount" jdbcType="INTEGER" property="stAccount"/>
+            <result column="requester_user_phone" jdbcType="INTEGER" property="phone"/>
+            <result column="requester_user_region" jdbcType="INTEGER" property="region"/>
+        </association>
+        <association property="receiver" javaType="com.rcloud.server.sealtalk.domain.Users">
+            <id column="receiverU_user_id" jdbcType="INTEGER" property="id"/>
+            <result column="receiverU_user_nickname" jdbcType="VARCHAR" property="nickname"/>
+            <result column="receiverU_user_portraitUri" jdbcType="VARCHAR" property="portraitUri"/>
+            <result column="receiverU_user_gender" jdbcType="INTEGER" property="gender"/>
+            <result column="receiverU_user_stAccount" jdbcType="INTEGER" property="stAccount"/>
+            <result column="receiverU_user_phone" jdbcType="INTEGER" property="phone"/>
+            <result column="receiverU_user_region" jdbcType="INTEGER" property="region"/>
+        </association>
+    </resultMap>
+
+    <select id="selectReceiversWithList" resultMap="BaseResultMap">
+        SELECT *
+        FROM group_receivers
+        WHERE
+        groupId=#{groupId}
+        and `type`=#{groupReceiveType}
+        <foreach item="userId" collection="operatorList" separator="or " open="and (" close=")" index="">
+            (
+                userId = #{userId} and receiverId IN
+                <foreach item="receiverItem" collection="receiverIdList" separator="," open="(" close=")" index="">
+                    #{receiverItem}
+                </foreach>
+             )
+        </foreach>
+        <if test=" requesterId != null ">
+            and requesterId=#{requesterId}
+        </if>
+
+    </select>
+
+
+    <update id="updateReceiversWithList" >
+        update group_receivers
+        set
+        status = #{status},
+        `timestamp` = #{timestamp}
+        <if test=" requesterIdForUpdate != null">
+            ,requesterId = #{requesterIdForUpdate}
+        </if>
+        WHERE
+        groupId=#{groupId}
+        and `type`=#{groupReceiveType}
+        <foreach item="userId" collection="operatorList" separator="or " open="and (" close=")" index="">
+            (
+            userId = #{userId} and receiverId IN
+            <foreach item="receiverItem" collection="receiverIdList" separator="," open="(" close=")" index="">
+                #{receiverItem}
+            </foreach>
+            )
+        </foreach>
+        <if test=" requesterId != null ">
+            and requesterId=#{requesterId}
+        </if>
+
+    </update>
+
+    <insert id ="insertBatch"  keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List" >
+        insert into group_receivers
+        (
+        userId,
+        groupId,
+        groupName,
+        groupPortraitUri,
+        requesterId,
+        receiverId,
+        status,
+        `type`,
+        isRead,
+        `timestamp` ,
+        createdAt,
+        updatedAt
+        )
+        values
+        <foreach collection ="groupReceiverList" item="gr" index= "index" separator =",">
+            (
+            #{gr.userId,jdbcType=INTEGER},
+            #{gr.groupId,jdbcType=INTEGER},
+            #{gr.groupName,jdbcType=VARCHAR},
+            #{gr.groupPortraitUri,jdbcType=VARCHAR},
+            #{gr.requesterId,jdbcType=INTEGER},
+            #{gr.receiverId,jdbcType=INTEGER},
+            #{gr.status,jdbcType=INTEGER},
+            #{gr.type,jdbcType=INTEGER},
+            #{gr.isRead,jdbcType=INTEGER},
+            #{gr.timestamp,jdbcType=BIGINT},
+            #{gr.createdAt,jdbcType=TIMESTAMP},
+            #{gr.updatedAt,jdbcType=TIMESTAMP}
+            )
+        </foreach >
+    </insert >
+
+    <select id="selectGroupReceiversWithIncludes" resultMap="withIncludeResultMap">
+
+      SELECT gr.*,
+       g.id g_id,
+       g.name g_name,
+       g.portraitUri g_portraitUri,
+       g.creatorId g_creatorId,
+       g.memberCount g_memberCount,
+       g.isMute g_isMute,
+       g.certiStatus g_certiStatus,
+
+       requester.id requester_user_id,
+       requester.region requester_user_region,
+       requester.nickname requester_user_nickname,
+       requester.portraitUri requester_user_portraitUri,
+       requester.gender requester_user_gender,
+       requester.stAccount requester_user_stAccount,
+       requester.phone requester_user_phone,
+
+       receiverU.id receiverU_user_id,
+       receiverU.region receiverU_user_region,
+       receiverU.nickname receiverU_user_nickname,
+       receiverU.portraitUri receiverU_user_portraitUri,
+       receiverU.gender receiverU_user_gender,
+       receiverU.stAccount receiverU_user_stAccount,
+       receiverU.phone receiverU_user_phone
+    FROM group_receivers gr join `groups` g on gr.groupId = g.id
+    join users requester on gr.requesterId = requester.id
+    join users receiverU on gr.receiverId = receiverU.id
+    where gr.userId = #{userId}
+     order by `timestamp` DESC;
+    </select>
+
+
+
+</mapper>

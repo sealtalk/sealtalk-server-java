@@ -1,0 +1,34 @@
+[
+  {
+    "type": "group",
+    "id": 10
+  },
+  {
+    "type": "group",
+    "id": 15
+  },
+  {
+    "type": "group",
+    "id": 10000
+  },
+  {
+    "type": "chatroom",
+    "id": 1,
+    "name": "聊天室 I"
+  },
+  {
+    "type": "chatroom",
+    "id": 2,
+    "name": "聊天室 II"
+  },
+  {
+    "type": "chatroom",
+    "id": 3,
+    "name": "聊天室 III"
+  },
+  {
+    "type": "chatroom",
+    "id": 4,
+    "name": "聊天室 IV"
+  }
+]

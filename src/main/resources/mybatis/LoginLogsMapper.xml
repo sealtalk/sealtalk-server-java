@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.LoginLogsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.LoginLogs">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="userId" jdbcType="INTEGER" property="userId" />
+    <result column="ipAddress" jdbcType="INTEGER" property="ipAddress" />
+    <result column="os" jdbcType="VARCHAR" property="os" />
+    <result column="osVersion" jdbcType="VARCHAR" property="osVersion" />
+    <result column="carrier" jdbcType="VARCHAR" property="carrier" />
+    <result column="device" jdbcType="VARCHAR" property="device" />
+    <result column="manufacturer" jdbcType="VARCHAR" property="manufacturer" />
+    <result column="userAgent" jdbcType="VARCHAR" property="userAgent" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+  </resultMap>
+</mapper>

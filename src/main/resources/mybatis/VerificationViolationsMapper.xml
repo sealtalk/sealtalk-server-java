@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.VerificationViolationsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.VerificationViolations">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="time" jdbcType="TIMESTAMP" property="time" />
+    <result column="count" jdbcType="INTEGER" property="count" />
+  </resultMap>
+</mapper>

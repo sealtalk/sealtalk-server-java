@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rcloud.server.sealtalk.dao.BlackListsMapper">
+  <resultMap id="BaseResultMap" type="com.rcloud.server.sealtalk.domain.BlackLists">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="userId" jdbcType="INTEGER" property="userId" />
+    <result column="friendId" jdbcType="INTEGER" property="friendId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="timestamp" jdbcType="BIGINT" property="timestamp" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+
+  <resultMap id="withUserResultMap" extends="BaseResultMap" type="com.rcloud.server.sealtalk.domain.BlackLists">
+    <association property="users"  javaType="com.rcloud.server.sealtalk.domain.Users">
+      <id column="u_user_id" jdbcType="INTEGER" property="id" />
+      <result column="u_user_nickname" jdbcType="VARCHAR" property="nickname" />
+      <result column="u_user_portraitUri" jdbcType="VARCHAR" property="portraitUri" />
+      <result column="u_user_gender" jdbcType="VARCHAR" property="gender" />
+      <result column="u_user_stAccount" jdbcType="VARCHAR" property="stAccount" />
+      <result column="u_user_phone" jdbcType="VARCHAR" property="phone" />
+      <result column="u_user_updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+    </association>
+  </resultMap>
+
+
+  <select id="selectBlackListsWithFriendUsers" resultMap="withUserResultMap">
+        select
+         b.id,
+         b.userId,
+         b.friendId,
+         b.status,
+         b.timestamp,
+         b.createdAt,
+         b.updatedAt,
+         u.id as u_user_id,
+         u.nickname as u_user_nickname,
+         u.portraitUri as u_user_portraitUri,
+         u.gender as u_user_gender,
+         u.stAccount as u_user_stAccount,
+         u.phone as u_user_phone,
+         u.updatedAt as u_user_updatedAt
+         from
+        blacklists b join users u on b.friendId = u.id
+        where b.userId=#{userId}
+        and b.friendId != 0
+        and status = 1;
+
+  </select>
+
+
+
+    <select id="selectBlackListsWithUsersAndVersion" resultMap="withUserResultMap">
+        select
+         b.id,
+         b.userId,
+         b.friendId,
+         b.status,
+         b.timestamp,
+         b.createdAt,
+         b.updatedAt,
+         u.id as u_user_id,
+         u.nickname as u_user_nickname,
+         u.portraitUri as u_user_portraitUri,
+         u.gender as u_user_gender,
+         u.stAccount as u_user_stAccount,
+         u.phone as u_user_phone,
+         u.updatedAt as u_user_updatedAt
+         from
+        blacklists b join users u on b.friendId = u.id
+        where b.userId=#{userId}
+        and b.timestamp > #{version}
+
+  </select>
+
+
+
+</mapper>

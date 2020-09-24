@@ -1,0 +1,1528 @@
+[
+  {
+    "region": "1",
+    "locale": {
+      "en": "Canada",
+      "zh": "加拿大"
+    }
+  },
+  {
+    "region": "1",
+    "locale": {
+      "en": "United States",
+      "zh": "美国"
+    }
+  },
+  {
+    "region": "7",
+    "locale": {
+      "en": "Kazakhstan",
+      "zh": "哈萨克"
+    }
+  },
+  {
+    "region": "7",
+    "locale": {
+      "en": "Russian Federation",
+      "zh": "俄罗斯"
+    }
+  },
+  {
+    "region": "20",
+    "locale": {
+      "en": "Egypt",
+      "zh": "埃及"
+    }
+  },
+  {
+    "region": "27",
+    "locale": {
+      "en": "South Africa",
+      "zh": "南非"
+    }
+  },
+  {
+    "region": "30",
+    "locale": {
+      "en": "Greece",
+      "zh": "希腊"
+    }
+  },
+  {
+    "region": "31",
+    "locale": {
+      "en": "Netherlands",
+      "zh": "荷兰"
+    }
+  },
+  {
+    "region": "32",
+    "locale": {
+      "en": "Belgium",
+      "zh": "比利时"
+    }
+  },
+  {
+    "region": "33",
+    "locale": {
+      "en": "France",
+      "zh": "法国"
+    }
+  },
+  {
+    "region": "34",
+    "locale": {
+      "en": "Spain",
+      "zh": "西班牙"
+    }
+  },
+  {
+    "region": "36",
+    "locale": {
+      "en": "Hungary",
+      "zh": "匈牙利"
+    }
+  },
+  {
+    "region": "39",
+    "locale": {
+      "en": "Italy",
+      "zh": "意大利"
+    }
+  },
+  {
+    "region": "40",
+    "locale": {
+      "en": "Romania",
+      "zh": "罗马尼亚"
+    }
+  },
+  {
+    "region": "41",
+    "locale": {
+      "en": "Switzerland",
+      "zh": "瑞士"
+    }
+  },
+  {
+    "region": "43",
+    "locale": {
+      "en": "Austria",
+      "zh": "奥地利"
+    }
+  },
+  {
+    "region": "44",
+    "locale": {
+      "en": "United Kingdom",
+      "zh": "英国"
+    }
+  },
+  {
+    "region": "45",
+    "locale": {
+      "en": "Denmark",
+      "zh": "丹麦"
+    }
+  },
+  {
+    "region": "46",
+    "locale": {
+      "en": "Sweden",
+      "zh": "瑞典"
+    }
+  },
+  {
+    "region": "47",
+    "locale": {
+      "en": "Norway",
+      "zh": "挪威"
+    }
+  },
+  {
+    "region": "48",
+    "locale": {
+      "en": "Poland",
+      "zh": "波兰"
+    }
+  },
+  {
+    "region": "49",
+    "locale": {
+      "en": "Germany",
+      "zh": "德国"
+    }
+  },
+  {
+    "region": "51",
+    "locale": {
+      "en": "Peru",
+      "zh": "秘鲁"
+    }
+  },
+  {
+    "region": "52",
+    "locale": {
+      "en": "Mexico",
+      "zh": "墨西哥"
+    }
+  },
+  {
+    "region": "53",
+    "locale": {
+      "en": "Cuba",
+      "zh": "古巴"
+    }
+  },
+  {
+    "region": "54",
+    "locale": {
+      "en": "Argentina",
+      "zh": "阿根廷"
+    }
+  },
+  {
+    "region": "55",
+    "locale": {
+      "en": "Brazil",
+      "zh": "巴西"
+    }
+  },
+  {
+    "region": "56",
+    "locale": {
+      "en": "Chile",
+      "zh": "智利"
+    }
+  },
+  {
+    "region": "57",
+    "locale": {
+      "en": "Colombia",
+      "zh": "哥伦比亚"
+    }
+  },
+  {
+    "region": "58",
+    "locale": {
+      "en": "Venezuela, Bolivarian Republic of",
+      "zh": "委内瑞拉"
+    }
+  },
+  {
+    "region": "60",
+    "locale": {
+      "en": "Malaysia",
+      "zh": "马来西亚"
+    }
+  },
+  {
+    "region": "61",
+    "locale": {
+      "en": "Australia",
+      "zh": "澳洲"
+    }
+  },
+  {
+    "region": "62",
+    "locale": {
+      "en": "Indonesia",
+      "zh": "印度尼西亚"
+    }
+  },
+  {
+    "region": "63",
+    "locale": {
+      "en": "Philippines",
+      "zh": "菲律宾"
+    }
+  },
+  {
+    "region": "64",
+    "locale": {
+      "en": "New Zealand",
+      "zh": "新西兰"
+    }
+  },
+  {
+    "region": "65",
+    "locale": {
+      "en": "Singapore",
+      "zh": "新加坡"
+    }
+  },
+  {
+    "region": "66",
+    "locale": {
+      "en": "Thailand",
+      "zh": "泰国"
+    }
+  },
+  {
+    "region": "81",
+    "locale": {
+      "en": "Japan",
+      "zh": "日本"
+    }
+  },
+  {
+    "region": "82",
+    "locale": {
+      "en": "Republic of Korea",
+      "zh": "韩国"
+    }
+  },
+  {
+    "region": "84",
+    "locale": {
+      "en": "Vietnam",
+      "zh": "越南"
+    }
+  },
+  {
+    "region": "86",
+    "locale": {
+      "en": "China",
+      "zh": "中国"
+    }
+  },
+  {
+    "region": "90",
+    "locale": {
+      "en": "Turkey",
+      "zh": "土耳其"
+    }
+  },
+  {
+    "region": "91",
+    "locale": {
+      "en": "India",
+      "zh": "印度"
+    }
+  },
+  {
+    "region": "92",
+    "locale": {
+      "en": "Pakistan",
+      "zh": "巴基斯坦"
+    }
+  },
+  {
+    "region": "93",
+    "locale": {
+      "en": "Afghanistan",
+      "zh": "阿富汗"
+    }
+  },
+  {
+    "region": "94",
+    "locale": {
+      "en": "Sri Lanka",
+      "zh": "斯里兰卡"
+    }
+  },
+  {
+    "region": "95",
+    "locale": {
+      "en": "Myanmar",
+      "zh": "缅甸"
+    }
+  },
+  {
+    "region": "98",
+    "locale": {
+      "en": "Islamic Republic of Iran",
+      "zh": "伊朗"
+    }
+  },
+  {
+    "region": "211",
+    "locale": {
+      "en": "South Sudan",
+      "zh": "南苏丹"
+    }
+  },
+  {
+    "region": "212",
+    "locale": {
+      "en": "Morocco",
+      "zh": "摩洛哥"
+    }
+  },
+  {
+    "region": "213",
+    "locale": {
+      "en": "Algeria",
+      "zh": "阿尔及利亚"
+    }
+  },
+  {
+    "region": "216",
+    "locale": {
+      "en": "Tunisia",
+      "zh": "突尼斯"
+    }
+  },
+  {
+    "region": "218",
+    "locale": {
+      "en": "Libya",
+      "zh": "利比亚"
+    }
+  },
+  {
+    "region": "220",
+    "locale": {
+      "en": "Gambia",
+      "zh": "冈比亚"
+    }
+  },
+  {
+    "region": "221",
+    "locale": {
+      "en": "Senegal",
+      "zh": "塞内加尔"
+    }
+  },
+  {
+    "region": "222",
+    "locale": {
+      "en": "Mauritania",
+      "zh": "毛里塔尼亚"
+    }
+  },
+  {
+    "region": "223",
+    "locale": {
+      "en": "Mali",
+      "zh": "马里共和国"
+    }
+  },
+  {
+    "region": "224",
+    "locale": {
+      "en": "Guinea",
+      "zh": "几内亚"
+    }
+  },
+  {
+    "region": "225",
+    "locale": {
+      "en": "Cote d'Ivoire",
+      "zh": "科特迪瓦"
+    }
+  },
+  {
+    "region": "226",
+    "locale": {
+      "en": "Burkina Faso",
+      "zh": "布基纳法索"
+    }
+  },
+  {
+    "region": "227",
+    "locale": {
+      "en": "Niger",
+      "zh": "尼日"
+    }
+  },
+  {
+    "region": "228",
+    "locale": {
+      "en": "Togo",
+      "zh": "多哥"
+    }
+  },
+  {
+    "region": "229",
+    "locale": {
+      "en": "Benin",
+      "zh": "贝宁"
+    }
+  },
+  {
+    "region": "230",
+    "locale": {
+      "en": "Mauritius",
+      "zh": "毛里求斯"
+    }
+  },
+  {
+    "region": "231",
+    "locale": {
+      "en": "Liberia",
+      "zh": "利比里亚"
+    }
+  },
+  {
+    "region": "232",
+    "locale": {
+      "en": "Sierra Leone",
+      "zh": "塞拉利昂"
+    }
+  },
+  {
+    "region": "233",
+    "locale": {
+      "en": "Ghana",
+      "zh": "加纳"
+    }
+  },
+  {
+    "region": "234",
+    "locale": {
+      "en": "Nigeria",
+      "zh": "尼日利亚"
+    }
+  },
+  {
+    "region": "235",
+    "locale": {
+      "en": "Chad",
+      "zh": "查德"
+    }
+  },
+  {
+    "region": "236",
+    "locale": {
+      "en": "Central African Republic",
+      "zh": "中非共和国"
+    }
+  },
+  {
+    "region": "237",
+    "locale": {
+      "en": "Cameroon",
+      "zh": "喀麦隆"
+    }
+  },
+  {
+    "region": "238",
+    "locale": {
+      "en": "Cape Verde",
+      "zh": "佛得角"
+    }
+  },
+  {
+    "region": "239",
+    "locale": {
+      "en": "Sao Tome and Principe",
+      "zh": "圣多美普林西比"
+    }
+  },
+  {
+    "region": "240",
+    "locale": {
+      "en": "Equatorial Guinea",
+      "zh": "赤道几内亚"
+    }
+  },
+  {
+    "region": "241",
+    "locale": {
+      "en": "Gabon",
+      "zh": "加蓬"
+    }
+  },
+  {
+    "region": "242",
+    "locale": {
+      "en": "Congo",
+      "zh": "刚果共和国"
+    }
+  },
+  {
+    "region": "243",
+    "locale": {
+      "en": "Congo, the Democratic Republic of the",
+      "zh": "刚果民主共和国"
+    }
+  },
+  {
+    "region": "244",
+    "locale": {
+      "en": "Angola",
+      "zh": "安哥拉"
+    }
+  },
+  {
+    "region": "245",
+    "locale": {
+      "en": "Guinea ",
+      "zh": "几内亚比绍"
+    }
+  },
+  {
+    "region": "247",
+    "locale": {
+      "en": "Ascension island",
+      "zh": "阿森松岛"
+    }
+  },
+  {
+    "region": "248",
+    "locale": {
+      "en": "Seychelles",
+      "zh": "塞舌尔"
+    }
+  },
+  {
+    "region": "249",
+    "locale": {
+      "en": "Sudan",
+      "zh": "苏丹"
+    }
+  },
+  {
+    "region": "250",
+    "locale": {
+      "en": "Rwanda",
+      "zh": "卢旺达"
+    }
+  },
+  {
+    "region": "251",
+    "locale": {
+      "en": "Ethiopia",
+      "zh": "埃塞俄比亚"
+    }
+  },
+  {
+    "region": "252",
+    "locale": {
+      "en": "Somalia",
+      "zh": "索马里"
+    }
+  },
+  {
+    "region": "253",
+    "locale": {
+      "en": "Djibouti",
+      "zh": "吉布提"
+    }
+  },
+  {
+    "region": "254",
+    "locale": {
+      "en": "Kenya",
+      "zh": "肯尼亚"
+    }
+  },
+  {
+    "region": "255",
+    "locale": {
+      "en": "United Republic of Tanzania",
+      "zh": "坦桑尼亚"
+    }
+  },
+  {
+    "region": "256",
+    "locale": {
+      "en": "Uganda",
+      "zh": "乌干达"
+    }
+  },
+  {
+    "region": "257",
+    "locale": {
+      "en": "Burundi",
+      "zh": "布隆迪"
+    }
+  },
+  {
+    "region": "258",
+    "locale": {
+      "en": "Mozambique",
+      "zh": "莫桑比克"
+    }
+  },
+  {
+    "region": "260",
+    "locale": {
+      "en": "Zambia",
+      "zh": "赞比亚"
+    }
+  },
+  {
+    "region": "261",
+    "locale": {
+      "en": "Madagascar",
+      "zh": "马达加斯加"
+    }
+  },
+  {
+    "region": "262",
+    "locale": {
+      "en": "Réunion",
+      "zh": "留尼汪 (法国)"
+    }
+  },
+  {
+    "region": "263",
+    "locale": {
+      "en": "Republic of Zimbabwe",
+      "zh": "津巴布韦"
+    }
+  },
+  {
+    "region": "264",
+    "locale": {
+      "en": "Namibia",
+      "zh": "纳米比亚"
+    }
+  },
+  {
+    "region": "265",
+    "locale": {
+      "en": "Malawi",
+      "zh": "马拉维"
+    }
+  },
+  {
+    "region": "266",
+    "locale": {
+      "en": "Lesotho",
+      "zh": "莱索托"
+    }
+  },
+  {
+    "region": "267",
+    "locale": {
+      "en": "Botswana",
+      "zh": "博茨瓦纳"
+    }
+  },
+  {
+    "region": "268",
+    "locale": {
+      "en": "Swaziland",
+      "zh": "斯威士兰"
+    }
+  },
+  {
+    "region": "269",
+    "locale": {
+      "en": "Comoros",
+      "zh": "科摩罗"
+    }
+  },
+  {
+    "region": "269",
+    "locale": {
+      "en": "Mayotte",
+      "zh": "马约特"
+    }
+  },
+  {
+    "region": "297",
+    "locale": {
+      "en": "Aruba",
+      "zh": "阿鲁巴 (荷兰)"
+    }
+  },
+  {
+    "region": "298",
+    "locale": {
+      "en": "Faroe Islands",
+      "zh": "法罗群岛 (丹麦)"
+    }
+  },
+  {
+    "region": "299",
+    "locale": {
+      "en": "Greenland",
+      "zh": "格陵兰 (丹麦)"
+    }
+  },
+  {
+    "region": "350",
+    "locale": {
+      "en": "Gibraltar",
+      "zh": "直布罗陀 (英国)"
+    }
+  },
+  {
+    "region": "351",
+    "locale": {
+      "en": "Portugal",
+      "zh": "葡萄牙"
+    }
+  },
+  {
+    "region": "352",
+    "locale": {
+      "en": "Luxembourg",
+      "zh": "卢森堡"
+    }
+  },
+  {
+    "region": "389",
+    "locale": {
+      "en": "The former Yugoslav Republic of Macedonia",
+      "zh": "马其顿"
+    }
+  },
+  {
+    "region": "353",
+    "locale": {
+      "en": "Ireland",
+      "zh": "爱尔兰共和国"
+    }
+  },
+  {
+    "region": "354",
+    "locale": {
+      "en": "Iceland",
+      "zh": "冰岛"
+    }
+  },
+  {
+    "region": "355",
+    "locale": {
+      "en": "Albania",
+      "zh": "阿尔巴尼亚"
+    }
+  },
+  {
+    "region": "356",
+    "locale": {
+      "en": "Malta",
+      "zh": "马耳他"
+    }
+  },
+  {
+    "region": "357",
+    "locale": {
+      "en": "Cyprus",
+      "zh": "塞浦路斯"
+    }
+  },
+  {
+    "region": "358",
+    "locale": {
+      "en": "Finland",
+      "zh": "芬兰"
+    }
+  },
+  {
+    "region": "359",
+    "locale": {
+      "en": "Bulgaria",
+      "zh": "保加利亚"
+    }
+  },
+  {
+    "region": "370",
+    "locale": {
+      "en": "Lithuania",
+      "zh": "立陶宛"
+    }
+  },
+  {
+    "region": "371",
+    "locale": {
+      "en": "Latvia",
+      "zh": "拉脱维亚"
+    }
+  },
+  {
+    "region": "372",
+    "locale": {
+      "en": "Estonia",
+      "zh": "爱沙尼亚"
+    }
+  },
+  {
+    "region": "373",
+    "locale": {
+      "en": "Republic of Moldova",
+      "zh": "摩尔多瓦"
+    }
+  },
+  {
+    "region": "374",
+    "locale": {
+      "en": "Armenia",
+      "zh": "亚美尼亚"
+    }
+  },
+  {
+    "region": "375",
+    "locale": {
+      "en": "Belarus",
+      "zh": "白俄罗斯"
+    }
+  },
+  {
+    "region": "376",
+    "locale": {
+      "en": "Andorra",
+      "zh": "安道尔"
+    }
+  },
+  {
+    "region": "377",
+    "locale": {
+      "en": "Monaco",
+      "zh": "摩纳哥"
+    }
+  },
+  {
+    "region": "378",
+    "locale": {
+      "en": "San Marino",
+      "zh": "圣马力诺"
+    }
+  },
+  {
+    "region": "380",
+    "locale": {
+      "en": "Ukraine",
+      "zh": "乌克兰"
+    }
+  },
+  {
+    "region": "381",
+    "locale": {
+      "en": "Serbia",
+      "zh": "塞尔维亚共和国"
+    }
+  },
+  {
+    "region": "382",
+    "locale": {
+      "en": "Montenegro",
+      "zh": "黑山共和国"
+    }
+  },
+  {
+    "region": "385",
+    "locale": {
+      "en": "Croatia",
+      "zh": "克罗地亚"
+    }
+  },
+  {
+    "region": "386",
+    "locale": {
+      "en": "Slovenia",
+      "zh": "斯洛文尼亚"
+    }
+  },
+  {
+    "region": "387",
+    "locale": {
+      "en": "Bosnia and Herzegovina",
+      "zh": "波斯尼亚与赫塞哥维纳"
+    }
+  },
+  {
+    "region": "420",
+    "locale": {
+      "en": "Czech Republic",
+      "zh": "捷克"
+    }
+  },
+  {
+    "region": "421",
+    "locale": {
+      "en": "Slovakia",
+      "zh": "斯洛伐克"
+    }
+  },
+  {
+    "region": "423",
+    "locale": {
+      "en": "Liechtenstein",
+      "zh": "列支敦士登"
+    }
+  },
+  {
+    "region": "501",
+    "locale": {
+      "en": "Belize",
+      "zh": "伯利兹"
+    }
+  },
+  {
+    "region": "502",
+    "locale": {
+      "en": "Guatemala",
+      "zh": "危地马拉"
+    }
+  },
+  {
+    "region": "503",
+    "locale": {
+      "en": "El Salvador",
+      "zh": "萨尔瓦多"
+    }
+  },
+  {
+    "region": "504",
+    "locale": {
+      "en": "Honduras",
+      "zh": "洪都拉斯"
+    }
+  },
+  {
+    "region": "505",
+    "locale": {
+      "en": "Nicaragua",
+      "zh": "尼加拉瓜"
+    }
+  },
+  {
+    "region": "506",
+    "locale": {
+      "en": "Costa Rica",
+      "zh": "哥斯达黎加"
+    }
+  },
+  {
+    "region": "507",
+    "locale": {
+      "en": "Panama",
+      "zh": "巴拿马"
+    }
+  },
+  {
+    "region": "508",
+    "locale": {
+      "en": "Saint Pierre and Miquelon",
+      "zh": "圣皮耶与密克隆群岛 (法国)"
+    }
+  },
+  {
+    "region": "509",
+    "locale": {
+      "en": "Haiti",
+      "zh": "海地"
+    }
+  },
+  {
+    "region": "590",
+    "locale": {
+      "en": "Guadeloupe",
+      "zh": "瓜德罗普岛"
+    }
+  },
+  {
+    "region": "590",
+    "locale": {
+      "en": "Sint Maarten(Dutch)",
+      "zh": "圣马丁岛(荷兰部分)"
+    }
+  },
+  {
+    "region": "591",
+    "locale": {
+      "en": "Bolivia, Plurinational",
+      "zh": "玻利维亚"
+    }
+  },
+  {
+    "region": "592",
+    "locale": {
+      "en": "Guyana",
+      "zh": "圭亚那"
+    }
+  },
+  {
+    "region": "593",
+    "locale": {
+      "en": "Ecuador",
+      "zh": "厄瓜多尔"
+    }
+  },
+  {
+    "region": "594",
+    "locale": {
+      "en": "French Guiana",
+      "zh": "法属圭亚那 (法国)"
+    }
+  },
+  {
+    "region": "595",
+    "locale": {
+      "en": "Paraguay",
+      "zh": "巴拉圭"
+    }
+  },
+  {
+    "region": "596",
+    "locale": {
+      "en": "Martinique",
+      "zh": "马提尼克 (法国)"
+    }
+  },
+  {
+    "region": "597",
+    "locale": {
+      "en": "Suriname",
+      "zh": "苏里南"
+    }
+  },
+  {
+    "region": "598",
+    "locale": {
+      "en": "Uruguay",
+      "zh": "乌拉圭"
+    }
+  },
+  {
+    "region": "599",
+    "locale": {
+      "en": "Bonaire Sint Eustat",
+      "zh": "博内尔岛，圣尤斯特歇斯和"
+    }
+  },
+  {
+    "region": "599",
+    "locale": {
+      "en": "Curacao",
+      "zh": "库拉索 (荷兰)"
+    }
+  },
+  {
+    "region": "670",
+    "locale": {
+      "en": "Timor ",
+      "zh": "东帝汶"
+    }
+  },
+  {
+    "region": "673",
+    "locale": {
+      "en": "Brunei Darussalam",
+      "zh": "文莱"
+    }
+  },
+  {
+    "region": "675",
+    "locale": {
+      "en": "Papua New Guinea",
+      "zh": "巴布亚新几内亚"
+    }
+  },
+  {
+    "region": "676",
+    "locale": {
+      "en": "Tonga",
+      "zh": "东加"
+    }
+  },
+  {
+    "region": "677",
+    "locale": {
+      "en": "Solomon Islands",
+      "zh": "所罗门群岛"
+    }
+  },
+  {
+    "region": "678",
+    "locale": {
+      "en": "Vanuatu",
+      "zh": "瓦努阿图"
+    }
+  },
+  {
+    "region": "679",
+    "locale": {
+      "en": "Fiji",
+      "zh": "斐济"
+    }
+  },
+  {
+    "region": "680",
+    "locale": {
+      "en": "Palau",
+      "zh": "帕劳"
+    }
+  },
+  {
+    "region": "682",
+    "locale": {
+      "en": "Cook Islands",
+      "zh": "库克群岛 (新西兰)"
+    }
+  },
+  {
+    "region": "685",
+    "locale": {
+      "en": "Samoa",
+      "zh": "萨摩亚"
+    }
+  },
+  {
+    "region": "686",
+    "locale": {
+      "en": "Kiribati",
+      "zh": "基里巴斯"
+    }
+  },
+  {
+    "region": "687",
+    "locale": {
+      "en": "New Caledonia",
+      "zh": "新喀里多尼亚 (法国)"
+    }
+  },
+  {
+    "region": "689",
+    "locale": {
+      "en": "French Polynesia",
+      "zh": "法属波利尼西亚 (法国)"
+    }
+  },
+  {
+    "region": "852",
+    "locale": {
+      "en": "Hong Kong",
+      "zh": "香港 (中国)"
+    }
+  },
+  {
+    "region": "853",
+    "locale": {
+      "en": "Macao",
+      "zh": "澳门 (中国)"
+    }
+  },
+  {
+    "region": "855",
+    "locale": {
+      "en": "Cambodia",
+      "zh": "柬埔寨"
+    }
+  },
+  {
+    "region": "856",
+    "locale": {
+      "en": "Lao People's Democratic Republic",
+      "zh": "老挝"
+    }
+  },
+  {
+    "region": "880",
+    "locale": {
+      "en": "Bangladesh",
+      "zh": "孟加拉国"
+    }
+  },
+  {
+    "region": "886",
+    "locale": {
+      "en": "Taiwan, Province of China",
+      "zh": "台湾(中国)"
+    }
+  },
+  {
+    "region": "970",
+    "locale": {
+      "en": "Palestine, State of",
+      "zh": "巴勒斯坦"
+    }
+  },
+  {
+    "region": "960",
+    "locale": {
+      "en": "Maldives",
+      "zh": "马尔代夫"
+    }
+  },
+  {
+    "region": "961",
+    "locale": {
+      "en": "Lebanon",
+      "zh": "黎巴嫩"
+    }
+  },
+  {
+    "region": "962",
+    "locale": {
+      "en": "Jordan",
+      "zh": "约旦"
+    }
+  },
+  {
+    "region": "963",
+    "locale": {
+      "en": "Syrian Arab Republic",
+      "zh": "叙利亚"
+    }
+  },
+  {
+    "region": "964",
+    "locale": {
+      "en": "Iraq",
+      "zh": "伊拉克"
+    }
+  },
+  {
+    "region": "965",
+    "locale": {
+      "en": "Kuwait",
+      "zh": "科威特"
+    }
+  },
+  {
+    "region": "966",
+    "locale": {
+      "en": "Saudi Arabia",
+      "zh": "沙特阿拉伯"
+    }
+  },
+  {
+    "region": "967",
+    "locale": {
+      "en": "Yemen",
+      "zh": "也门"
+    }
+  },
+  {
+    "region": "968",
+    "locale": {
+      "en": "Oman",
+      "zh": "阿曼"
+    }
+  },
+  {
+    "region": "971",
+    "locale": {
+      "en": "United Arab Emirates",
+      "zh": "阿拉伯联合酋长国"
+    }
+  },
+  {
+    "region": "972",
+    "locale": {
+      "en": "Israel",
+      "zh": "以色列"
+    }
+  },
+  {
+    "region": "973",
+    "locale": {
+      "en": "Bahrain",
+      "zh": "巴林"
+    }
+  },
+  {
+    "region": "974",
+    "locale": {
+      "en": "Qatar",
+      "zh": "卡达"
+    }
+  },
+  {
+    "region": "975",
+    "locale": {
+      "en": "Bhutan",
+      "zh": "不丹"
+    }
+  },
+  {
+    "region": "976",
+    "locale": {
+      "en": "Mongolia",
+      "zh": "蒙古国"
+    }
+  },
+  {
+    "region": "977",
+    "locale": {
+      "en": "Nepal",
+      "zh": "尼泊尔"
+    }
+  },
+  {
+    "region": "992",
+    "locale": {
+      "en": "Tajikistan",
+      "zh": "塔吉克"
+    }
+  },
+  {
+    "region": "993",
+    "locale": {
+      "en": "Turkmenistan",
+      "zh": "土库曼"
+    }
+  },
+  {
+    "region": "994",
+    "locale": {
+      "en": "Azerbaijan",
+      "zh": "阿塞拜疆"
+    }
+  },
+  {
+    "region": "995",
+    "locale": {
+      "en": "Georgia",
+      "zh": "乔治亚"
+    }
+  },
+  {
+    "region": "996",
+    "locale": {
+      "en": "Kyrgyzstan",
+      "zh": "吉尔吉斯"
+    }
+  },
+  {
+    "region": "998",
+    "locale": {
+      "en": "Uzbekistan",
+      "zh": "乌兹别克"
+    }
+  },
+  {
+    "region": "1242",
+    "locale": {
+      "en": "Bahamas",
+      "zh": "巴哈马"
+    }
+  },
+  {
+    "region": "1246",
+    "locale": {
+      "en": "Barbados",
+      "zh": "巴巴多斯"
+    }
+  },
+  {
+    "region": "1264",
+    "locale": {
+      "en": "Anguilla",
+      "zh": "安圭拉"
+    }
+  },
+  {
+    "region": "1268",
+    "locale": {
+      "en": "Antigua and Barbuda",
+      "zh": "安提瓜和巴布达"
+    }
+  },
+  {
+    "region": "1284",
+    "locale": {
+      "en": "Virgin Islands, U.S.",
+      "zh": "英属维尔京群岛 (英国)"
+    }
+  },
+  {
+    "region": "1340",
+    "locale": {
+      "en": "United States Virgin Islands",
+      "zh": "美属维尔京群岛 (美国)"
+    }
+  },
+  {
+    "region": "1345",
+    "locale": {
+      "en": "Cayman Islands",
+      "zh": "开曼群岛 (英国)"
+    }
+  },
+  {
+    "region": "1441",
+    "locale": {
+      "en": "Bermuda",
+      "zh": "百慕大 (英国)"
+    }
+  },
+  {
+    "region": "1473",
+    "locale": {
+      "en": "Grenada",
+      "zh": "格林纳达"
+    }
+  },
+  {
+    "region": "1649",
+    "locale": {
+      "en": "Turks and Caicos Islands",
+      "zh": "土克凯可群岛 (英国)"
+    }
+  },
+  {
+    "region": "1664",
+    "locale": {
+      "en": "Montserrat",
+      "zh": "蒙塞拉特岛 (英国)"
+    }
+  },
+  {
+    "region": "1671",
+    "locale": {
+      "en": "Guam",
+      "zh": "关岛 (美国)"
+    }
+  },
+  {
+    "region": "1684",
+    "locale": {
+      "en": "American Samoa",
+      "zh": "美属萨摩亚 (美国)"
+    }
+  },
+  {
+    "region": "1758",
+    "locale": {
+      "en": "Saint Lucia",
+      "zh": "圣卢西亚"
+    }
+  },
+  {
+    "region": "1767",
+    "locale": {
+      "en": "Dominica",
+      "zh": "多米尼克"
+    }
+  },
+  {
+    "region": "1784",
+    "locale": {
+      "en": "Saint Vincent and the Grenadines",
+      "zh": "圣文森及格林纳丁"
+    }
+  },
+  {
+    "region": "1787",
+    "locale": {
+      "en": "Puerto Rico",
+      "zh": "波多黎各 (美国)"
+    }
+  },
+  {
+    "region": "1809",
+    "locale": {
+      "en": "Dominican Republic",
+      "zh": "多米尼加共和国"
+    }
+  },
+  {
+    "region": "1868",
+    "locale": {
+      "en": "Trinidad and Tobago",
+      "zh": "特立尼达和多巴哥"
+    }
+  },
+  {
+    "region": "1869",
+    "locale": {
+      "en": "Saint Kitts and Nevis",
+      "zh": "圣克里斯多福与尼维斯"
+    }
+  },
+  {
+    "region": "1876",
+    "locale": {
+      "en": "Jamaica",
+      "zh": "牙买加"
+    }
+  }
+]
