@@ -109,14 +109,14 @@ sealtalk-config:
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
   rongcloud_sms_register_template_id: 3910922   #短信模版
   config_env: dev                 # dev 调试环境 注册环节不发短信，默认验证码9999
-  rongcloud_app_key: bmdehs6pbauls
-  rongcloud_app_secret: xvQhSJbgYBtwF
+  rongcloud_app_key: bmdehs6pbaaduls
+  rongcloud_app_secret: xvQhSJbgYadfBtwF
   rongcloud_api_url: api-cn.ronghub.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
-  qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
-  qiniu_secret_key: MRuJJ6AcBkFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
+  qiniu_access_key: ctk1VIyQlx5CFar_fEQMqrQkF5c1PKGuqC2SNTR749
+  qiniu_secret_key: MRuJJ6AcBkFQrgsmf16ayDtv_4L0M2jsQe-QuMBfiw
   qiniu_bucket_name: dev-sealtalk
-  qiniu_bucket_domain: dev.sealtalk.yujianlu.clouddn.com
+  qiniu_bucket_domain: dev.sealtalk.xxxx.clouddn.com
   yunpian_api_key: 830c36ecb0ef1667e02769e1f33d9942
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
   yunpian_limited_count: 20   #云片发送验证码次数限制    20次
