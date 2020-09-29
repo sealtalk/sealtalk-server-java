@@ -306,7 +306,6 @@ public class GroupManager extends BaseManager {
     }
 
     /**
-     *
      * 批量保存或更新GroupReceivers
      *
      * @param groups
@@ -378,7 +377,7 @@ public class GroupManager extends BaseManager {
                 groupReceiversService.updateReceiversWithList(requesterIdForUpdate, timestamp, groupReceiveStatusW, groups.getId(), selectRequesterId, receiverIdList, operatorList, groupReceiveType);
 
                 //插入新增记录
-                if(!CollectionUtils.isEmpty(createReceiverList)){
+                if (!CollectionUtils.isEmpty(createReceiverList)) {
                     groupReceiversService.batchSave(createReceiverList);
                 }
                 return true;
@@ -1197,7 +1196,7 @@ public class GroupManager extends BaseManager {
             if (e.getCause() instanceof java.sql.SQLIntegrityConstraintViolationException) {
                 throw new ServiceException(ErrorCode.ALREADY_EXISTS_GROUP);
             }
-            log.error("group fav error:"+e.getMessage(),e);
+            log.error("group fav error:" + e.getMessage(), e);
             throw new ServiceException(ErrorCode.SERVER_ERROR);
         }
         return;
@@ -1341,6 +1340,11 @@ public class GroupManager extends BaseManager {
 
         List<Integer> memberIdList = CollectionUtils.arrayToList(memberIds);
 
+        if (memberIdList != null && memberIdList.contains(currentUserId)) {
+            //如果设置的成员中有自己,返回401
+            throw new ServiceException(ErrorCode.INVALID_OPERATION_SET_MANAGER);
+        }
+
         List<Integer> memberIdListWithMe = new ArrayList<>(memberIdList);
         memberIdListWithMe.add(currentUserId);
 
@@ -1353,6 +1357,7 @@ public class GroupManager extends BaseManager {
         if (CollectionUtils.isEmpty(groupMemberList)) {
             throw new ServiceException(ErrorCode.PARAMETER_ERROR);
         }
+
 
         boolean selfInGroup = false;
         for (GroupMembers groupMembers : groupMemberList) {
@@ -2196,12 +2201,12 @@ public class GroupManager extends BaseManager {
                 }
             } else {
                 //如果失败，插入GroupSync表进行记录 组信息同步失败记录
-                log.error("copy group,invoke rongcloud error,errorCode={},errorMessage{}",result.getCode(),result.getErrorMessage());
+                log.error("copy group,invoke rongcloud error,errorCode={},errorMessage{}", result.getCode(), result.getErrorMessage());
                 groupSyncsService.saveOrUpdate(newGroups.getId(), GroupSyncs.INVALID, GroupSyncs.INVALID);
             }
         } catch (Exception e) {
             //如果失败，插入GroupSync表进行记录 组信息同步失败记录
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             groupSyncsService.saveOrUpdate(newGroups.getId(), GroupSyncs.INVALID, GroupSyncs.INVALID);
         }
 
