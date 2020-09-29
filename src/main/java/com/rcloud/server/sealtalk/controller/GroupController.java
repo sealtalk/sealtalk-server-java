@@ -130,7 +130,7 @@ public class GroupController extends BaseController {
         Integer currentUserId = getCurrentUserId();
 
         String resultMessage = groupManager.quitGroup(currentUserId, N3d.decode(groupId), groupId);
-        return APIResultWrap.ok(null,resultMessage);
+        return APIResultWrap.ok(null, resultMessage);
     }
 
 
@@ -218,7 +218,7 @@ public class GroupController extends BaseController {
 
         String groupId = groupParam.getGroupId();
 
-        if(StringUtils.isEmpty(groupId)){
+        if (StringUtils.isEmpty(groupId)) {
             throw new ServiceException(ErrorCode.GROUPID_NULL);
         }
 
@@ -245,7 +245,7 @@ public class GroupController extends BaseController {
 
         String groupId = groupParam.getGroupId();
 
-        if(groupId==null || StringUtils.isEmpty(groupId.trim())){
+        if (groupId == null || StringUtils.isEmpty(groupId.trim())) {
             throw new ServiceException(ErrorCode.GROUPID_NULL);
         }
         String bulletin = groupParam.getBulletin();
@@ -278,9 +278,15 @@ public class GroupController extends BaseController {
             throw new ServiceException(ErrorCode.NO_GROUP_BULLETIN);
         } else {
             // 返回给前端的结构id属性需要N3d编码
-            groupBulletinsDTO.setGroupId(N3d.encode(groupBulletins.getGroupId()));
+//            groupBulletinsDTO.setId(N3d.encode(groupBulletins.getId()));
+//            groupBulletinsDTO.setGroupId(N3d.encode(groupBulletins.getGroupId()));
+
+            //TODO 由于nojejs版本的线上是没编码的，为了兼容线上，此处id、groupId返回未N3d编码的id
+            groupBulletinsDTO.setId(groupBulletins.getId());
+            groupBulletinsDTO.setGroupId(groupBulletins.getGroupId());
+
+
             groupBulletinsDTO.setContent(groupBulletins.getContent());
-            groupBulletinsDTO.setId(N3d.encode(groupBulletins.getId()));
             groupBulletinsDTO.setTimestamp(groupBulletins.getTimestamp());
         }
 
@@ -519,12 +525,12 @@ public class GroupController extends BaseController {
 
         Groups groups = groupManager.getGroup(N3d.decode(groupId));
 
-        if(groups!=null){
+        if (groups != null) {
             Integer clearStatus = groups.getClearStatus();
             Map<String, Integer> result = new HashMap<>();
             result.put("clearStatus", clearStatus);
             return APIResultWrap.ok(clearStatus);
-        }else {
+        } else {
             return APIResultWrap.ok();
         }
     }
@@ -610,7 +616,7 @@ public class GroupController extends BaseController {
                 groupExitedListDTOList.add(dto);
             }
         }
-        return APIResultWrap.ok(MiscUtils.encodeResults(groupExitedListDTOList,"quitUserId","operatorId"));
+        return APIResultWrap.ok(MiscUtils.encodeResults(groupExitedListDTOList, "quitUserId", "operatorId"));
     }
 
     @ApiOperation(value = "设置群成员保护模式")
@@ -620,7 +626,7 @@ public class GroupController extends BaseController {
         String groupId = groupParam.getGroupId();
         Integer memberProtection = groupParam.getMemberProtection();
         ValidateUtils.notEmpty(groupId);
-        if(memberProtection==null){
+        if (memberProtection == null) {
             throw new ServiceException(ErrorCode.MemberProtection_NULL);
         }
         ValidateUtils.valueOf(memberProtection, ImmutableList.of(0, 1));
