@@ -101,7 +101,7 @@ public class GroupManager extends BaseManager {
 
 
     /**
-     * TODO 重点测试
+     *
      * 创建群组
      *
      * @param currentUserId 当前用户Id
@@ -192,7 +192,7 @@ public class GroupManager extends BaseManager {
                     messageData.put("targetGroupName", groupName);
                     messageData.put("timestamp", timestamp);
 
-                    //发送群组通知 TODO
+                    //发送群组通知
                     Result result1 = sendGroupNotificationMessageBySystem(groups.getId(), messageData, currentUserId, GroupOperationType.CREATE);
 
                     log.info(" createGroup sendGroupNotificationMessageBySystem,result:{},groupId={}", result1, groups.getId());
@@ -217,7 +217,7 @@ public class GroupManager extends BaseManager {
             }
             //批量保存或更新 GroupReceiver
             batchSaveOrUpdateGroupReceiver(groups, currentUserId, veirfyNeedUserList, veirfyNeedUserList, GroupReceivers.GROUP_RECEIVE_TYPE_MEMBER, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT);
-            //发送好友邀请消息 TODO
+            //发送好友邀请消息
             sendGroupApplyMessage(currentUserId, veirfyNeedUserList, groups.getId(), groupName, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, GroupReceivers.GROUP_RECEIVE_TYPE_MEMBER);
         }
 
@@ -458,7 +458,7 @@ public class GroupManager extends BaseManager {
 
             }
             batchSaveOrUpdateGroupReceiver(groups, currentUserId, verifyOpendUserIds, verifyOpendUserIds, type, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT);
-            //发送好友邀请消息 TODO
+            //发送好友邀请消息
             sendGroupApplyMessage(currentUserId, verifyOpendUserIds, groups.getId(), groups.getName(), GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, type);
         }
 
@@ -489,7 +489,7 @@ public class GroupManager extends BaseManager {
                 }
                 //更新为待管理员处理状态, 并批量发消息
                 batchSaveOrUpdateGroupReceiver(groups, currentUserId, verifyClosedUserIds, managerIds, type, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT);
-                //发送好友邀请消息 TODO
+                //发送好友邀请消息
                 sendGroupApplyMessage(currentUserId, verifyClosedUserIds, groups.getId(), groups.getName(), GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, type);
 
             } else {
@@ -565,7 +565,7 @@ public class GroupManager extends BaseManager {
         messageData.put("targetUserIds", MiscUtils.encodeIds(userIds));
         messageData.put("targetUserDisplayNames", targetUserDisplayNames);
         messageData.put("timestamp", timestamp);
-        //发送群组通知 TODO
+        //发送群组通知
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.Add);
     }
 
@@ -620,7 +620,7 @@ public class GroupManager extends BaseManager {
                 messageData.put("targetUserIds", new String[]{N3d.encode(currentUserId)});
                 messageData.put("targetUserDisplayNames", new String[]{nickName});
                 messageData.put("timestamp", timestamp);
-                //发送群组通知 TODO
+                //发送群组通知
                 sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.Add);
             } else {
                 //如果失败，插入GroupSync表进行记录 组信息同步失败记录
@@ -1255,7 +1255,7 @@ public class GroupManager extends BaseManager {
         messageData.put("targetGroupName", name);
         messageData.put("timestamp", timestamp);
 
-        //发送群组重命名通知 TODO
+        //发送群组重命名通知
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.RENAME);
 
         // 清除相关缓存
@@ -1401,7 +1401,7 @@ public class GroupManager extends BaseManager {
         messageData.put("targetUserDisplayNames", targetUserDisplayNames);
         messageData.put("timestamp", timestamp);
 
-        //发送群组通知 TODO
+        //发送群组通知
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, groupOperationType);
 
     }
@@ -1552,7 +1552,7 @@ public class GroupManager extends BaseManager {
         messageData.put("targetUserDisplayNames", ImmutableList.of(userNickName));
         messageData.put("timestamp", timestamp);
 
-        //发送群组通知消息 TODO
+        //发送群组通知消息
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.TRANSFER);
 
 
@@ -1629,7 +1629,7 @@ public class GroupManager extends BaseManager {
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("operatorNickname", nickname);
         messageData.put("timestamp", timestamp);
-        //发送群组通知消息 TODO
+        //发送群组通知消息
         Result res = sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.DISMISS);
 
         try {
@@ -1791,7 +1791,7 @@ public class GroupManager extends BaseManager {
         messageData.put("newCreatorId", newCreatorId);
         messageData.put("timestamp", timestamp);
 
-        //发送群组通知消息 TODO
+        //发送群组通知消息
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.QUIT);
 
         //调用融云退群接口
@@ -1975,7 +1975,7 @@ public class GroupManager extends BaseManager {
         messageData.put("targetUserIds", encodeMemberIds);
         messageData.put("targetUserDisplayNames", nicknameList);
         messageData.put("timestamp", timestamp);
-        //发送群组通知 TODO
+        //发送群组通知
         sendGroupNotificationMessageBySystem(groupId, messageData, currentUserId, GroupOperationType.KICKED);
 
         //调用融云退群接口
@@ -2193,7 +2193,7 @@ public class GroupManager extends BaseManager {
                     messageData.put("targetGroupName", groupName);
                     messageData.put("timestamp", timestamp);
 
-                    //发送群组通知 TODO
+                    //发送群组通知
                     Result result1 = sendGroupNotificationMessageBySystem(newGroups.getId(), messageData, currentUserId, GroupOperationType.CREATE);
                     log.info("sendGroupNotificationMessage result1:{}", result1);
                 } catch (Exception e) {
@@ -2311,7 +2311,7 @@ public class GroupManager extends BaseManager {
             }
             //批量保存或更新 GroupReceiver
             batchSaveOrUpdateGroupReceiver(groups, groupReceivers.getRequesterId(), ImmutableList.of(receiverId), memberIds, GroupReceivers.GROUP_RECEIVE_TYPE_MANAGER, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT);
-            //发送好友邀请消息 TODO
+            //发送好友邀请消息
             sendGroupApplyMessage(groupReceivers.getRequesterId(), memberIds, groups.getId(), groups.getName(), GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, GroupReceivers.GROUP_RECEIVE_TYPE_MANAGER);
         } else {
             //如果为群组未开启认证 或 为管理员同意, 直接加群

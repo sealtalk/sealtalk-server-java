@@ -678,7 +678,6 @@ public class UserManager extends BaseManager {
         //如果远程存在，本地不存在，插入本地数据表
         if (!CollectionUtils.isEmpty(serverBlackListIds)) {
             for (Long serverId : serverBlackListIds) {
-                //需要每条数据都更新数据库吗？TODO
                 if (!dbBlacklistUserIds.contains(serverId)) {
                     blackListsService.saveOrUpdate(currentUserId, serverId.intValue(), BlackLists.STATUS_VALID, timestamp);
                     log.info("Sync: fix user blacklist, add {} -> {} from db.", currentUserId, serverId);
