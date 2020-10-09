@@ -47,7 +47,6 @@ public class MiscUtilsTest {
     }
 
 
-
     @Test
     public void name2() throws ServiceException {
 
@@ -62,5 +61,15 @@ public class MiscUtilsTest {
 
     }
 
+    @Test
+    public void testHash() {
 
+        String password = "yu@1876abc$#";
+        int salt = RandomUtil.randomBetween(1000, 9999);
+
+        salt = 7261;
+        System.out.println("salt:" + salt);
+        String hashStr = MiscUtils.hash(password, salt);
+        System.out.println("hashStr:" + hashStr);
+    }
 }
