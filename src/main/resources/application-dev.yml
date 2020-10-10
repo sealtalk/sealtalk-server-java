@@ -9,6 +9,7 @@ server:
       enabled: true
       force-request: true
       force-response: true
+  shutdown: graceful      # 优雅停机 ，kill -2 或post请求/actuator/shutdown，不能使用kill -9
 
 spring:
 
@@ -109,8 +110,8 @@ sealtalk-config:
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
   rongcloud_sms_register_template_id: 3910922   #短信模版
   config_env: dev                 # dev 调试环境 注册环节不发短信，默认验证码9999
-  rongcloud_app_key: bmdehs6pbaaduls
-  rongcloud_app_secret: xvQhSJbgYadfBtwF
+  rongcloud_app_key: bmdehs6pbauls
+  rongcloud_app_secret: xvQhSJbgYBtwF
   rongcloud_api_url: api-cn.ronghub.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
   qiniu_access_key: ctk1VIyQlx5CFar_fEQMqrQkF5c1PKGuqC2SNTR749
@@ -125,7 +126,7 @@ sealtalk-config:
   cors_hosts:  web.devtalk.im
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
   server_port: 8080
-  db_name: sealtalk
+  db_name: sealtalk_prod
   db_user: root
   db_password: 123456
   db_host: 127.0.0.1
