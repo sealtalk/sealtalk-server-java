@@ -101,7 +101,6 @@ public class GroupManager extends BaseManager {
 
 
     /**
-     *
      * 创建群组
      *
      * @param currentUserId 当前用户Id
@@ -1358,6 +1357,7 @@ public class GroupManager extends BaseManager {
             throw new ServiceException(ErrorCode.PARAMETER_ERROR);
         }
 
+        List<Integer> groupMemberIdList = new ArrayList<>();
 
         boolean selfInGroup = false;
         for (GroupMembers groupMembers : groupMemberList) {
@@ -1374,11 +1374,19 @@ public class GroupManager extends BaseManager {
                     throw new ServiceException(ErrorCode.CAN_NOT_SET_CREATOR);
                 }
             }
+
+            groupMemberIdList.add(groupMembers.getMemberId());
         }
 
         //判断自己是否在群成员中
         if (!selfInGroup) {
             throw new ServiceException(ErrorCode.NOT_IN_MEMBER);
+        }
+        //判断设置的成员是否是群的成员
+        for (Integer memberId : memberIds) {
+            if (!groupMemberIdList.contains(memberId)) {
+                throw new ServiceException(ErrorCode.NOT_IN_MEMBER);
+            }
         }
 
         //修改GroupMember role
