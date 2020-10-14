@@ -1379,12 +1379,12 @@ public class GroupManager extends BaseManager {
 
         //判断自己是否在群成员中
         if (!selfInGroup) {
-            throw new ServiceException(ErrorCode.NOT_IN_MEMBER);
+            throw new ServiceException(ErrorCode.NOT_IN_GROUP);
         }
         //判断设置的成员是否是群的成员
         for (Integer memberId : memberIds) {
             if (!groupMemberIdList.contains(memberId)) {
-                throw new ServiceException(ErrorCode.NOT_IN_MEMBER);
+                throw new ServiceException(ErrorCode.NOT_IN_GROUP);
             }
         }
 

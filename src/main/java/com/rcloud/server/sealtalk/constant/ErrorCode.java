@@ -96,7 +96,7 @@ public enum ErrorCode {
     GROUP_MEMBER_EMPTY(500,"Group member should not be empty, please check your database.",500),
     EMPTY_MEMBERID(400,"Empty memberId.",400),
     CANT_NOT_KICK_NONE_MEMBER(400,"Can not kick none-member from the group.",400),
-    NOT_IN_MEMBER(403,"Not in the group.",403),
+    NOT_IN_GROUP(403,"Not in the group.",403),
     NO_PERMISSION_SET_MANAGER(401,"No permission to set up an manager.",401),
     INVALID_OPERATION_SET_MANAGER(401,"Param error.",401),
     CAN_NOT_SET_CREATOR(403,"Cannot set the group creator.",403),
