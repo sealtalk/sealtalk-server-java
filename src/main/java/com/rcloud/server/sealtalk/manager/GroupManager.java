@@ -1367,7 +1367,6 @@ public class GroupManager extends BaseManager {
                 if (!GroupRole.CREATOR.getCode().equals(groupMembers.getRole())) {
                     throw new ServiceException(ErrorCode.NO_PERMISSION_SET_MANAGER);
                 }
-                break;
             } else {
                 //判断的设置成员中是否有群主
                 if (GroupRole.CREATOR.getCode().equals(groupMembers.getRole())) {
