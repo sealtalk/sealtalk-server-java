@@ -1,7 +1,6 @@
 package com.rcloud.server.sealtalk.manager;
 
 import com.google.common.collect.ImmutableList;
-import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.domain.BlackLists;

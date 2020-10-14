@@ -98,7 +98,7 @@ public enum ErrorCode {
     CANT_NOT_KICK_NONE_MEMBER(400,"Can not kick none-member from the group.",400),
     NOT_IN_MEMBER(403,"Not in the group.",403),
     NO_PERMISSION_SET_MANAGER(401,"No permission to set up an manager.",401),
-    INVALID_OPERATION_SET_MANAGER(401,"Can not set up yourself an manager.",401),
+    INVALID_OPERATION_SET_MANAGER(401,"Param error.",401),
     CAN_NOT_SET_CREATOR(403,"Cannot set the group creator.",403),
     NO_GROUP(20006,"No Group",200),
     IN_PROTECTED_GROUP(20004,"Protected",200),

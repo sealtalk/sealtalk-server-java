@@ -3,7 +3,6 @@ package com.rcloud.server.sealtalk.manager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.qiniu.util.Auth;
-import com.rcloud.server.sealtalk.configuration.ProfileConfig;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.constant.SmsServiceType;
@@ -51,9 +50,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class UserManager extends BaseManager {
-
-    @Resource
-    private ProfileConfig profileConfig;
 
     @Resource
     private RongCloudClient rongCloudClient;
