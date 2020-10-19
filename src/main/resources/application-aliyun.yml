@@ -9,12 +9,11 @@ server:
       enabled: true
       force-request: true
       force-response: true
-  shutdown: graceful      # 优雅停机 ，kill -2 或post请求/actuator/shutdown，不能使用kill -9
-
+  shutdown: graceful      # 优雅停机 kill -2停止应用 ，不能使用kill -9
 spring:
 
   flyway:
-    enabled: false              #flyway 是否启用开关，true启用，false禁用
+    enabled: false        #flyway 是否启用开关，true启用，false禁用
     # 禁止清理数据库表
     clean-disabled: true
     baseline-description: baselines
@@ -44,11 +43,9 @@ sealtalk:
   #  auth_cookie_key: '<-- 此处设置 Cookie 加密密钥 -->'
   #  auth_cookie_max_age: 8640000
   #  rongcloud_sms_register_template_id: 3910922
-  #  config_env: dev    # dev 调试环境， 注册环节不发短信，默认验证码9999
   #  rongcloud_app_key: '<-- 此处填写融云颁发的 App Key -->'
   #  rongcloud_app_secret: '<-- 此处填写融云颁发的 App Secret -->'
   #  rongcloud_api_url: '<-- 此处填写融云 Api Url -->'
-  #  rongcloud_default_portrait_url: '<-- 此处填写默认头像地址 -->'
   #  qiniu_access_key: '<-- 此处填写七牛颁发的 Access Key -->'
   #  qiniu_secret_key: '<-- 此处填写七牛颁发的 Secret Key -->'
   #  qiniu_bucket_name: '<-- 此处填写七牛创建的空间名称 -->'
@@ -76,11 +73,9 @@ sealtalk:
 #    auth_cookie_key: zsyy
 #    auth_cookie_max_age: 8640000
 #    rongcloud_sms_register_template_id: 3910922
-#    config_env: dev    # dev 注册环节不发短信，默认验证码9999
 #    rongcloud_app_key: bmdehs6apbauls
 #    rongcloud_app_secret: xvQhSJbgYBtwF
 #    rongcloud_api_url: api-sg01.ronghub.com
-#    rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png
 #    qiniu_access_key: ctk1VIyQlx5CFr_EQMqrQkF5c1PKGuqC2SNTR749
 #    qiniu_secret_key: MRuJJ6AcBkaFQrgm16ayDtv_4L0M2jsQe-QuMBfiw
 #    qiniu_bucket_name: devtalk-image
@@ -104,30 +99,35 @@ sealtalk:
 #######################
 
 sealtalk-config:
-  auth_cookie_name: rong_auth_cookie
-  auth_cookie_key: zsyy
-  nickname_cookie_name:           # 此字段废弃
+  auth_cookie_name: rong_im_auth
+  auth_cookie_key: ef98re9223434er
+  nickname_cookie_name: rong_im_nickname  #此字段废弃
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
-  rongcloud_sms_register_template_id: 3910922   #短信模版
-  config_env: dev                 # dev 调试环境 注册环节不发短信，默认验证码9999
-  rongcloud_app_key: bmdehs6pbauls
-  rongcloud_app_secret: xvQhSJbgYBtwF
-  rongcloud_api_url: api-cn.ronghub.com  # rongcloud api_url
+  rongcloud_sms_register_template_id: 6iYv6rln4agT3tIPJCS2   #短信模版
+  config_env: dev           # dev 注册环节不发短信，默认验证码9999
+  rongcloud_app_key: 8w7jv4qb8z9ty
+  rongcloud_app_secret: fzrmi5djOSF0
+  rongcloud_api_url: http://apialiyun.cn.rongcfg.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
-  qiniu_access_key: ctk1VIyQlx5CFar_fEQMqrQkF5c1PKGuqC2SNTR749
-  qiniu_secret_key: MRuJJ6AcBkFQrgsmf16ayDtv_4L0M2jsQe-QuMBfiw
-  qiniu_bucket_name: dev-sealtalk
-  qiniu_bucket_domain: dev.sealtalk.xxxx.clouddn.com
-  yunpian_api_key: 830c36ecb0ef1667e02769e1f33d9942
+  #  qiniu_access_key: livk5rb3__JZjCtEiMxpQ8QscsLxbNLehwhHySnX
+  #  qiniu_secret_key: ysrYdcDrrF425QNz0sfa9RoafANC6Hni3TIVgjw5
+  #  qiniu_bucket_name: sealtalk-image
+  #  qiniu_bucket_domain: 7xogjk.com1.z0.glb.clouddn.com
+  qiniu_access_key: livk5rb3__JZjCtEiMxXpQ8QscLxbNLehwhHySnX
+  qiniu_secret_key: ysrYdcDrrF425QNz0pfY9RoafANC6Hni3TIVgjw5
+  qiniu_bucket_name: sealtalk-image
+  qiniu_bucket_domain: 7xogjk.com1.z0.glb.clouddn.com
+  yunpian_api_key: bbdfde0dee2cd3957da7d0f5611f082a
   yunpian_limited_time: 1     #云片发送验证码限制时间单位 1小时
-  yunpian_limited_count: 20   #云片发送验证码次数限制    20次
+  yunpian_limited_count: 100   #云片发送验证码次数限制    20次
   n3d_key: 22EdDIauqcQW
-  auth_cookie_domain: devtalk.im
-  cors_hosts:  web.devtalk.im
+  auth_cookie_domain: rongcloud.net
+  cors_hosts:  http://sealtalk-server-aliyunoem.rongcloud.net
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
   server_port: 8080
   db_name: sealtalk
-  db_user: root
-  db_password: 123456
-  db_host: 127.0.0.1
+  db_user: sealtalk_user
+  db_password: 2AUSted&^^%T@*^U
+  db_host: mysql.im.local
   db_port: 3306
+

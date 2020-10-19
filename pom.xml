@@ -31,6 +31,7 @@
     <bouncycastle.version>1.65.01</bouncycastle.version>
     <mybatis.generator.plugin.version>1.2.12</mybatis.generator.plugin.version>
     <tk.mapper.version>4.1.5</tk.mapper.version>
+    <build.path>${basedir}/build</build.path>
   </properties>
 
   <dependencies>
@@ -80,12 +81,8 @@
     <dependency>
       <groupId>cn.rongcloud.im</groupId>
       <artifactId>server-sdk-java</artifactId>
-      <version>3.1.10</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/src/main/resources/lib/server-sdk-java-3.1.10.jar</systemPath>
+      <version>3.1.11</version>
     </dependency>
-
-
 
     <dependency>
       <groupId>com.alibaba</groupId>
@@ -209,17 +206,129 @@
   </dependencies>
 
   <build>
+
+    <finalName>sealtalk-server</finalName>
     <plugins>
+
+      <!--清理插件，每次打包前，清理之前生成的打包目录-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+
+          <filesets>
+            <fileset>
+              <!--要清理的目录位置-->
+              <directory>${build.path}</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+
+      <!--打包jar-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <!--不打包资源文件-->
+          <excludes>
+            <exclude>*.yml</exclude>
+            <exclude>*.properties</exclude>
+            <exclude>*.xml</exclude>
+            <exclude>*.json</exclude>
+          </excludes>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <!--MANIFEST.MF 中 Class-Path 加入前缀-->
+              <classpathPrefix>lib/</classpathPrefix>
+              <!--jar包不包含唯一版本标识-->
+              <useUniqueVersions>false</useUniqueVersions>
+              <!--指定入口类-->
+              <mainClass>com.rcloud.server.sealtalk.SealtalkServerApplication</mainClass>
+            </manifest>
+            <manifestEntries>
+              <!--MANIFEST.MF 中 Class-Path 加入资源文件目录-->
+              <Class-Path>./config/</Class-Path>
+            </manifestEntries>
+          </archive>
+          <outputDirectory>${build.path}</outputDirectory>
+        </configuration>
+      </plugin>
+
+      <!--拷贝依赖 copy-dependencies-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${build.path}/lib/</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--拷贝资源文件 copy-resources-->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/main/resources</directory>
+                  <includes>
+                    <include>*.yml</include>
+                    <include>*.properties</include>
+                    <include>*.xml</include>
+                    <include>*.json</include>
+                  </includes>
+                </resource>
+              </resources>
+              <outputDirectory>${build.path}/config</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--spring boot repackage，依赖 maven-jar-plugin 打包的jar包 重新打包成 spring boot 的jar包-->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>2.3.1.RELEASE</version>
         <configuration>
-<!--          <mainClass>com.rcloud.server.sealtalk.SealtalkServerApplication</mainClass>-->
-<!--          &lt;!&ndash; 简化启动命令&ndash;&gt;-->
-<!--          <executable>true</executable>-->
-          <includeSystemScope>true</includeSystemScope>
+          <!--重写包含依赖，包含不存在的依赖，jar里没有pom里的依赖-->
+          <includes>
+            <include>
+              <groupId>null</groupId>
+              <artifactId>null</artifactId>
+            </include>
+          </includes>
+          <layout>ZIP</layout>
+          <!--使用外部配置文件，jar包里没有资源文件-->
+          <addResources>true</addResources>
+          <outputDirectory>${project.build.directory}</outputDirectory>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>

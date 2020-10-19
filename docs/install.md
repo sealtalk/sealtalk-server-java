@@ -93,11 +93,18 @@ spring:
  
 需建立一个空的数据库，项目启动时会自动初始化表结构.
 
-### 启动服务
+### 启动运行服务
+1、把项目下载到本地
 
-1、独立tomcat部署： 项目编译打包生产war包
+* git clone https://github.com/sealtalk/sealtalk-server-java.git
 
-2、内嵌tomcat方式： 项目编译打包生产Jar包，java -jar 命令启动
+2、修改配置后，构建应用,构建输出目录见build
+* mvn clean package -Dmaven.skip.test=true
+
+3、启动服务
+* java -jar sealtalk-server.jar
+
+
 
 ## 注意事项(必读)
 

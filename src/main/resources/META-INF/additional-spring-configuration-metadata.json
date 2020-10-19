@@ -1,8 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "sealtalk-config.qiniu_bucket_domain",
-      "type": "java.lang.String",
-      "description": "Description for sealtalk-config.qiniu_bucket_domain."
-  }
-] }

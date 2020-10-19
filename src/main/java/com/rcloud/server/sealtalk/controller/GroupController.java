@@ -27,10 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: xiuwei.nie
@@ -353,7 +350,7 @@ public class GroupController extends BaseController {
             groupDTO.setBulletin(group.getBulletin());
             groupDTO.setIsMute(group.getIsMute());
             groupDTO.setMemberProtection(group.getMemberProtection());
-            groupDTO.setDeletedAt(group.getDeletedAt());
+            groupDTO.setDeletedAt(group.getDeletedAt()!=null?String.valueOf(group.getDeletedAt().getTime()):"");
 
         }
         return APIResultWrap.ok(groupDTO);

@@ -19,7 +19,7 @@ public class GroupDTO {
     private Integer maxMemberCount;
     private String creatorId;
     private String bulletin;
-    private Date deletedAt;
+    private String deletedAt;
     private Integer isMute;
     private Integer certiStatus;
     private Integer memberProtection;
