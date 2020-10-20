@@ -17,6 +17,7 @@ public class MemberDTO {
     private Long createdTime;
     private String updatedAt;
     private Long updatedTime;
+    private String displayName;
 
     private UserDTO user;
 }

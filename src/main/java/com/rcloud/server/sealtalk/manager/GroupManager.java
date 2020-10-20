@@ -531,9 +531,9 @@ public class GroupManager extends BaseManager {
                 //批量插入Groupmember
                 groupMembersService.batchSaveOrUpdate(groupId, userIds, timestamp, null);
 
-                //更新GroupReceiver 等待审核状态记录为已过期状态
+                //更新GroupReceiver 等待审核状态记录为已同意
                 GroupReceivers groupReceivers = new GroupReceivers();
-                groupReceivers.setStatus(GroupReceivers.GROUP_RECEIVE_STATUS_EXPIRED);
+                groupReceivers.setStatus(GroupReceivers.GROUP_RECEIVE_STATUS_AGREED);
                 Example example = new Example(GroupReceivers.class);
                 example.createCriteria().andEqualTo("groupId", groupId)
                         .andIn("receiverId", userIds);
