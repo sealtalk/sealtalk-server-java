@@ -404,7 +404,7 @@ public class UserController extends BaseController {
 
 
     @ApiOperation(value = "将好友移除黑名单")
-    @RequestMapping(value = "check_phone_availableremove_from_blacklist", method = RequestMethod.POST)
+    @RequestMapping(value = "remove_from_blacklist", method = RequestMethod.POST)
     public APIResult<Object> removeBlacklist(@RequestBody UserParam userParam) throws ServiceException {
         String friendId = userParam.getFriendId();
         ValidateUtils.notEmpty(friendId);

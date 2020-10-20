@@ -306,7 +306,7 @@ public class GroupController extends BaseController {
         Integer currentUserId = getCurrentUserId();
 
         groupManager.setGroupPortraitUri(currentUserId, N3d.decode(groupId), portraitUri);
-        return APIResultWrap.ok("群头像设置成功");
+        return APIResultWrap.ok();
     }
 
 
@@ -350,7 +350,7 @@ public class GroupController extends BaseController {
             groupDTO.setBulletin(group.getBulletin());
             groupDTO.setIsMute(group.getIsMute());
             groupDTO.setMemberProtection(group.getMemberProtection());
-            groupDTO.setDeletedAt(group.getDeletedAt()!=null?String.valueOf(group.getDeletedAt().getTime()):"");
+            groupDTO.setDeletedAt(group.getDeletedAt()!=null?String.valueOf(group.getDeletedAt().getTime()):null);
 
         }
         return APIResultWrap.ok(groupDTO);
@@ -492,7 +492,7 @@ public class GroupController extends BaseController {
 
         groupManager.setMuteAll(currentUserId, N3d.decode(groupId), muteStatus, MiscUtils.decodeIds(userId));
 
-        return APIResultWrap.ok("全员禁言成功");
+        return APIResultWrap.ok();
     }
 
     @ApiOperation(value = "设置群定时清理状态")
@@ -551,7 +551,7 @@ public class GroupController extends BaseController {
 
 
         groupManager.setMemberInfo(N3d.decode(groupId), N3d.decode(memberId), groupNickname, region, phone, WeChat, Alipay, memberDesc);
-        return APIResultWrap.ok("设置成功");
+        return APIResultWrap.ok();
     }
 
 
