@@ -379,9 +379,9 @@ public class GroupController extends BaseController {
                 memberDTO.setRole(groupMembers.getRole());
                 memberDTO.setDisplayName(groupMembers.getDisplayName()==null?"":groupMembers.getDisplayName());
 
-                memberDTO.setCreatedAt(sdf.format(new Date(groupMembers.getCreatedAt().getTime()-8*3600*1000)));
+                memberDTO.setCreatedAt(sdf.format(groupMembers.getCreatedAt()));
                 memberDTO.setCreatedTime(groupMembers.getCreatedAt().getTime());
-                memberDTO.setUpdatedAt(sdf.format(new Date(groupMembers.getUpdatedAt().getTime()-8*3600*1000)));
+                memberDTO.setUpdatedAt(sdf.format(groupMembers.getUpdatedAt()));
                 memberDTO.setUpdatedTime(groupMembers.getUpdatedAt().getTime());
 
                 UserDTO userDTO = new UserDTO();
