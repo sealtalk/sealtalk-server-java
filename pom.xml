@@ -300,6 +300,25 @@
               <outputDirectory>${build.path}/config</outputDirectory>
             </configuration>
           </execution>
+
+          <execution>
+            <id>copy-script</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>${basedir}/bin</directory>
+                  <includes>
+                    <include>*.sh</include>
+                  </includes>
+                </resource>
+              </resources>
+              <outputDirectory>${build.path}</outputDirectory>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
