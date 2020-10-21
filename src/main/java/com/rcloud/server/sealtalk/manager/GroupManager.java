@@ -795,6 +795,7 @@ public class GroupManager extends BaseManager {
         GroupMembers newGroupMembers = new GroupMembers();
         newGroupMembers.setId(groupMembers.getId());
         newGroupMembers.setGroupNickname(groupNickname);
+        newGroupMembers.setDisplayName(groupNickname);
         newGroupMembers.setRegion(region);
         newGroupMembers.setPhone(phone);
         newGroupMembers.setWeChat(weChat);
@@ -1518,6 +1519,7 @@ public class GroupManager extends BaseManager {
 
         //清除群成员缓存
         CacheUtil.delete(CacheUtil.GROUP_MEMBERS_CACHE_PREFIX + groupId);
+        CacheUtil.delete(CacheUtil.GROUP_CACHE_PREFIX + groupId);
 
         //根据groupId查询Groups
         Groups groups = groupsService.getByPrimaryKey(groupId);
