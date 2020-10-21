@@ -41,7 +41,7 @@
     </appender>
 
     <!--指定包日志输出-->
-    <logger name="com.rcloud.server.sealtalk.dao"  level="DEBUG"/>
+<!--    <logger name="com.rcloud.server.sealtalk.dao"  level="DEBUG"/>-->
 
     <!--指定基础的日志输出级别-->
     <root level="INFO">
