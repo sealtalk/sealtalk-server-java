@@ -19,8 +19,6 @@ public class N3dTest {
     @Test
     public void name() throws ServiceException {
 
-        System.out.println("groupId H6SzV9OXf: "+N3d.decode("Vgu7CtfIs"));
-        System.out.println("groupId H6SzV9OXf: "+N3d.decode("41PARF60O"));
         System.out.println("groupId H6SzV9OXf: "+N3d.encode(28));
         System.out.println("groupId H6SzV9OXf: "+N3d.encode(111));
 
