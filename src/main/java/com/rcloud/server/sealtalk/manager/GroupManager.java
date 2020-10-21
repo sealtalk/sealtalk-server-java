@@ -1527,7 +1527,7 @@ public class GroupManager extends BaseManager {
         if (!Groups.MUTE_STATUS_OPENED.equals(groups.getIsMute())) {
             //如果全员禁言状态为否，直接删除GroupReverive 返回
             groupReceiversService.deleteGroupReverive(groupId, currentUserId);
-            return;
+
         } else {
             //如果全员禁言状态 是，将新群主加入群禁言 白名单，将当前用户(老群主)移除白名单
             try {
