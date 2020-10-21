@@ -1,3 +1,3 @@
 spring:
   profiles:
-    active: dev      # dev 启用 application-dev.yml 环境，test 启用application-test.yml 环境
+    active: prod      # dev 启用 application-dev.yml 环境，test 启用application-test.yml 环境
