@@ -72,4 +72,13 @@ public class MiscUtilsTest {
         String hashStr = MiscUtils.hash(password, salt);
         System.out.println("hashStr:" + hashStr);
     }
+
+    @Test
+    public void testXss() {
+        String s = "¥¥";
+        String str = MiscUtils.xss(s, 20);
+
+        System.out.println(str);
+
+    }
 }

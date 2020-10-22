@@ -110,6 +110,9 @@ public class RequestInterceptor implements HandlerInterceptor {
                 serverApiParams.setCurrentUserId(currentUserId);
             } catch (Exception e) {
                 log.error("获取currentUserId异常,error: " + e.getMessage(), e);
+                response.setStatus(403);
+                response.getWriter().write("Not loged in.");
+                return false;
             }
 
             if (currentUserId == null) {
