@@ -39,7 +39,7 @@ public class GlobalControllerExceptionHandler {
     public void serviceRuntimeExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceRuntimeException e) throws Exception {
         String url = request.getRequestURI();
         if(log.isDebugEnabled()){
-            String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
+            String errorInfo = String.format("Error found: url:[%s],uid=[%s] ",url,ServerApiParamHolder.getEncodedCurrentUserId());
             log.debug(errorInfo,e);
         }
 
@@ -60,7 +60,7 @@ public class GlobalControllerExceptionHandler {
     public void serviceAPIExceptionHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) throws Exception {
         String url = request.getRequestURI();
         if(log.isDebugEnabled()){
-            String errorInfo = String.format("Error found: url:[%s],traceId:[%s],uid=[%s] ",url, ServerApiParamHolder.getTraceId(),ServerApiParamHolder.getEncodedCurrentUserId());
+            String errorInfo = String.format("Error found: url:[%s],uid=[%s] ",url,ServerApiParamHolder.getEncodedCurrentUserId());
             log.debug(errorInfo,e);
         }
 

@@ -2,7 +2,6 @@ package com.rcloud.server.sealtalk.service;
 
 import com.rcloud.server.sealtalk.dao.GroupReceiversMapper;
 import com.rcloud.server.sealtalk.domain.GroupReceivers;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import tk.mybatis.mapper.common.Mapper;
@@ -36,8 +35,8 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
      * @param memberIds
      */
     public void deleteByMemberIds(Integer groupId, Integer[] memberIds) {
-        Assert.notNull(groupId,"groupId is null");
-        Assert.notEmpty(memberIds,"memberIds is empty");
+        Assert.notNull(groupId, "groupId is null");
+        Assert.notEmpty(memberIds, "memberIds is empty");
 
         Example example = new Example(GroupReceivers.class);
         example.createCriteria().andEqualTo("groupId", groupId);
@@ -59,8 +58,8 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
      * @param userId
      */
     public void deleteGroupReverive(Integer groupId, Integer userId) {
-        Assert.notNull(groupId,"groupId is null");
-        Assert.notNull(userId,"userId is null");
+        Assert.notNull(groupId, "groupId is null");
+        Assert.notNull(userId, "userId is null");
 
         Example example = new Example(GroupReceivers.class);
         example.createCriteria().andEqualTo("groupId", groupId)
@@ -69,31 +68,31 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
 
     }
 
-    public List<GroupReceivers> getReceiversWithList(Integer groupId,Integer requesterId,List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType){
+    public List<GroupReceivers> getReceiversWithList(Integer groupId, Integer requesterId, List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType) {
 
-        return mapper.selectReceiversWithList(groupId,requesterId,receiverIdList,operatorList,groupReceiveType);
+        return mapper.selectReceiversWithList(groupId, requesterId, receiverIdList, operatorList, groupReceiveType);
     }
 
 
-    public int updateReceiversWithList(Integer requesterIdForUpdate,Long timestamp,Integer status,Integer groupId,Integer requesterId,List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType){
+    public int updateReceiversWithList(Integer requesterIdForUpdate, Long timestamp, Integer status, Integer groupId, Integer requesterId, List<Integer> receiverIdList, List<Integer> operatorList, Integer groupReceiveType) {
 
-        Assert.notEmpty(receiverIdList,"receiverIdList is empty");
-        Assert.notEmpty(operatorList,"operatorList is empty");
-        return mapper.updateReceiversWithList(requesterIdForUpdate,timestamp,status,groupId,requesterId,receiverIdList,operatorList,groupReceiveType);
+        Assert.notEmpty(receiverIdList, "receiverIdList is empty");
+        Assert.notEmpty(operatorList, "operatorList is empty");
+        return mapper.updateReceiversWithList(requesterIdForUpdate, timestamp, status, groupId, requesterId, receiverIdList, operatorList, groupReceiveType);
     }
 
 
     public void batchSave(List<GroupReceivers> groupReceiverList) {
-        Assert.notEmpty(groupReceiverList,"groupReceiverList is empty");
+        Assert.notEmpty(groupReceiverList, "groupReceiverList is empty");
         List<GroupReceivers> grListForInsert = new ArrayList<>();
 
         Integer index = 0;
-        for(int i=0;i<groupReceiverList.size();i++){
+        for (int i = 0; i < groupReceiverList.size(); i++) {
 
             grListForInsert.add(groupReceiverList.get(i));
             //批量插入groupReceiver，每1000条执行一次insert sql
             index++;
-            if( index % 1000 == 0 || index.equals(groupReceiverList.size())){
+            if (index % 1000 == 0 || index.equals(groupReceiverList.size())) {
                 mapper.insertBatch(grListForInsert);
                 grListForInsert.clear();
             }
@@ -102,5 +101,19 @@ public class GroupReceiversService extends AbstractBaseService<GroupReceivers, I
 
     public List<GroupReceivers> getGroupReceiversWithIncludes(Integer currentUserId) {
         return mapper.selectGroupReceiversWithIncludes(currentUserId);
+    }
+
+    /**
+     * 根据groupId批量删除GroupReceivers
+     *
+     * @param groupId
+     */
+    public void deleteByGroupId(Integer groupId) {
+        Assert.notNull(groupId, "groupId is null");
+
+        Example example = new Example(GroupReceivers.class);
+        example.createCriteria().andEqualTo("groupId", groupId);
+
+        this.deleteByExample(example);
     }
 }

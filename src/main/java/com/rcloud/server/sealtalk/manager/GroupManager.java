@@ -1712,6 +1712,9 @@ public class GroupManager extends BaseManager {
                     throw new RuntimeException(ErrorCode.GROUP_OR_CREATOR_UNKNOW.getErrorMessage());
                 }
 
+                //删除group_receivers
+                groupReceiversService.deleteByGroupId(groupId);
+                //删除group
                 groupsService.deleteByPrimaryKey(groupId);
 
                 GroupMembers groupMembers = new GroupMembers();

@@ -61,9 +61,8 @@ public class LogAspect {
             }
 
             String uri = ServerApiParamHolder.getURI();
-            String traceId = ServerApiParamHolder.getTraceId();
             String uid = ServerApiParamHolder.getEncodedCurrentUserId();
-            log.info("invoke controller info: traceId={},uri={},target={},params=[{}],uid={}", traceId, uri, target, objectMapper.writeValueAsString(paramMap), uid);
+            log.info("invoke controller info: uri={},target={},params=[{}],uid={}", uri, target, objectMapper.writeValueAsString(paramMap), uid);
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);

@@ -9,6 +9,7 @@ import com.rcloud.server.sealtalk.model.RequestUriInfo;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.util.AES256;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -54,6 +55,8 @@ public class RequestInterceptor implements HandlerInterceptor {
     public static final String HTTP_CLIENT_IP = "HTTP_CLIENT_IP";
     public static final String HTTP_X_FORWARDED_FOR = "HTTP_X_FORWARDED_FOR";
 
+    private static final String MDC_TRACE_ID = "traceId";
+
     /**
      * 排除auth认证的url的集合
      */
@@ -89,6 +92,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
         ServerApiParams serverApiParams = new ServerApiParams();
         serverApiParams.setTraceId(UUID.randomUUID().toString());
+        MDC.put(MDC_TRACE_ID,serverApiParams.getTraceId());
         String uri = request.getRequestURI();
 
         RequestUriInfo requestUriInfo = getRequestUriInfo(request);
@@ -129,6 +133,7 @@ public class RequestInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         ServerApiParamHolder.remove();
+        MDC.clear();
     }
 
     private Integer getCurrentUserId(Cookie authCookie) throws ServiceException {

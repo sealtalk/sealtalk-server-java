@@ -23,11 +23,11 @@ public class RongCloudInvokeTemplate {
             if (result.getCode().equals(200)) {
                 return (T) result;
             } else {
-                log.error("invoke rongcloud server exception,resultCode={},errorMessage={},traceId={}", result.getCode(), result.getErrorMessage(), ServerApiParamHolder.getTraceId());
+                log.error("invoke rongcloud server exception,resultCode={},errorMessage={}", result.getCode(), result.getErrorMessage());
                 return (T) result;
             }
         } catch (Exception e) {
-            log.error("invoke rongcloud server error：" + e.getMessage() + " ,traceId=" + ServerApiParamHolder.getTraceId(), e);
+            log.error("invoke rongcloud server error：" + e.getMessage() , e);
             throw new ServiceException(ErrorCode.INVOKE_RONG_CLOUD_SERVER_ERROR);
         }
     }
