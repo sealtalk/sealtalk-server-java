@@ -489,7 +489,7 @@ public class GroupManager extends BaseManager {
                 //更新为待管理员处理状态, 并批量发消息
                 batchSaveOrUpdateGroupReceiver(groups, currentUserId, verifyClosedUserIds, managerIds, type, GroupReceivers.GROUP_RECEIVE_STATUS_WAIT);
                 //发送好友邀请消息
-                sendGroupApplyMessage(currentUserId, verifyClosedUserIds, groups.getId(), groups.getName(), GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, type);
+                sendGroupApplyMessage(currentUserId, managerIds, groups.getId(), groups.getName(), GroupReceivers.GROUP_RECEIVE_STATUS_WAIT, type);
 
             } else {
                 //如果没有开启群验证或者有管理员角色 !isGroupVerifyOpened || hasManagerRole --> 直接加群
