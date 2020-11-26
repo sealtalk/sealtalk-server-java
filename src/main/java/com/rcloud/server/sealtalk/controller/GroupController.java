@@ -436,6 +436,7 @@ public class GroupController extends BaseController {
                 dto.setId(N3d.encode(groupReceivers.getId()));
                 dto.setCreatedTime(groupReceivers.getCreatedAt());
                 dto.setCreatedAt(sdf.format(groupReceivers.getCreatedAt()));
+                dto.setTimestamp(groupReceivers.getCreatedAt().getTime());
                 dto.setStatus(groupReceivers.getStatus());
                 dto.setType(groupReceivers.getType());
                 Map<String, Object> group = Maps.newHashMap();

@@ -16,6 +16,8 @@ public class GroupReceiverDTO {
     private Integer type;
     private Date createdTime;
     private String createdAt;
+    private Long timestamp;
+
 
     private Map<String,Object> group;
     private Map<String,Object> requester;
@@ -83,5 +85,13 @@ public class GroupReceiverDTO {
 
     public void setReceiver(Map<String, Object> receiver) {
         this.receiver = receiver;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }
