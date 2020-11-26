@@ -27,7 +27,7 @@ mybatis:
   mapper-locations: classpath:mybatis/*.xml
 
 logging:
-  config: classpath:logback-config.xml
+  config: classpath:logback-config-test2.xml
 
 
 sealtalk:
@@ -105,8 +105,8 @@ sealtalk-config:
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
   rongcloud_sms_register_template_id: 6iYv6rln4agT3tIPJCS2   #短信模版
   config_env: dev           # dev 注册环节不发短信，默认验证码9999
-    rongcloud_app_key: c9kqb3rdkbb8j
-  rongcloud_app_secret: 5W7vjUScQzR1
+  rongcloud_app_key: 0vnjpoadnpp4z
+  rongcloud_app_secret: Sn5U4uPWrE
   rongcloud_api_url: apiserverqa.cn.ronghub.com  # rongcloud api_url
   rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
   #  qiniu_access_key: livk5rb3__JZjCtEiMxpQ8QscsLxbNLehwhHySnX
@@ -124,8 +124,8 @@ sealtalk-config:
   auth_cookie_domain: rongcloud.net
   cors_hosts:  http://webqa.rongcloud.net
   exclude_url: /misc/demo_square,/misc/latest_update, /user/verify_code_yp_t,/misc/client_version,/misc/mobile_version,/user/login,/user/register,/user/reset_password, /user/send_code, /user/send_code_yp,/user/verify_code, /user/verify_code_yp, /user/delete, /user/get_sms_img_code,/user/check_username_available,/user/check_phone_available,/user/regionlist,/ping
-  server_port: 8080
-  db_name: sealtalk
+  server_port: 8081
+  db_name: sealtalk_test2
   db_user: root
   db_password: 123456
   db_host: 127.0.0.1
