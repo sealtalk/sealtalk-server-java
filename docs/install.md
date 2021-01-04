@@ -106,8 +106,6 @@ spring:
 
 * java -jar sealtalk-server.jar
 
-4、请使用域名访问服务，不要使用ip地址或localhost!
-
 
 
 ## 注意事项(必读)
@@ -131,6 +129,11 @@ sealtalk-config:
 rongcloud_api_url: api-cn.ronghub.com,api2-cn.ronghub.com 
 
 ```
+
+4、由于登录认证信息存储在cookie里 请使用域名访问服务，不要使用ip地址或localhost!
+   
+
+
 
 
 ## 业务数据配置 (无需求略过)

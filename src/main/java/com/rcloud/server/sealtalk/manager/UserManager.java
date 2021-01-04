@@ -290,8 +290,7 @@ public class UserManager extends BaseManager {
         //缓存nickname
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
 
-        //上报用户注册数据
-        adminReport(verificationCodes.getRegion(), verificationCodes.getPhone());
+        //上报用户注册数据 TODO
 
         return u.getId();
     }
@@ -1202,52 +1201,7 @@ public class UserManager extends BaseManager {
     }
 
 
-    public void adminReport(String region, String phone) {
 
-        String env = sealtalkConfig.getConfigEnv();
-
-        try {
-
-            if (StringUtils.isEmpty(region) || StringUtils.isEmpty(phone)) {
-                throw new RuntimeException("param error");
-            }
-
-            log.info("admin report,{},{},{}", region, phone, env);
-
-            //1 表示来自sealtalk
-            String demo_type = "1";
-
-            String admin_report_api = "/demoApi/sendData";
-            String domain = "";
-            if (Constants.ENV_DEV.equals(env)) {
-                //测试环境
-                domain = "https://admin.rongcloud.net";
-            } else {
-                //正式环境
-                domain = "https://admin.rongcloud.cn";
-            }
-
-            String url = domain + admin_report_api;
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-            map.add("mobile", phone);
-            map.add("demo_type", demo_type);
-            map.add("region", region);
-
-
-            ResponseEntity<String> response = httpClient.post(headers, url, map, MediaType.APPLICATION_FORM_URLENCODED);
-            if (SUCCESS_CODE.equals(response.getStatusCodeValue())) {
-                log.info("admin report success");
-            } else {
-                log.info("admin report fail,response={}", JacksonUtil.toJson(response));
-            }
-        } catch (Exception e) {
-            log.error("region={},phone={},env={} adminReport exception,error={}", region, phone, env, e.getMessage(), e);
-        }
-    }
 
 
 }
