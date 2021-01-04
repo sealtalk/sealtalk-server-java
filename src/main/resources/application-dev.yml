@@ -112,7 +112,8 @@ sealtalk-config:
   config_env: dev                 # dev 调试环境 注册环节不发短信，默认验证码9999
   rongcloud_app_key: bmdehs6pbauls
   rongcloud_app_secret: xvQhSJbgYBtwF
-  rongcloud_api_url: api-cn.ronghub.com  # rongcloud api_url
+  # 融云颁发的 Api Url, 逗号分割，第一个为主域名，后面的为备份域名 ,国内数据中心 api-cn.ronghub.com,api2-cn.ronghub.com 新加坡数据中心 api-sg01.ronghub.com
+  rongcloud_api_url: api-cn.ronghub.com
   rongcloud_default_portrait_url: http://www.rongcloud.cn/images/icon-57.png        #登录注册默认头像地址
   qiniu_access_key: ctk1VIyQlx5CFar_fEQMqrQkF5c1PKGuqC2SNTR749
   qiniu_secret_key: MRuJJ6AcBkFQrgsmf16ayDtv_4L0M2jsQe-QuMBfiw
