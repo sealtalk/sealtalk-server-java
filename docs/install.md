@@ -100,7 +100,7 @@ spring:
 
 2、修改配置后，构建应用,构建输出目录见build
 
-* mvn clean package -Dmaven.skip.test=true
+* mvn clean  package -Dmaven.test.skip
 
 3、启动服务,转到输出目录build,执行如下命令
 
