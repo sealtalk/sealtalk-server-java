@@ -14,8 +14,9 @@ import com.rcloud.server.sealtalk.service.FriendshipsService;
 import com.rcloud.server.sealtalk.service.GroupMembersService;
 import com.rcloud.server.sealtalk.service.ScreenStatusesService;
 import com.rcloud.server.sealtalk.service.UsersService;
+import com.rcloud.server.sealtalk.util.JacksonUtil;
 import com.rcloud.server.sealtalk.util.N3d;
-import io.rong.messages.TxtMessage;
+import io.rong.messages.ImgTextMessage;
 import io.rong.models.message.GroupMessage;
 import io.rong.models.message.PrivateMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @Author: Jianlu.Yu
@@ -52,7 +54,7 @@ public class MiscManager extends BaseManager {
 
 
     /**
-     * 调用Server api发送消息
+     * 调用Server api发送消息,目前只支持ImgTextMessage 消息类型
      *
      * @param conversationType
      * @param targetId
@@ -71,12 +73,22 @@ public class MiscManager extends BaseManager {
             Friendships friendships = friendshipsService.getOneByExample(example);
 
             if (friendships != null) {
+
+                Map<String,Object> contentMap = JacksonUtil.toMap(content);
+
+                String contentStr = String.valueOf(contentMap.get("content"));
+                String extra = String.valueOf(contentMap.get("extra"));
+                String title = String.valueOf(contentMap.get("title"));
+                String imageUri = String.valueOf(contentMap.get("imageUri"));
+                String url = String.valueOf(contentMap.get("url"));
+
+                ImgTextMessage imgTextMessage = new ImgTextMessage(contentStr,extra,title,imageUri,url);
                 //调用融云接口发送单聊消息
                 PrivateMessage privateMessage = new PrivateMessage()
                         .setSenderId(N3d.encode(currentUserId))
                         .setTargetId(new String[]{encodedTargetId})
                         .setObjectName(objectName)
-                        .setContent(new TxtMessage(content, ""))
+                        .setContent(imgTextMessage)
                         .setPushContent(pushContent);
                 rongCloudClient.sendPrivateMessage(privateMessage);
                 return;
@@ -91,11 +103,22 @@ public class MiscManager extends BaseManager {
             GroupMembers groupMembers = groupMembersService.getOneByExample(example);
 
             if (groupMembers != null) {
+
+                Map<String,Object> contentMap = JacksonUtil.toMap(content);
+
+                String contentStr = String.valueOf(contentMap.get("content"));
+                String extra = String.valueOf(contentMap.get("extra"));
+                String title = String.valueOf(contentMap.get("title"));
+                String imageUri = String.valueOf(contentMap.get("imageUri"));
+                String url = String.valueOf(contentMap.get("url"));
+
+                ImgTextMessage imgTextMessage = new ImgTextMessage(contentStr,extra,title,imageUri,url);
+
                 GroupMessage groupMessage = new GroupMessage();
                 groupMessage.setSenderId(N3d.encode(currentUserId))
                         .setTargetId(new String[]{encodedTargetId})
                         .setObjectName(objectName)
-                        .setContent(new TxtMessage(content, ""))
+                        .setContent(imgTextMessage)
                         .setPushContent(pushContent);
                 //发送群组消息
                 rongCloudClient.sendGroupMessage(groupMessage);
