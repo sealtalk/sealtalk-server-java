@@ -1,5 +1,9 @@
 # SealTalk Server
 
+* sealtalk-forGitHub 此分支是供上传到github，对外版本
+
+* dev分支是公司内部使用版本
+
 本项目是 SealTalk 系列应用的后端服务，提供了用户、好友、群组、黑名单相关接口和数据管理服务。
 
 SealTalk 是使用[`融云 RongCloud`](http://www.rongcloud.cn)即时通讯云服务及其 SDK 打造的开源即时通讯应用，覆盖所有主流平台，包括：iOS、Android、Windows、Mac、Web。在融云官网注册开发者帐号后，您可以直接使用 SealTalk 打造您自己的 IM App。
