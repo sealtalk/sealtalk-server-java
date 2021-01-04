@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,11 +30,13 @@ public class HttpClient {
         return entity.getBody();
     }
 
-    public ResponseEntity<String> post(String url, MultiValueMap<String, ?> params,
+    public ResponseEntity<String> post(HttpHeaders httpHeaders,String url, MultiValueMap<String, ?> params,
         MediaType mediaType) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(mediaType);
-        HttpEntity<MultiValueMap<String, ?>> request = new HttpEntity<>(params, headers);
+        if(httpHeaders==null){
+            httpHeaders = new HttpHeaders();
+        }
+        httpHeaders.setContentType(mediaType);
+        HttpEntity<MultiValueMap<String, ?>> request = new HttpEntity<>(params, httpHeaders);
         ResponseEntity<String> entity = restTemplate.postForEntity(url, request, String.class);
         return entity;
     }
@@ -42,4 +45,6 @@ public class HttpClient {
     public String get(String url) {
         return restTemplate.getForObject(url, String.class);
     }
+
+
 }

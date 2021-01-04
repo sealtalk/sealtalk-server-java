@@ -28,11 +28,16 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
@@ -86,6 +91,9 @@ public class UserManager extends BaseManager {
 
     @Autowired
     private HttpClient httpClient;
+
+    private Integer SUCCESS_CODE = 200;
+
 
     /**
      * 向手机发送验证码
@@ -281,6 +289,9 @@ public class UserManager extends BaseManager {
 
         //缓存nickname
         CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
+
+        //上报用户注册数据
+        adminReport(verificationCodes.getRegion(), verificationCodes.getPhone());
 
         return u.getId();
     }
@@ -574,7 +585,7 @@ public class UserManager extends BaseManager {
             for (Friendships friendships : friendshipsList) {
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendships.getFriendId());
                 //清除缓存 friendship_profile_
-                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX+ currentUserId + "_" + friendships.getFriendId());
+                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendships.getFriendId());
             }
         }
         //查询该用户所属组groupid isDeleted: false
@@ -1080,7 +1091,7 @@ public class UserManager extends BaseManager {
 
 
         SyncUserDTO userDTO = new SyncUserDTO();
-        if(users!=null){
+        if (users != null) {
             userDTO.setId(N3d.encode(users.getId()));
             userDTO.setNickname(users.getNickname());
             userDTO.setPortraitUri(users.getPortraitUri());
@@ -1089,17 +1100,17 @@ public class UserManager extends BaseManager {
         syncInfoDTO.setUser(userDTO);
 
         List<SyncBlackListDTO> syncBlackListDTOList = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(blackListsList)){
-            for(BlackLists blackLists:blackListsList){
+        if (!CollectionUtils.isEmpty(blackListsList)) {
+            for (BlackLists blackLists : blackListsList) {
                 SyncBlackListDTO syncBlackListDTO = new SyncBlackListDTO();
                 syncBlackListDTO.setFriendId(N3d.encode(blackLists.getFriendId()));
-                syncBlackListDTO.setStatus(BlackLists.STATUS_VALID.equals(blackLists.getStatus())?true:false);
+                syncBlackListDTO.setStatus(BlackLists.STATUS_VALID.equals(blackLists.getStatus()) ? true : false);
                 syncBlackListDTO.setTimestamp(blackLists.getTimestamp());
 
                 Users u = blackLists.getUsers();
                 SyncUserDTO sUser = new SyncUserDTO();
 
-                if(u!=null){
+                if (u != null) {
                     sUser.setId(N3d.encode(u.getId()));
                     sUser.setNickname(u.getNickname());
                     sUser.setPortraitUri(u.getPortraitUri());
@@ -1114,8 +1125,8 @@ public class UserManager extends BaseManager {
 
 
         List<SyncFriendshipDTO> syncFriendshipDTOList = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(friendshipsList)){
-            for(Friendships friendships:friendshipsList){
+        if (!CollectionUtils.isEmpty(friendshipsList)) {
+            for (Friendships friendships : friendshipsList) {
                 SyncFriendshipDTO syncFriendshipDTO = new SyncFriendshipDTO();
                 syncFriendshipDTO.setFriendId(N3d.encode(friendships.getFriendId()));
                 syncFriendshipDTO.setDisplayName(friendships.getDisplayName());
@@ -1123,7 +1134,7 @@ public class UserManager extends BaseManager {
                 syncFriendshipDTO.setTimestamp(friendships.getTimestamp());
                 Users u = friendships.getUsers();
                 SyncUserDTO syncUserDTO = new SyncUserDTO();
-                if(u!=null){
+                if (u != null) {
                     syncUserDTO.setId(N3d.encode(u.getId()));
                     syncUserDTO.setNickname(u.getNickname());
                     syncUserDTO.setPortraitUri(u.getPortraitUri());
@@ -1137,16 +1148,16 @@ public class UserManager extends BaseManager {
         syncInfoDTO.setFriends(syncFriendshipDTOList);
 
         List<SyncGroupDTO> syncGroupDTOList = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(groupsList)){
-            for(GroupMembers groupMembers:groupsList){
+        if (!CollectionUtils.isEmpty(groupsList)) {
+            for (GroupMembers groupMembers : groupsList) {
                 SyncGroupDTO syncGroupDTO = new SyncGroupDTO();
                 syncGroupDTO.setGroupId(N3d.encode(groupMembers.getGroupId()));
                 syncGroupDTO.setDisplayName(groupMembers.getDisplayName());
-                syncGroupDTO.setIsDeleted(GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted())?true:false);
+                syncGroupDTO.setIsDeleted(GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted()) ? true : false);
                 syncGroupDTO.setRole(groupMembers.getRole());
                 Groups g = groupMembers.getGroups();
                 SyncGroupInnerDTO groupInnerDTO = new SyncGroupInnerDTO();
-                if(g!=null){
+                if (g != null) {
                     groupInnerDTO.setId(N3d.encode(g.getId()));
                     groupInnerDTO.setName(g.getName());
                     groupInnerDTO.setPortraitUri(g.getPortraitUri());
@@ -1161,20 +1172,19 @@ public class UserManager extends BaseManager {
         syncInfoDTO.setGroups(syncGroupDTOList);
 
 
-
         List<SyncGroupMemberDTO> syncGroupMemberDTOList = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(groupMembersList)){
-            for(GroupMembers groupMembers:groupMembersList){
+        if (!CollectionUtils.isEmpty(groupMembersList)) {
+            for (GroupMembers groupMembers : groupMembersList) {
                 SyncGroupMemberDTO syncGroupMemberDTO = new SyncGroupMemberDTO();
                 syncGroupMemberDTO.setGroupId(N3d.encode(groupMembers.getGroupId()));
                 syncGroupMemberDTO.setDisplayName(groupMembers.getDisplayName());
-                syncGroupMemberDTO.setIsDeleted(GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted())?true:false);
+                syncGroupMemberDTO.setIsDeleted(GroupMembers.IS_DELETED_YES.equals(groupMembers.getIsDeleted()) ? true : false);
                 syncGroupMemberDTO.setMemberId(N3d.encode(groupMembers.getMemberId()));
                 syncGroupMemberDTO.setRole(groupMembers.getRole());
                 syncGroupMemberDTO.setTimestamp(groupMembers.getTimestamp());
                 Users u = groupMembers.getUsers();
                 SyncUserDTO su = new SyncUserDTO();
-                if(u!=null){
+                if (u != null) {
                     su.setId(N3d.encode(u.getId()));
                     su.setNickname(u.getNickname());
                     su.setTimestamp(u.getTimestamp());
@@ -1190,5 +1200,55 @@ public class UserManager extends BaseManager {
         return syncInfoDTO;
 
     }
+
+
+    public void adminReport(String region, String phone) {
+
+        String env = sealtalkConfig.getConfigEnv();
+
+        try {
+
+            if (StringUtils.isEmpty(region) || StringUtils.isEmpty(phone)) {
+                throw new RuntimeException("param error");
+            }
+
+            log.info("admin report,{},{},{}", region, phone, env);
+
+            //1 表示来自sealtalk
+            String demo_type = "1";
+
+            String admin_report_api = "/demoApi/sendData";
+            String domain = "";
+            if (Constants.ENV_DEV.equals(env)) {
+                //测试环境
+                domain = "https://admin.rongcloud.net";
+            } else {
+                //正式环境
+                domain = "https://admin.rongcloud.cn";
+            }
+
+            String url = domain + admin_report_api;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+            map.add("mobile", phone);
+            map.add("demo_type", demo_type);
+            map.add("region", region);
+
+
+            ResponseEntity<String> response = httpClient.post(headers, url, map, MediaType.APPLICATION_FORM_URLENCODED);
+            if (SUCCESS_CODE.equals(response.getStatusCodeValue())) {
+                log.info("admin report success");
+            } else {
+                log.info("admin report fail,response={}", JacksonUtil.toJson(response));
+            }
+        } catch (Exception e) {
+            log.error("region={},phone={},env={} adminReport exception,error={}", region, phone, env, e.getMessage(), e);
+        }
+    }
+
+
 }
 

@@ -33,8 +33,8 @@ sealtalk-config:
   rongcloud_app_key: bmdehs6p1b2aauls             
   # 融云颁发的 App Secret，请访问融云开发者后台：https://developer.rongcloud.cn
   rongcloud_app_secret: xvQhSJb23agYBtwF
-  # 融云颁发的 Api Url, 逗号分割，第一个为主域名，后面的为备份域名
-  rongcloud_api_url: api-sg01.ronghub.com,api-xxx.ronghub.com     
+  # 融云颁发的 Api Url, 逗号分割，第一个为主域名，后面的为备份域名 ,国内数据中心 api-cn.ronghub.com,api2-cn.ronghub.com 新加坡数据中心 api-sg01.ronghub.com
+  rongcloud_api_url: api-cn.ronghub.com,api2-cn.ronghub.com     
   # 默认头像地址
   rongcloud_default_portrait_url: http://download.hotchatvip.com/default_hotchat_avatar.png  
   # 融云短信服务提供的注册用户短信模板 Id
@@ -106,6 +106,8 @@ spring:
 
 * java -jar sealtalk-server.jar
 
+4、请使用域名访问服务，不要使用ip地址或localhost!
+
 
 
 ## 注意事项(必读)
@@ -118,6 +120,18 @@ sealtalk-config:
 ```
 
 2、`AUTH_COOKIE_DOMAIN` 和 `CORS_HOSTS` 配置项必须按照上述说明配置正确
+
+3、数据中心地址
+
+```
+# 国内数据中心 api-cn.ronghub.com,api2-cn.ronghub.com 
+# 新加坡数据中心 api-sg01.ronghub.com
+# 配置文件中的rongcloud_api_url配置，请根据自己实际情况选择配置
+
+rongcloud_api_url: api-cn.ronghub.com,api2-cn.ronghub.com 
+
+```
+
 
 ## 业务数据配置 (无需求略过)
 
