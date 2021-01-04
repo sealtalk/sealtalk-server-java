@@ -562,6 +562,7 @@ public class UserManager extends BaseManager {
 
         //清除缓存"user_" + currentUserId
         //清除缓存"friendship_profile_user_" + currentUserId
+
         CacheUtil.delete(CacheUtil.USER_CACHE_PREFIX + currentUserId);
         CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_USER_CACHE_PREFIX + currentUserId);
 
@@ -572,6 +573,8 @@ public class UserManager extends BaseManager {
         if (!CollectionUtils.isEmpty(friendshipsList)) {
             for (Friendships friendships : friendshipsList) {
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendships.getFriendId());
+                //清除缓存 friendship_profile_
+                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX+ currentUserId + "_" + friendships.getFriendId());
             }
         }
         //查询该用户所属组groupid isDeleted: false
