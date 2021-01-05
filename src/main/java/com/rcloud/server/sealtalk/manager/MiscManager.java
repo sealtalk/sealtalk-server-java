@@ -3,6 +3,7 @@ package com.rcloud.server.sealtalk.manager;
 import com.rcloud.server.sealtalk.constant.Constants;
 import com.rcloud.server.sealtalk.constant.ConversationType;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
+import com.rcloud.server.sealtalk.controller.param.SendMessageContent;
 import com.rcloud.server.sealtalk.domain.Friendships;
 import com.rcloud.server.sealtalk.domain.GroupMembers;
 import com.rcloud.server.sealtalk.domain.ScreenStatuses;
@@ -63,7 +64,7 @@ public class MiscManager extends BaseManager {
      * @param pushContent
      * @param encodedTargetId
      */
-    public void sendMessage(Integer currentUserId, String conversationType, Integer targetId, String objectName, String content, String pushContent, String encodedTargetId) throws ServiceException {
+    public void sendMessage(Integer currentUserId, String conversationType, Integer targetId, String objectName, SendMessageContent sendMessageContent, String pushContent, String encodedTargetId) throws ServiceException {
         if (Constants.CONVERSATION_TYPE_PRIVATE.equals(conversationType)) {
             //如果会话类型是单聊
             Example example = new Example(Friendships.class);
@@ -74,15 +75,7 @@ public class MiscManager extends BaseManager {
 
             if (friendships != null) {
 
-                Map<String,Object> contentMap = JacksonUtil.toMap(content);
-
-                String contentStr = String.valueOf(contentMap.get("content"));
-                String extra = String.valueOf(contentMap.get("extra"));
-                String title = String.valueOf(contentMap.get("title"));
-                String imageUri = String.valueOf(contentMap.get("imageUri"));
-                String url = String.valueOf(contentMap.get("url"));
-
-                ImgTextMessage imgTextMessage = new ImgTextMessage(contentStr,extra,title,imageUri,url);
+                ImgTextMessage imgTextMessage = new ImgTextMessage(sendMessageContent.getContent(),sendMessageContent.getExtra(),sendMessageContent.getTitle(),sendMessageContent.getImageUri(),sendMessageContent.getUrl());
                 //调用融云接口发送单聊消息
                 PrivateMessage privateMessage = new PrivateMessage()
                         .setSenderId(N3d.encode(currentUserId))
@@ -104,15 +97,7 @@ public class MiscManager extends BaseManager {
 
             if (groupMembers != null) {
 
-                Map<String,Object> contentMap = JacksonUtil.toMap(content);
-
-                String contentStr = String.valueOf(contentMap.get("content"));
-                String extra = String.valueOf(contentMap.get("extra"));
-                String title = String.valueOf(contentMap.get("title"));
-                String imageUri = String.valueOf(contentMap.get("imageUri"));
-                String url = String.valueOf(contentMap.get("url"));
-
-                ImgTextMessage imgTextMessage = new ImgTextMessage(contentStr,extra,title,imageUri,url);
+                ImgTextMessage imgTextMessage = new ImgTextMessage(sendMessageContent.getContent(),sendMessageContent.getExtra(),sendMessageContent.getTitle(),sendMessageContent.getImageUri(),sendMessageContent.getUrl());
 
                 GroupMessage groupMessage = new GroupMessage();
                 groupMessage.setSenderId(N3d.encode(currentUserId))

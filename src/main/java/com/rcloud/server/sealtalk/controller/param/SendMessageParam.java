@@ -16,6 +16,6 @@ public class SendMessageParam {
     private String conversationType;
     private String targetId;
     private String objectName;
-    private String content;
+    private SendMessageContent content;
     private String pushContent;
 }

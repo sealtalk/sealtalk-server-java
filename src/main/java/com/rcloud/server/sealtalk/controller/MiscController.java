@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rcloud.server.sealtalk.constant.ErrorCode;
 import com.rcloud.server.sealtalk.controller.param.ScreenCaptureParam;
+import com.rcloud.server.sealtalk.controller.param.SendMessageContent;
 import com.rcloud.server.sealtalk.controller.param.SendMessageParam;
 import com.rcloud.server.sealtalk.domain.Groups;
 import com.rcloud.server.sealtalk.domain.ScreenStatuses;
@@ -216,15 +217,15 @@ public class MiscController extends BaseController {
     public APIResult<Object> sendMessage(@RequestBody SendMessageParam sendMessageParam) throws ServiceException {
 
         String conversationType = sendMessageParam.getConversationType();
-        String targetId = sendMessageParam.getConversationType();
-        String objectName = sendMessageParam.getConversationType();
-        String content = sendMessageParam.getConversationType();
+        String targetId = sendMessageParam.getTargetId();
+        String objectName = sendMessageParam.getObjectName();
+        SendMessageContent content = sendMessageParam.getContent();
         String pushContent = sendMessageParam.getPushContent();
 
         ValidateUtils.notEmpty(conversationType);
         ValidateUtils.notEmpty(targetId);
         ValidateUtils.notEmpty(objectName);
-        ValidateUtils.notEmpty(content);
+        ValidateUtils.notNull(content);
 
         Integer currentUserId = getCurrentUserId();
         miscManager.sendMessage(currentUserId, conversationType, N3d.decode(targetId), objectName, content, pushContent, targetId);
