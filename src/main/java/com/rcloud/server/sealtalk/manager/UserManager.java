@@ -583,8 +583,9 @@ public class UserManager extends BaseManager {
         if (!CollectionUtils.isEmpty(friendshipsList)) {
             for (Friendships friendships : friendshipsList) {
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendships.getFriendId());
+
                 //清除缓存 friendship_profile_
-                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + currentUserId + "_" + friendships.getFriendId());
+                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + friendships.getFriendId()+"_"+currentUserId);
             }
         }
         //查询该用户所属组groupid isDeleted: false
