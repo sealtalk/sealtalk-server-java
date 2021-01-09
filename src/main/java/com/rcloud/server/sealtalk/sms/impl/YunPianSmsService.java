@@ -45,7 +45,6 @@ public class YunPianSmsService implements SmsService {
     private static final int VERIFICATION_CODE_MIN = 100000;
     private static final int VERIFICATION_CODE_MAX = 999999;
     private static final String TEMPLATE_VAL_KEY = "#code#";//短信模版key
-    private static final String CHINESE_REGION = "86";//中国区
 
     @Resource
     private SealtalkConfig sealtalkConfig;

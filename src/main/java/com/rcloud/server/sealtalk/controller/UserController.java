@@ -60,6 +60,8 @@ public class UserController extends BaseController {
             @RequestParam String phone
     ) throws ServiceException {
 
+        region = MiscUtils.removeRegionPrefix(region);
+
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
 
@@ -111,6 +113,7 @@ public class UserController extends BaseController {
                                         @ApiParam(name = "code", value = "验证码", required = true, type = "String", example = "xxxxxx")
                                         @RequestParam String code) throws ServiceException {
 
+        region = MiscUtils.removeRegionPrefix(region);
         ValidateUtils.checkRegion(region);
         ValidateUtils.checkCompletePhone(phone);
 
@@ -167,9 +170,9 @@ public class UserController extends BaseController {
         String phone = userParam.getPhone();
 
         region = MiscUtils.removeRegionPrefix(region);
-        if(Constants.REGION_NUM.equals(region)){
-            ValidateUtils.checkCompletePhone(phone);
-        }
+
+        ValidateUtils.checkCompletePhone(phone);
+
         if (userManager.isExistUser(region, phone)) {
             return APIResultWrap.ok(false, "Phone number has already existed.");
         } else {
@@ -500,12 +503,12 @@ public class UserController extends BaseController {
                                                      @ApiParam(name = "st_account", value = "account", type = "String", example = "xxx")
                                                      @RequestParam(value = "st_account", required = false) String account) throws ServiceException {
 
-        if ((!Constants.REGION_NUM.equals(region) || !RegexUtils.checkMobile(phone)) && StringUtils.isEmpty(account)) {
+        if ((!MiscUtils.isNumberStr(MiscUtils.removeRegionPrefix(region)) || !RegexUtils.checkMobile(phone)) && StringUtils.isEmpty(account)) {
             throw new ServiceException(ErrorCode.EMPTY_PARAMETER);
         }
 
         Map<String, Object> map = new HashMap<>();
-        if (Constants.REGION_NUM.equals(region) && RegexUtils.checkMobile(phone)) {
+        if (RegexUtils.checkMobile(phone)) {
             Users users = userManager.getUser(region, phone);
             if (users != null && Users.PHONE_VERIFY_NO_NEED.equals(users.getPhoneVerify())) {
                 //用户存在，并且用户允许通过手机号搜索到我

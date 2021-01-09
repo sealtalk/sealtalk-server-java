@@ -108,7 +108,7 @@ sealtalk-config:
   auth_cookie_key: zsyy
   nickname_cookie_name:           # 此字段废弃
   auth_cookie_max_age: 8640000    #  auth_cookie有效期单位秒 8640000=100天
-  rongcloud_sms_register_template_id: 3910922   #短信模版
+  rongcloud_sms_register_template_id: 3910922   #融云的短信模版id
   config_env: dev                 # dev 调试环境 注册环节不发短信，默认验证码9999
   rongcloud_app_key: bmdehs6pbauls
   rongcloud_app_secret: xvQhSJbgYBtwF

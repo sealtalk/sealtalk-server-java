@@ -80,7 +80,7 @@ public class ValidateUtils {
     }
 
     public static void checkRegion(String region) throws ServiceException {
-        if (!Constants.REGION_NUM.equals(region)) {
+        if (!MiscUtils.isNumberStr(region)) {
             throw new ServiceException(ErrorCode.INVALID_REGION_PHONE);
         }
     }

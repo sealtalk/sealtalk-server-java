@@ -8,6 +8,13 @@
 
 [MySQL 官网](https://www.mysql.com/)
 
+
+## 安装 Maven
+
+项目构建使用 Maven，需要开发者本地安装maven环境
+
+[MAVEN 官网](http://maven.apache.org/)
+
 ## 项目配置
 
 ### 激活配置文件
@@ -24,15 +31,15 @@ spring:
 ```yaml
 sealtalk-config:
   # 认证 Cookie 名称，请根据业务自行定义，如：rong_im_auth
-  auth_cookie_name: rong_auth_cookie  
+  auth_cookie_name: key_auth_cookie  
   # 认证 Cookie 加密密钥，请自行定义，任意字母数字组合                     
-  auth_cookie_key: zsyy
+  auth_cookie_key: abcd
   # 认证 Cookie 过期时间，有效期单位秒 8640000=100天
   auth_cookie_max_age: 8640000      
   # 融云颁发的 App Key，请访问融云开发者后台：https://developer.rongcloud.cn
-  rongcloud_app_key: bmdehs6p1b2aauls             
+  rongcloud_app_key: bmdehs61p1b12aauls             
   # 融云颁发的 App Secret，请访问融云开发者后台：https://developer.rongcloud.cn
-  rongcloud_app_secret: xvQhSJb23agYBtwF
+  rongcloud_app_secret: xvQh1SJ1b23agYBtwF
   # 融云颁发的 Api Url, 逗号分割，第一个为主域名，后面的为备份域名 ,国内数据中心 api-cn.ronghub.com,api2-cn.ronghub.com 新加坡数据中心 api-sg01.ronghub.com
   rongcloud_api_url: api-cn.ronghub.com,api2-cn.ronghub.com     
   # 默认头像地址
@@ -54,7 +61,7 @@ sealtalk-config:
   yunpian_limited_time: 1     #单位小时 ，1小时，自定义配置
   yunpian_limited_count: 100   #云片发送验证码次数限制 20次
   # N3D 密钥，用来加密所有的 Id 数字，不小于 5 位的字母数字组合
-  n3d_key: 131EdDIaqp2cim
+  n3d_key: 32EFDIbuKcim
   # 认证 Cookie 主域名 如果没有正式域名，请修改本地 hosts 文件配置域名，此处设置 Cookie 主域名， 必须和 CORS_HOSTS 配置项在相同的顶级域下
   auth_cookie_domain: devtalk.im      
   # 跨域支持所需配置的域名信息，包括请求服务器的域名和端口号，如果是 80 端口可以省略端口号。如：http://web.sealtalk.im
@@ -94,6 +101,7 @@ spring:
 需建立一个空的数据库，项目启动时会自动初始化表结构.
 
 ### 启动运行服务
+
 1、把项目下载到本地
 
 * git clone https://github.com/sealtalk/sealtalk-server-java.git
@@ -105,6 +113,19 @@ spring:
 3、启动服务,转到输出目录build,执行如下命令
 
 * java -jar sealtalk-server.jar
+
+4、本地配置 /etc/hosts ，比如您部署的服务器ip地址是127.0.0.1
+
+127.0.0.1 devtalk.im
+
+5、验证服务是否部署成功
+
+curl http://devtalk.im:8080/ping ,返回200说明服务部署成功
+
+``
+{"code":200}%
+``
+
 
 
 
@@ -119,7 +140,9 @@ sealtalk-config:
 
 2、`AUTH_COOKIE_DOMAIN` 和 `CORS_HOSTS` 配置项必须按照上述说明配置正确
 
-3、数据中心地址
+3、请为服务绑定域名访问，不要用localhost或ip地址访问
+
+4、数据中心地址
 
 ```
 # 国内数据中心 api-cn.ronghub.com,api2-cn.ronghub.com 
@@ -130,10 +153,24 @@ rongcloud_api_url: api-cn.ronghub.com,api2-cn.ronghub.com
 
 ```
 
-4、由于登录认证信息存储在cookie里 请使用域名访问服务，不要使用ip地址或localhost!
-   
+5、项目使用云片短信服务，如果生产环境要真实的发短信，请修改 sms_template_map.json 配置文件
 
+如下 id：3113730 是您在云片注册的短信模版id
 
+目前lang只支持中文和英文
+
+中文: lang = zh_cn
+
+英文: lang = en
+
+```
+[
+  {
+    "lang": "zh_cn",
+    "id": 3113730
+  }
+]
+```
 
 
 ## 业务数据配置 (无需求略过)
