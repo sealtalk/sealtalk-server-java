@@ -4,6 +4,7 @@ import com.rcloud.server.sealtalk.domain.Users;
 import com.rcloud.server.sealtalk.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
@@ -79,6 +80,16 @@ public class MiscUtilsTest {
         String str = MiscUtils.xss(s, 20);
 
         System.out.println(str);
+
+    }
+
+    @Test
+    public void testisNumberStr() {
+
+        String region = "866666";
+        Assert.assertTrue(MiscUtils.isNumberStr(region));
+        region = "aa";
+        Assert.assertFalse(MiscUtils.isNumberStr(region));
 
     }
 }

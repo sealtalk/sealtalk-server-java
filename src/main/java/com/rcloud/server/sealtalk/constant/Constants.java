@@ -11,7 +11,6 @@ public class Constants {
     public static final int FRIEND_REQUEST_MESSAGE_MIN_LENGTH = 0;
     public static final int FRIEND_REQUEST_MESSAGE_MAX_LENGTH = 64;
 
-    public final static String REGION_NUM = "86";
     public final static String REGION_NAME = "zh-CN";
     public static final String STRING_ADD = "+";
 

@@ -17,6 +17,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @Author: Jianlu.Yu
@@ -304,4 +305,15 @@ public class MiscUtils {
         }
         return null;
     }
+
+    /**
+     * 是否是数字型字符串
+     * @param str
+     * @return
+     */
+    public static boolean isNumberStr(String str){
+        Pattern pattern = Pattern.compile("[0-9]{1,}");
+        return pattern.matcher(str).matches();
+    }
+
 }
