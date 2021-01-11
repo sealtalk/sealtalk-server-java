@@ -131,7 +131,8 @@ public class YunPianSmsService implements SmsService {
      * @throws ServiceException
      */
     public String getTplIdByList(String region) throws ServiceException {
-        String lang = RegionMapUtil.getLangByRegion(region);
+
+        String lang = smsTemplateService.getLangByRegion(region);
         String templateId = smsTemplateService.getSmsTemplateIdByLang(lang);
         Long tplId = Long.valueOf(templateId);
 
