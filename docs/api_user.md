@@ -6,6 +6,7 @@
 | [/user/send_code_yp](#post-usersend_code_yp) | 向手机发送验证码(云片服务) |
 | [/user/verify_code](#post-userverify_code) | 验证验证码 |
 | [/user/verify_code_yp](#post-userverify_code_yp) | 验证验证码(云片服务) |
+| [/user/verify_code_register](#post-userverify_code_register) | 验证验证码即注册登录 |
 | [/user/regionlist](#get-userregionlist) | 获取所有区域信息 |
 | [/user/check_phone_available](#post-usercheck_phone_available) | 检查手机号是否可以注册 |
 | [/user/register](#post-userregister) | 注册新用户 |
@@ -187,6 +188,53 @@
 ```
 
 * verification_token: 校验 Token
+
+返回码说明：
+
+* 200: 验证成功
+* 1000: 验证码错误
+* 2000: 验证码过期
+
+异常返回，返回的 HTTP Status Code 如下：
+
+* 400: 错误的请求
+* 500: 应用服务器内部错误
+
+
+### POST /user/verify_code_register
+
+验证验证码即注册登录
+
+#### 请求参数
+
+```
+{
+  "region": 86,
+  "phone": 13912345678,
+  "code": '1234'
+}
+```
+
+* region: 国际电话区号
+* phone: 手机号
+* code: 验证码，由 /user/send_code_yp 方法发送到手机上
+
+#### 返回结果
+
+正常返回，返回的 HTTP Status Code 为 200，返回的内容如下：
+
+```
+{
+    "code": 200,
+    "result": {
+        "nickName": "融云2121",
+        "id": "UAecnBxLg",
+        "token": "62xXdeRdTdR2CRR7NVGCtbTDlCFMWZcz2zzlTWX9x8I=@5fhy.cn.rongnav.com;5fhy.cn.rongcfg.com"
+    }
+}
+```
+
+* token: 校验 融云token
 
 返回码说明：
 

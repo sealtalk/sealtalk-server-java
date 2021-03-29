@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -151,6 +152,39 @@ public class UserController extends BaseController {
         Map<String, String> result = new HashMap<>();
         result.put(Constants.VERIFICATION_TOKEN_KEY, token);
         return APIResultWrap.ok(result);
+    }
+
+
+    /**
+     * 短信验证即登录
+     * @param userParam
+     * @return
+     * @throws ServiceException
+     */
+    @ApiOperation(value = "短信验证即注册")
+    @RequestMapping(value = "/verify_code_register", method = RequestMethod.POST)
+    public APIResult<Object> verifyCodeLogin(@RequestBody UserParam userParam, HttpServletResponse response) throws ServiceException {
+        String region = userParam.getRegion();
+        String phone = userParam.getPhone();
+        String code = userParam.getCode();
+        region = MiscUtils.removeRegionPrefix(region);
+
+        ValidateUtils.checkRegion(region);
+        ValidateUtils.checkCompletePhone(phone);
+
+        Triple<Integer, String,String> pairResult = userManager.verifyCodeRegister(region,phone,code,SmsServiceType.YUNPIAN);
+
+        //设置cookie  userId加密存入cookie
+        //登录成功后的其他请求，当前登录用户useId获取从cookie中获取
+        setCookie(response, pairResult.getLeft());
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("id", pairResult.getLeft());
+        resultMap.put("token", pairResult.getMiddle());
+        resultMap.put("nickName", pairResult.getRight());
+
+        //对result编码
+        return APIResultWrap.ok(MiscUtils.encodeResults(resultMap));
     }
 
 
