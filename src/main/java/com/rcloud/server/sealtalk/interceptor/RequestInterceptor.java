@@ -8,6 +8,7 @@ import com.rcloud.server.sealtalk.exception.ServiceException;
 import com.rcloud.server.sealtalk.model.RequestUriInfo;
 import com.rcloud.server.sealtalk.model.ServerApiParams;
 import com.rcloud.server.sealtalk.util.AES256;
+import com.rcloud.server.sealtalk.util.JacksonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -99,12 +102,16 @@ public class RequestInterceptor implements HandlerInterceptor {
 //        log.info("preHandle requestUriInfo: ip={}, remoteAddress={},uri={}", requestUriInfo.getIp(), requestUriInfo.getRemoteAddress(), requestUriInfo.getUri());
         serverApiParams.setRequestUriInfo(requestUriInfo);
 
+
         if (!excludeUrlSet.contains(uri)) {
             //不在排除auth认证的url，需要进行身份认证
             Cookie authCookie = getAuthCookie(request);
             if (authCookie == null) {
                 response.setStatus(403);
-                response.getWriter().write("Not loged in.");
+                Map<String,String> respBody = new HashMap<>();
+                respBody.put("code","10000");
+                respBody.put("msg","Not loged in.");
+                response.getWriter().write(JacksonUtil.toJson(respBody));
                 return false;
             }
 
@@ -115,7 +122,10 @@ public class RequestInterceptor implements HandlerInterceptor {
             } catch (Exception e) {
                 log.error("获取currentUserId异常,error: " + e.getMessage(), e);
                 response.setStatus(403);
-                response.getWriter().write("Not loged in.");
+                Map<String,String> respBody = new HashMap<>();
+                respBody.put("code","10000");
+                respBody.put("msg","Not loged in.");
+                response.getWriter().write(JacksonUtil.toJson(respBody));
                 return false;
             }
 
