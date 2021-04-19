@@ -25,6 +25,7 @@ import io.rong.models.user.UserModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -294,6 +295,7 @@ public class UserManager extends BaseManager {
 
         return u.getId();
     }
+
 
     /**
      * 注册插入user 表、dataversion表
@@ -585,7 +587,7 @@ public class UserManager extends BaseManager {
                 CacheUtil.delete(CacheUtil.FRIENDSHIP_ALL_CACHE_PREFIX + friendships.getFriendId());
 
                 //清除缓存 friendship_profile_
-                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + friendships.getFriendId()+"_"+currentUserId);
+                CacheUtil.delete(CacheUtil.FRIENDSHIP_PROFILE_CACHE_PREFIX + friendships.getFriendId() + "_" + currentUserId);
             }
         }
         //查询该用户所属组groupid isDeleted: false
@@ -1204,6 +1206,91 @@ public class UserManager extends BaseManager {
 
 
 
+
+    /**
+     * 短信校验即注册
+     *
+     * @param region
+     * @param phone
+     * @param code
+     * @param smsServiceType
+     * @return
+     * @throws ServiceException
+     */
+    public Triple<Integer, String,String> verifyCodeRegister(String region, String phone, String code, SmsServiceType smsServiceType) throws ServiceException {
+        //校验验证码
+        this.verifyCode(region, phone, code, smsServiceType);
+
+        //如果是新用户，注册用户
+        Users param = new Users();
+        param.setRegion(region);
+        param.setPhone(phone);
+        Users u = usersService.getOne(param);
+
+        if (u == null) {
+            int salt = 0;
+            String hashStr = "";
+            String nickname = "融云" + phone.substring(phone.length() - 4, phone.length());
+            u = register0(nickname, region, phone, salt, hashStr);
+        }
+        //
+
+        log.info("login id:{} nickname:{} region:{} phone={} ", u.getId(), u.getNickname(), u.getRegion(), u.getPhone());
+        //缓存nickname
+        CacheUtil.set(CacheUtil.NICK_NAME_CACHE_PREFIX + u.getId(), u.getNickname());
+
+        //查询该用户所属的所有组,同步到融云
+        List<Groups> groupsList = new ArrayList<>();
+        Map<String, String> idNamePariMap = new HashMap<>();
+        List<GroupMembers> groupMembersList = groupMembersService.queryGroupMembersWithGroupByMemberId(u.getId());
+        if (!CollectionUtils.isEmpty(groupMembersList)) {
+            for (GroupMembers gm : groupMembersList) {
+                Groups groups = gm.getGroups();
+                if (groups != null) {
+                    groupsList.add(groups);
+                    idNamePariMap.put(N3d.encode(groups.getId()), groups.getName());
+                }
+            }
+        }
+
+        //同步前记录日志
+        log.info("'Sync groups: {}", idNamePariMap);
+
+        //调用融云sdk 将登录用户的userid，与groupIdName信息同步到融云
+        try {
+            Result result = rongCloudClient.syncGroupInfo(N3d.encode(u.getId()), groupsList);
+            if (!Constants.CODE_OK.equals(result.getCode())) {
+                log.error("Error sync user's group list failed,code:" + result.getCode());
+            }
+        } catch (Exception e) {
+            log.error("Error sync user's group list error:" + e.getMessage(), e);
+        }
+
+
+        String token = u.getRongCloudToken();
+        if (StringUtils.isEmpty(token)) {
+            //如果user表中的融云token为空，调用融云sdk 获取token
+            //如果用户头像地址为空，采用默认头像地址
+            String portraitUri = StringUtils.isEmpty(u.getPortraitUri()) ? sealtalkConfig.getRongcloudDefaultPortraitUrl() : u.getPortraitUri();
+            TokenResult tokenResult = rongCloudClient.register(N3d.encode(u.getId()), u.getNickname(), portraitUri);
+            if (!Constants.CODE_OK.equals(tokenResult.getCode())) {
+                throw new ServiceException(ErrorCode.SERVER_ERROR, "'RongCloud Server API Error Code: " + tokenResult.getCode());
+            }
+
+            token = tokenResult.getToken();
+
+            //获取后根据userId更新表中token
+            Users users = new Users();
+            users.setId(u.getId());
+            users.setRongCloudToken(token);
+            users.setUpdatedAt(new Date());
+            usersService.updateByPrimaryKeySelective(users);
+        }
+
+        //返回userId、token
+        return Triple.of(u.getId(), token,u.getNickname());
+
+    }
 
 }
 
